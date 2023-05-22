@@ -1,21 +1,18 @@
 #pragma once
 
-#include <d3d12.h>
-#include <wrl.h>
-#include <dxgi1_4.h>
-
-#define MAX_ADAPTER_NUM 5
-
-using namespace Microsoft::WRL;
+#include "Common.h"
 
 namespace Renderer
 {
+	class CResourceManager;
+
 	class CRenderer
 	{
 	public:
 												CRenderer();
 												~CRenderer();
 		void									Initialize();
+		void									Run();
 
 	private:
 		/*
@@ -38,6 +35,7 @@ namespace Renderer
 		IDXGIAdapter*							mAdapters[MAX_ADAPTER_NUM];
 		wchar_t									mAdapterNames[MAX_ADAPTER_NUM][128];
 		int										mAdapterNum = 0;
+		int										mCurrentAdapter = 0;
 
 		/*
 		* create command objects
@@ -46,5 +44,11 @@ namespace Renderer
 		ComPtr<ID3D12CommandQueue>				mCommandQueue;
 		ComPtr<ID3D12CommandAllocator>			mCommandAllocator;
 		ComPtr<ID3D12CommandList>				mCommandList;
+
+		/*
+		* resource management
+		*/
+		void									CreateResourceManager();
+		unique_ptr<CResourceManager>			mResourceManager;
 	};
 }

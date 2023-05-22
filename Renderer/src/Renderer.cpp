@@ -1,7 +1,7 @@
 #include "Renderer.h"
-
 #include <iostream>
 #include <vector>
+#include "ResourceManager.h"
 
 namespace Renderer
 {
@@ -20,6 +20,12 @@ namespace Renderer
 		EnableDebug();
 		CreateDevice();
 		CreateCommandObjects();
+		CreateResourceManager();
+	}
+
+	void CRenderer::Run()
+	{
+		while (1);
 	}
 
 	void CRenderer::EnableDebug()
@@ -32,7 +38,7 @@ namespace Renderer
 		}
 		else
 		{
-			throw std::string("enabling debug fails.");
+			throw string("enabling debug fails.");
 		}
 
 	}
@@ -40,12 +46,13 @@ namespace Renderer
 	void CRenderer::CreateDevice()
 	{
 		if (!SUCCEEDED(CreateDXGIFactory1(IID_PPV_ARGS(mFactory.GetAddressOf()))))
-			throw std::string("creating dxgi factory1 fails.");
+			throw string("creating dxgi factory1 fails.");
 		
 		InitAdaptInfo();
 
-		if (!SUCCEEDED(D3D12CreateDevice(mAdapters[0], D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mDevice))))
-			throw std::string("creating device fails.");
+		if (!SUCCEEDED(D3D12CreateDevice(mAdapters[mCurrentAdapter], D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mDevice))))
+			throw string("creating device fails.");
+
 	}
 
 	void CRenderer::InitAdaptInfo()
@@ -59,13 +66,13 @@ namespace Renderer
 			++mAdapterNum;
 		}
 		for (int i = 0; i < mAdapterNum; ++i)
-			std::wcout << mAdapterNames[i] << std::endl;
+			wcout << mAdapterNames[i] << endl;
 	}
 
 	void CRenderer::CreateCommandObjects()
 	{
 		if(!SUCCEEDED(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAllocator.GetAddressOf()))))
-			throw std::string("creating command allocator fails.");
+			throw string("creating command allocator fails.");
 
 		D3D12_COMMAND_QUEUE_DESC lDesc = {};
 		lDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -74,10 +81,15 @@ namespace Renderer
 		lDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 
 		if (!SUCCEEDED(mDevice->CreateCommandQueue(&lDesc,IID_PPV_ARGS(mCommandQueue.GetAddressOf()))))
-			throw std::string("creating command queue fails.");
+			throw string("creating command queue fails.");
 
 		if (!SUCCEEDED(mDevice->CreateCommandList(
 			0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf()))))
-			throw std::string("creating command list fails");
+			throw string("creating command list fails");
+	}
+
+	void CRenderer::CreateResourceManager()
+	{
+		mResourceManager = make_unique<CResourceManager>(mDevice.Get());
 	}
 }

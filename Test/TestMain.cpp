@@ -9,7 +9,7 @@ int main()
 
 		CRenderer r;
 		r.Initialize();
-
+		r.Run();
 	}
 	catch (std::string errorMessage)
 	{

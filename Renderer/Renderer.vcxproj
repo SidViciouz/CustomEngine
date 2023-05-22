@@ -159,6 +159,7 @@
     <ClCompile Include="src\ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="header\Common.h" />
     <ClInclude Include="header\Renderer.h" />
     <ClInclude Include="header\ResourceManager.h" />
   </ItemGroup>
