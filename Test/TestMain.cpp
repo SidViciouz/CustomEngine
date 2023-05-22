@@ -13,7 +13,7 @@ int main()
 	}
 	catch (std::string errorMessage)
 	{
-		std::cout << errorMessage;
+		std::cout << errorMessage << std::endl;
 	}
 
 	while (1);
