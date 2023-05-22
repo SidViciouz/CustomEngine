@@ -5,6 +5,7 @@
 namespace Renderer
 {
 	class CResourceManager;
+	class CFrameData;
 
 	class CRenderer
 	{
@@ -50,5 +51,13 @@ namespace Renderer
 		*/
 		void									CreateResourceManager();
 		unique_ptr<CResourceManager>			mResourceManager;
+
+		/*
+		* frame data (some constant buffer, command allocator and fence)
+		*/
+		void									CreateFrameData();
+		int										mCurrentFrame = 0;
+		int										mFrameNum = 3;
+		unique_ptr<CFrameData>					mFrameData;
 	};
 }

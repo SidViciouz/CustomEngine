@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include "ResourceManager.h"
+#include "FrameData.h"
+#include "Util.h"
 
 namespace Renderer
 {
@@ -21,6 +23,7 @@ namespace Renderer
 		CreateDevice();
 		CreateCommandObjects();
 		CreateResourceManager();
+		CreateFrameData();
 	}
 
 	void CRenderer::Run()
@@ -91,5 +94,17 @@ namespace Renderer
 	void CRenderer::CreateResourceManager()
 	{
 		mResourceManager = make_unique<CResourceManager>(mDevice.Get());
+	}
+
+	void CRenderer::CreateFrameData()
+	{
+		mFrameData = make_unique<CFrameData>(mDevice.Get(),mFrameNum);
+		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
+		{
+			mFrameData->SetObjectConstantBufferHandle(
+				lFrameIndex, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData)*MAX_OBJECT_NUM , 256), EResourceHeapType::eUpload));
+			mFrameData->SetWorldConstantBufferHandle(
+				lFrameIndex, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SWorldData), 256), EResourceHeapType::eUpload));
+		}
 	}
 }
