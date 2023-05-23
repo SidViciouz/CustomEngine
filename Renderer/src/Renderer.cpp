@@ -7,9 +7,15 @@
 
 namespace Renderer
 {
-	CRenderer::CRenderer()
+	CRenderer::CRenderer(HWND pWindowHandle)
+		: mWindowHandle{ pWindowHandle }
 	{
+		RECT lRect;
+		GetWindowRect(pWindowHandle, &lRect);
+		mWidth = lRect.right - lRect.left;
+		mHeight = lRect.bottom - lRect.top;
 
+		printf("width : %d, height ; %d\n", mWidth, mHeight);
 	}
 
 	CRenderer::~CRenderer()
@@ -24,12 +30,11 @@ namespace Renderer
 		CreateCommandObjects();
 		CreateResourceManager();
 		CreateFrameData();
+		CreateSwapchain();
+		CreateDepthBuffer();
 	}
 
-	void CRenderer::Run()
-	{
-		while (1);
-	}
+
 
 	void CRenderer::EnableDebug()
 	{
@@ -85,7 +90,7 @@ namespace Renderer
 
 		if (!SUCCEEDED(mDevice->CreateCommandQueue(&lDesc,IID_PPV_ARGS(mCommandQueue.GetAddressOf()))))
 			throw string("creating command queue fails.");
-
+		
 		if (!SUCCEEDED(mDevice->CreateCommandList(
 			0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf()))))
 			throw string("creating command list fails");
@@ -93,7 +98,7 @@ namespace Renderer
 
 	void CRenderer::CreateResourceManager()
 	{
-		mResourceManager = make_unique<CResourceManager>(mDevice.Get());
+		mResourceManager = make_unique<CResourceManager>(mDevice.Get(),mCommandList.Get());
 	}
 
 	void CRenderer::CreateFrameData()
@@ -107,4 +112,49 @@ namespace Renderer
 				lFrameIndex, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SWorldData), 256), EResourceHeapType::eUpload));
 		}
 	}
+
+	void CRenderer::CreateSwapchain()
+	{
+		DXGI_SWAP_CHAIN_DESC lSwapchainDesc = {};
+		
+		//swapchain width and height should change depending on window size.
+		//window object must be passed to CRenderer class.
+		lSwapchainDesc.BufferCount = SWAPCHAIN_BUFFER_NUM;
+		lSwapchainDesc.BufferDesc.Width = mWidth;
+		lSwapchainDesc.BufferDesc.Height = mHeight;
+		lSwapchainDesc.BufferDesc.Format = mBackBufferFormat;
+		lSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
+		lSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
+		lSwapchainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		lSwapchainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		lSwapchainDesc.SampleDesc.Count = 1;
+		lSwapchainDesc.SampleDesc.Quality = 0;
+		lSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		lSwapchainDesc.Windowed = true;
+		lSwapchainDesc.OutputWindow = mWindowHandle;
+		lSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+		lSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+
+		if (!SUCCEEDED(mFactory->CreateSwapChain(mCommandQueue.Get(), &lSwapchainDesc, mSwapchain.GetAddressOf())))
+			throw string("creating swapchain fails.");
+
+		for (int lSwapChainIndex = 0; lSwapChainIndex < SWAPCHAIN_BUFFER_NUM; ++lSwapChainIndex)
+		{
+			//store buffer in resource manager and get its handle
+			mSwapchainBufferHandle[lSwapChainIndex] = mResourceManager->StoreSwapchainBuffer(mSwapchain.Get(), lSwapChainIndex);
+
+			//create RTV for a swapchain buffer
+			mRtvHandle[lSwapChainIndex] =  mResourceManager->CreateDescriptor(mSwapchainBufferHandle[lSwapChainIndex], EDescriptorType::eRTV);
+		}
+	}
+
+	void CRenderer::CreateDepthBuffer()
+	{
+		mDepthBufferHandle = mResourceManager->CreateTexture2D(mWidth, mHeight, 1, mDepthBufferFormat, EResourceHeapType::eDefault, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
+		mResourceManager->ChangeState(mDepthBufferHandle, D3D12_RESOURCE_STATE_DEPTH_READ);
+
+		mDsvHandle = mResourceManager->CreateDescriptor(mDepthBufferHandle, EDescriptorType::eDSV);
+	}
+
 }

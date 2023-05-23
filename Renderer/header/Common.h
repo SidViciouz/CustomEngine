@@ -17,6 +17,8 @@ using namespace std;
 #define MAX_RTV_NUM 5
 #define MAX_DSV_NUM 10
 #define MAX_OBJECT_NUM 1000
+#define FRAMEDATA_NUM 3
+#define SWAPCHAIN_BUFFER_NUM 2
 
 struct SObjectData
 {

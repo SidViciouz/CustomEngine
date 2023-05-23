@@ -3,8 +3,8 @@
 namespace Renderer
 {
 	
-	CResourceManager::CResourceManager(ID3D12Device* pDevice)
-		:mDevice{ pDevice }
+	CResourceManager::CResourceManager(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
+		:mDevice{ pDevice }, mCommandList{pCommandList}
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC lHeapDesc = {};
 
@@ -128,7 +128,30 @@ namespace Renderer
 		return CreateResource(lResourceDescription);
 	}
 
+	int	CResourceManager::StoreSwapchainBuffer(IDXGISwapChain* pSwapchain, int pBufferIndex)
+	{
+		SResourceInfo& lResourceInfo = mResources[mResourceCount];
 
+		if (!SUCCEEDED(pSwapchain->GetBuffer(pBufferIndex, IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
+			throw string("getting swapchain buffer fails.");
+
+		return mResourceCount++;
+	}
+
+	void CResourceManager::ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState)
+	{
+		D3D12_RESOURCE_BARRIER lBarrier;
+		lBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		lBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		lBarrier.Transition.pResource = mResources[pHandle].mResource.Get();
+		lBarrier.Transition.StateBefore = mResources[pHandle].mState;
+		lBarrier.Transition.StateAfter = pAfterState;
+		lBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		mCommandList->ResourceBarrier(1, &lBarrier);
+
+		mResources[pHandle].mState = pAfterState;
+	}
 
 	int	CResourceManager::CreateResource(const SResourceDescription& pDescrption)
 	{

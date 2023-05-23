@@ -10,12 +10,18 @@ namespace Renderer
 	class CRenderer
 	{
 	public:
-												CRenderer();
+												CRenderer(HWND pWindowHandle);
 												~CRenderer();
 		void									Initialize();
-		void									Run();
 
 	private:
+		/*
+		* window data
+		*/
+		HWND									mWindowHandle;
+		int										mWidth;
+		int										mHeight;
+
 		/*
 		* activate debug mode
 		*/
@@ -44,7 +50,7 @@ namespace Renderer
 		void									CreateCommandObjects();
 		ComPtr<ID3D12CommandQueue>				mCommandQueue;
 		ComPtr<ID3D12CommandAllocator>			mCommandAllocator;
-		ComPtr<ID3D12CommandList>				mCommandList;
+		ComPtr<ID3D12GraphicsCommandList>		mCommandList;
 
 		/*
 		* resource management
@@ -57,7 +63,25 @@ namespace Renderer
 		*/
 		void									CreateFrameData();
 		int										mCurrentFrame = 0;
-		int										mFrameNum = 3;
+		int										mFrameNum = FRAMEDATA_NUM;
 		unique_ptr<CFrameData>					mFrameData;
+
+		/*
+		* swap chain
+		*/
+		void									CreateSwapchain();
+		ComPtr<IDXGISwapChain>					mSwapchain;
+		int										mSwapchainBufferNum = SWAPCHAIN_BUFFER_NUM;
+		int										mSwapchainBufferHandle[SWAPCHAIN_BUFFER_NUM];
+		int										mRtvHandle[SWAPCHAIN_BUFFER_NUM];
+		DXGI_FORMAT								mBackBufferFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+		/*
+		* Depth stencil buffer
+		*/
+		void									CreateDepthBuffer();
+		int										mDepthBufferHandle;
+		int										mDsvHandle;
+		DXGI_FORMAT								mDepthBufferFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	};
 }

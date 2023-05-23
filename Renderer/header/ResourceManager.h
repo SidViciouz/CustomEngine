@@ -53,7 +53,7 @@ namespace Renderer
 	class CResourceManager
 	{
 	public:
-											CResourceManager(ID3D12Device* pDevice);
+											CResourceManager(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 											~CResourceManager();
 
 		/*
@@ -63,6 +63,11 @@ namespace Renderer
 		int									CreateTexture1D(int pWidth, DXGI_FORMAT pFormat, EResourceHeapType pType,D3D12_RESOURCE_FLAGS pFlags);
 		int									CreateTexture2D(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 		int									CreateTexture3D(int pWidth, int pHeight, int pDepth, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
+		int									StoreSwapchainBuffer(IDXGISwapChain* pSwapchain,int pBufferIndex);
+
+		void								ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState);
+
+
 
 		/*
 		* create descriptor and return descriptor handle.
@@ -99,5 +104,6 @@ namespace Renderer
 		D3D12_GPU_DESCRIPTOR_HANDLE			mCbvSrvUavGpuHandleStart;
 
 		ID3D12Device*						mDevice;
+		ID3D12GraphicsCommandList*			mCommandList;
 	};
 }
