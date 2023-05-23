@@ -16,7 +16,7 @@ namespace Renderer
 		void									Resize();
 		void									DrawBegin();
 		void									DrawEnd();
-		void									DrawLine();
+		void									DrawLine(void* pData);
 		void									DrawSquare();
 		void									DrawCube();
 		void									DrawMesh();
@@ -41,7 +41,15 @@ namespace Renderer
 		void									CreateDevice();
 		ComPtr<IDXGIFactory4>					mFactory;
 		ComPtr<ID3D12Device>					mDevice;
+
+		/*
+		* create Fence
+		*/
+		void									CreateFence();
+		ComPtr<ID3D12Fence>						mFence;
+		UINT64									mFenceValue = 0;
 		
+
 		/*
 		* adaptor infos.
 		*/
@@ -79,6 +87,7 @@ namespace Renderer
 		void									CreateSwapchain();
 		ComPtr<IDXGISwapChain>					mSwapchain;
 		int										mSwapchainBufferNum = SWAPCHAIN_BUFFER_NUM;
+		int										mCurrentBackBuffer = 0;
 		int										mSwapchainBufferHandle[SWAPCHAIN_BUFFER_NUM];
 		int										mRtvHandle[SWAPCHAIN_BUFFER_NUM];
 		DXGI_FORMAT								mBackBufferFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -110,5 +119,12 @@ namespace Renderer
 		*/
 		void									CreatePSO();
 		unordered_map<string, ComPtr<ID3D12PipelineState>> mPSOs;
+
+		/*
+		* viewport and scissor
+		*/
+		void									SetViewportAndScissor();
+		D3D12_VIEWPORT							mViewport;
+		D3D12_RECT								mScissor;
 	};
 }

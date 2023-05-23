@@ -135,7 +135,29 @@ namespace Renderer
 		if (!SUCCEEDED(pSwapchain->GetBuffer(pBufferIndex, IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
 			throw string("getting swapchain buffer fails.");
 
+		lResourceInfo.mState = D3D12_RESOURCE_STATE_PRESENT;
+
 		return mResourceCount++;
+	}
+
+	int CResourceManager::CreateDepthTexture(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags)
+	{
+		SResourceDescription lResourceDescription = {};
+		lResourceDescription.mDimension = EResourceDimension::eTexture2D;
+		lResourceDescription.mAlignment = 0;
+		lResourceDescription.mWidth = pWidth;
+		lResourceDescription.mHeight = pHeight;
+		lResourceDescription.mDepth = pArraySize;
+		lResourceDescription.mFormat = pFormat;
+		lResourceDescription.mHeapType = pType;
+		lResourceDescription.mLayout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		lResourceDescription.mMipLevel = 1;
+		lResourceDescription.mFlags = pFlags;
+		lResourceDescription.mUseClearValue = true;
+		lResourceDescription.mUseDepthClearValue = true;
+		lResourceDescription.mDepthClearValue = 1.0f;
+
+		return CreateResource(lResourceDescription);
 	}
 
 	void CResourceManager::ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState)
@@ -224,9 +246,29 @@ namespace Renderer
 		else
 			lResourceInfo.mState = D3D12_RESOURCE_STATE_GENERIC_READ;
 
+		unique_ptr<D3D12_CLEAR_VALUE> lClearValue;
+
+		if (pDescrption.mUseClearValue)
+		{
+			lClearValue = make_unique<D3D12_CLEAR_VALUE>();
+			lClearValue->Format = pDescrption.mFormat;
+
+			if (pDescrption.mUseDepthClearValue)
+			{
+				lClearValue->DepthStencil.Depth = pDescrption.mDepthClearValue;
+				lClearValue->DepthStencil.Stencil = 0;
+			}
+			else
+			{
+				for (int i = 0; i < 4; ++i)
+					lClearValue->Color[i] = pDescrption.mColor[i];
+			}
+		}
+
 		if (!SUCCEEDED(mDevice->CreateCommittedResource(&lHeapProperties, D3D12_HEAP_FLAG_NONE, &lResourceDesc,
-			lResourceInfo.mState, nullptr, IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
+			lResourceInfo.mState, lClearValue.get(), IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
 			return -1;
+		
 
 		return mResourceCount++;
 	}
@@ -240,7 +282,7 @@ namespace Renderer
 		if (pType == EDescriptorType::eRTV)
 		{
 			mDescriptorHandleToHeap[mDescriptorCount] = { 0, mRtvCount};
-			mDevice->CreateRenderTargetView(mResources[pResourceHandle].mResource.Get(), nullptr, GetCpuHandle(EDescriptorType::eRTV,mRtvCount));
+			mDevice->CreateRenderTargetView(mResources[pResourceHandle].mResource.Get(), nullptr, GetCpuHandle(EDescriptorType::eRTV, mDescriptorCount));
 
 			++mRtvCount;
 
@@ -250,7 +292,7 @@ namespace Renderer
 		else if(pType == EDescriptorType::eDSV)
 		{
 			mDescriptorHandleToHeap[mDescriptorCount] = { 1, mDsvCount};
-			mDevice->CreateDepthStencilView(mResources[pResourceHandle].mResource.Get(), nullptr, GetCpuHandle(EDescriptorType::eDSV, mDsvCount));
+			mDevice->CreateDepthStencilView(mResources[pResourceHandle].mResource.Get(), nullptr, GetCpuHandle(EDescriptorType::eDSV, mDescriptorCount));
 
 			++mDsvCount;
 
@@ -265,7 +307,7 @@ namespace Renderer
 				D3D12_CONSTANT_BUFFER_VIEW_DESC lCbvDesc = { };
 				lCbvDesc.BufferLocation = mResources[pResourceHandle].mResource->GetGPUVirtualAddress();
 				lCbvDesc.SizeInBytes = lResourceDesc.Width;
-				mDevice->CreateConstantBufferView(&lCbvDesc, GetCpuHandle(EDescriptorType::eCBV, mCbvSrvUavCount));
+				mDevice->CreateConstantBufferView(&lCbvDesc, GetCpuHandle(EDescriptorType::eCBV, mDescriptorCount));
 			}
 
 			else if (pType == EDescriptorType::eSRV)
@@ -318,7 +360,7 @@ namespace Renderer
 					throw string("creating SRV fails.");
 				}
 
-				mDevice->CreateShaderResourceView(mResources[pResourceHandle].mResource.Get(), &lSrvDesc, GetCpuHandle(EDescriptorType::eSRV, mCbvSrvUavCount));
+				mDevice->CreateShaderResourceView(mResources[pResourceHandle].mResource.Get(), &lSrvDesc, GetCpuHandle(EDescriptorType::eSRV, mDescriptorCount));
 			}
 
 			else //UAV
@@ -367,7 +409,7 @@ namespace Renderer
 					throw string("creating UAV fails.");
 				}
 
-				mDevice->CreateUnorderedAccessView(mResources[pResourceHandle].mResource.Get(), nullptr, &lUavDesc, GetCpuHandle(EDescriptorType::eUAV, mCbvSrvUavCount));
+				mDevice->CreateUnorderedAccessView(mResources[pResourceHandle].mResource.Get(), nullptr, &lUavDesc, GetCpuHandle(EDescriptorType::eUAV, mDescriptorCount));
 			}
 
 			++mCbvSrvUavCount;
@@ -380,53 +422,106 @@ namespace Renderer
 
 	D3D12_CPU_DESCRIPTOR_HANDLE CResourceManager::GetCpuHandle(EDescriptorType pType, int pHandle)
 	{
+		int lDescriptorType = mDescriptorHandleToHeap[pHandle].first;
+		int lHandle = mDescriptorHandleToHeap[pHandle].second; //handle to specific descriptor type
+
+		if (lDescriptorType == 0) // RTV
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE lCpuHandle = mRtvCpuHandleStart;
+			lCpuHandle.ptr += lHandle * mRtvIncSize;
+
+			return lCpuHandle;
+		}
+		else if (lDescriptorType == 1) // DSV
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE lCpuHandle = mDsvCpuHandleStart;
+			lCpuHandle.ptr += lHandle * mDsvIncSize;
+
+			return lCpuHandle;
+		}
+		else // CBV, SRV, UAV
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE lCpuHandle = mCbvSrvUavCpuHandleStart;
+			lCpuHandle.ptr += lHandle * mCbvSrvUavIncSize;
+
+			return lCpuHandle;
+		}
+
+		/*
 		if (pType == EDescriptorType::eRTV)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE lCpuHandle = mRtvCpuHandleStart;
-			lCpuHandle.ptr += pHandle * mRtvIncSize;
+			lCpuHandle.ptr += mDescriptorHandleToHeap[pHandle].second * mRtvIncSize;
 
 			return lCpuHandle;
 		}
 		else if (pType == EDescriptorType::eDSV)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE lCpuHandle = mDsvCpuHandleStart;
-			lCpuHandle.ptr += pHandle * mDsvIncSize;
+			lCpuHandle.ptr += mDescriptorHandleToHeap[pHandle].second * mDsvIncSize;
 
 			return lCpuHandle;
 		}
 		else
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE lCpuHandle = mCbvSrvUavCpuHandleStart;
-			lCpuHandle.ptr += pHandle * mCbvSrvUavIncSize;
+			lCpuHandle.ptr += mDescriptorHandleToHeap[pHandle].second * mCbvSrvUavIncSize;
 
 			return lCpuHandle;
 		}
+		*/
 	}
 
 
 
 	D3D12_GPU_DESCRIPTOR_HANDLE	CResourceManager::GetGpuHandle(EDescriptorType pType, int pHandle)
 	{
+		int lDescriptorType = mDescriptorHandleToHeap[pHandle].first;
+		int lHandle = mDescriptorHandleToHeap[pHandle].second; //handle to specific descriptor type
+
+		if (lDescriptorType == 0) // RTV
+		{
+			D3D12_GPU_DESCRIPTOR_HANDLE lGpuHandle = mRtvGpuHandleStart;
+			lGpuHandle.ptr += lHandle * mRtvIncSize;
+
+			return lGpuHandle;
+		}
+		else if (lDescriptorType == 1) // DSV
+		{
+			D3D12_GPU_DESCRIPTOR_HANDLE lGpuHandle = mDsvGpuHandleStart;
+			lGpuHandle.ptr += lHandle * mDsvIncSize;
+
+			return lGpuHandle;
+		}
+		else // CBV, SRV, UAV
+		{
+			D3D12_GPU_DESCRIPTOR_HANDLE lGpuHandle = mCbvSrvUavGpuHandleStart;
+			lGpuHandle.ptr += lHandle * mCbvSrvUavIncSize;
+
+			return lGpuHandle;
+		}
+
+		/*
 		if (pType == EDescriptorType::eRTV)
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE lGpuHandle = mRtvGpuHandleStart;
-			lGpuHandle.ptr += pHandle * mRtvIncSize;
+			lGpuHandle.ptr += mDescriptorHandleToHeap[pHandle].second * mRtvIncSize;
 
 			return lGpuHandle;
 		}
 		else if (pType == EDescriptorType::eDSV)
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE lGpuHandle = mDsvGpuHandleStart;
-			lGpuHandle.ptr += pHandle * mDsvIncSize;
+			lGpuHandle.ptr += mDescriptorHandleToHeap[pHandle].second * mDsvIncSize;
 
 			return lGpuHandle;
 		}
 		else
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE lGpuHandle = mCbvSrvUavGpuHandleStart;
-			lGpuHandle.ptr += pHandle * mCbvSrvUavIncSize;
+			lGpuHandle.ptr += mDescriptorHandleToHeap[pHandle].second * mCbvSrvUavIncSize;
 
 			return lGpuHandle;
-		}
+		}*/
 	}
 }

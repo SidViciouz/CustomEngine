@@ -26,4 +26,19 @@ namespace Renderer
 	{
 		mFrameStats[pIndex].mWorldConstantBufferHandle = pHandle;
 	}
+
+	UINT64 CFrameData::GetFenceValue(int pIndex) const
+	{
+		return mFrameStats[pIndex].mFenceValue;
+	}
+
+	void CFrameData::SetFenceValue(int pIndex,UINT64 pFenceValue)
+	{
+		mFrameStats[pIndex].mFenceValue = pFenceValue;
+	}
+
+	ID3D12CommandAllocator* CFrameData::GetCommandAllocator(int pIndex) const
+	{
+		return mFrameStats[pIndex].mCommandAllocator.Get();
+	}
 }

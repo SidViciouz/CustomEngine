@@ -21,6 +21,11 @@ namespace Renderer
 		void									SetObjectConstantBufferHandle(int pIndex,int pHandle);
 		void									SetWorldConstantBufferHandle(int pIndex,int pHandle);
 
+		UINT64									GetFenceValue(int pIndex) const;
+		void									SetFenceValue(int pIndex,UINT64 pFenceValue);
+
+		ID3D12CommandAllocator*					GetCommandAllocator(int pIndex) const;
+
 	private:
 
 		vector<SFrameStats>						mFrameStats;

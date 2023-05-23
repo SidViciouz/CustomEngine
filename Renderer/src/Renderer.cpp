@@ -28,14 +28,20 @@ namespace Renderer
 	{
 		EnableDebug();
 		CreateDevice();
+		CreateFence();
 		CreateCommandObjects();
 		CreateResourceManager();
 		CreateFrameData();
 		CreateSwapchain();
 		CreateDepthBuffer();
+		SetViewportAndScissor();
 		LoadShaders();
 		CreateRootSignatures();
 		CreatePSO();
+
+		mCommandList->Close();
+		ID3D12CommandList* lists[] = { mCommandList.Get() };
+		mCommandQueue->ExecuteCommandLists(1, lists);
 	}
 
 	void CRenderer::Resize()
@@ -49,16 +55,67 @@ namespace Renderer
 		//change swap chain size
 		// 
 		//change depth buffer size
+		//
+		//change scissor and viewport
 	}
 
 	void CRenderer::DrawBegin()
 	{
+		mCurrentFrame = (mCurrentFrame + 1) % mFrameNum;
 
+		UINT64 pFenceValue = mFrameData->GetFenceValue(mCurrentFrame);
+
+		if (pFenceValue != 0 && mFence->GetCompletedValue() < pFenceValue)
+		{
+			HANDLE event = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
+			mFence->SetEventOnCompletion(pFenceValue, event);
+			WaitForSingleObject(event, INFINITE);
+			CloseHandle(event);
+		}
+
+		mFrameData->GetCommandAllocator(mCurrentFrame)->Reset();
+		mCommandList->Reset(mFrameData->GetCommandAllocator(mCurrentFrame), nullptr);
+
+		mResourceManager->ChangeState(mSwapchainBufferHandle[mCurrentBackBuffer], D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+		mCommandList->RSSetScissorRects(1, &mScissor);
+		mCommandList->RSSetViewports(1, &mViewport);
+
+		D3D12_CPU_DESCRIPTOR_HANDLE lRtvHandle = mResourceManager->GetCpuHandle(EDescriptorType::eRTV,mRtvHandle[mCurrentBackBuffer]);
+		D3D12_CPU_DESCRIPTOR_HANDLE lDsvHandle = mResourceManager->GetCpuHandle(EDescriptorType::eDSV,mDsvHandle);
+		float lRgba[4] = { 0.00f,0.00f,0.00f,1.0f };
+		mCommandList->ClearRenderTargetView(lRtvHandle, lRgba, 0, nullptr);
+		mCommandList->ClearDepthStencilView(lDsvHandle,D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		mCommandList->OMSetRenderTargets(1, &lRtvHandle, true, &lDsvHandle);
 	}
 
 	void CRenderer::DrawEnd()
 	{
+		mResourceManager->ChangeState(mSwapchainBufferHandle[mCurrentBackBuffer], D3D12_RESOURCE_STATE_PRESENT);
 
+		mCommandList->Close();
+
+		ID3D12CommandList* lists[] = { mCommandList.Get() };
+		mCommandQueue->ExecuteCommandLists(1, lists);
+
+		if (!SUCCEEDED(mSwapchain->Present(0, 0)))
+			throw string("swapchain present fails.");
+
+		mCurrentBackBuffer = (mCurrentBackBuffer + 1) % SWAPCHAIN_BUFFER_NUM;
+		mFrameData->SetFenceValue(mCurrentFrame,++mFenceValue);
+		mCommandQueue->Signal(mFence.Get(), mFenceValue);
+	}
+
+	void CRenderer::DrawLine(void* pData)
+	{
+		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+		mCommandList->SetGraphicsRootSignature(mRootSignatures["Line"].Get());
+		mCommandList->SetPipelineState(mPSOs["Line"].Get());
+		mCommandList->SetGraphicsRoot32BitConstants(0, 9, pData, 0);
+		//mCommandList->SetGraphicsRootConstantBufferView(1, );
+		mCommandList->IASetVertexBuffers(0, 0, nullptr);
+		mCommandList->IASetIndexBuffer(nullptr);
+		mCommandList->DrawInstanced(2,1,0,0);
 	}
 
 	void CRenderer::EnableDebug()
@@ -86,6 +143,12 @@ namespace Renderer
 		if (!SUCCEEDED(D3D12CreateDevice(mAdapters[mCurrentAdapter], D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mDevice))))
 			throw string("creating device fails.");
 
+	}
+
+	void CRenderer::CreateFence()
+	{
+		if (!SUCCEEDED(mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf()))))
+			throw string("creating fence fails.");
 	}
 
 	void CRenderer::InitAdaptInfo()
@@ -175,7 +238,7 @@ namespace Renderer
 
 	void CRenderer::CreateDepthBuffer()
 	{
-		mDepthBufferHandle = mResourceManager->CreateTexture2D(mWidth, mHeight, 1, mDepthBufferFormat, EResourceHeapType::eDefault, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+		mDepthBufferHandle = mResourceManager->CreateDepthTexture(mWidth, mHeight, 1, mDepthBufferFormat, EResourceHeapType::eDefault, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
 		mResourceManager->ChangeState(mDepthBufferHandle, D3D12_RESOURCE_STATE_DEPTH_READ);
 
@@ -291,5 +354,20 @@ namespace Renderer
 			throw string("creating graphics pipeline state fails.");
 
 		mPSOs["Line"] = move(lPSO);
+	}
+
+	void CRenderer::SetViewportAndScissor()
+	{
+		mViewport.TopLeftX = 0;
+		mViewport.TopLeftY = 0;
+		mViewport.Width = static_cast<float>(mWidth);
+		mViewport.Height = static_cast<float>(mHeight);
+		mViewport.MinDepth = 0.0f;
+		mViewport.MaxDepth = 1.0f;
+
+		mScissor.left = 0;
+		mScissor.top = 0;
+		mScissor.right = mWidth;
+		mScissor.bottom = mHeight;
 	}
 }

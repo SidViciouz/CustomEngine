@@ -42,6 +42,14 @@ namespace Renderer
 		D3D12_RESOURCE_FLAGS				mFlags;
 		int									mAlignment;
 		int									mMipLevel;
+		bool								mUseClearValue = false;
+		bool								mUseDepthClearValue = false;
+		union
+		{
+		float								mDepthClearValue;
+		float								mColor[4];
+		};
+
 	};
 
 	struct SResourceInfo
@@ -64,6 +72,7 @@ namespace Renderer
 		int									CreateTexture2D(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 		int									CreateTexture3D(int pWidth, int pHeight, int pDepth, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 		int									StoreSwapchainBuffer(IDXGISwapChain* pSwapchain,int pBufferIndex);
+		int									CreateDepthTexture(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 
 		void								ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState);
 

@@ -28,7 +28,23 @@ float4 VS(uint pIndex : SV_VertexID) : SV_POSITION
 		pos = float4(x2, y2, z2, 1);
 	}
 
-	pos = mul(projection,mul(view, pos));
+	float4x4 lTempView =
+	{
+		1.0f,0.0f,0.0f,0.0f,
+		0.0f,1.0f,0.0f,0.0f,
+		0.0f,0.0f,1.0f,0.0f,
+		0.0f,0.0f,0.0f,1.0f,
+	};
+
+	float4x4 lTempProjection =
+	{
+		1.0f,0.0f,0.0f,0.0f,
+		0.0f,1.0f,0.0f,0.0f,
+		0.0f,0.0f,1.0f,0.0f,
+		0.0f,0.0f,0.0f,1.0f,
+	};
+
+	pos = mul(lTempProjection,mul(lTempView, pos));
 
 	return pos;
 }

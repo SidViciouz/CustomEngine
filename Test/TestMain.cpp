@@ -57,7 +57,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		CRenderer r(lWindowHandle);
 		r.Initialize();
 
-		while (1);
+		float lData1[9] = { 1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f,1.0f,1.0f };
+		float lData2[9] = { 0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,-1.0f,1.0f,1.0f };
+		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,-1.0f,1.0f };
+
+		while (1)
+		{
+			r.DrawBegin();
+
+			r.DrawLine(lData1);
+			r.DrawLine(lData2);
+			r.DrawLine(lData3);
+
+			r.DrawEnd();
+		}
     }
     catch (std::string errorMessage)
     {
