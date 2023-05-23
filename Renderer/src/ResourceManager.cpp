@@ -204,7 +204,7 @@ namespace Renderer
 		lResourceDesc.Alignment = pDescrption.mAlignment;
 		lResourceDesc.Width = pDescrption.mWidth;
 		lResourceDesc.Height = pDescrption.mHeight;
-		lResourceDesc.DepthOrArraySize = pDescrption.mHeight;
+		lResourceDesc.DepthOrArraySize = pDescrption.mDepth;
 		lResourceDesc.MipLevels = pDescrption.mMipLevel;
 		lResourceDesc.Format = pDescrption.mFormat;
 		lResourceDesc.SampleDesc.Count = 1;

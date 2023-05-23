@@ -3,6 +3,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <wrl.h>
+#include <d3dcompiler.h>
 #include <memory>
 #include <array>
 #include <string>

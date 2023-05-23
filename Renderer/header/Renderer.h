@@ -13,6 +13,13 @@ namespace Renderer
 												CRenderer(HWND pWindowHandle);
 												~CRenderer();
 		void									Initialize();
+		void									Resize();
+		void									DrawBegin();
+		void									DrawEnd();
+		void									DrawLine();
+		void									DrawSquare();
+		void									DrawCube();
+		void									DrawMesh();
 
 	private:
 		/*
@@ -83,5 +90,25 @@ namespace Renderer
 		int										mDepthBufferHandle;
 		int										mDsvHandle;
 		DXGI_FORMAT								mDepthBufferFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+		/*
+		* load shader programs
+		*/
+		void									LoadShaders();
+		unordered_map<string,ComPtr<ID3DBlob>>	mShaders;
+
+		/*
+		* create root signature
+		* i will make root signature builder later
+		*/
+		void									CreateRootSignatures();
+		void									AddRootSignature(const char* pName,const D3D12_ROOT_SIGNATURE_DESC& pDesc);
+		unordered_map<string, ComPtr<ID3D12RootSignature>> mRootSignatures;
+
+		/*
+		* create pso
+		*/
+		void									CreatePSO();
+		unordered_map<string, ComPtr<ID3D12PipelineState>> mPSOs;
 	};
 }
