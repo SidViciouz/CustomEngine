@@ -7,7 +7,12 @@
 #include <memory>
 #include <array>
 #include <string>
+#include <iostream>
+#include <vector>
 #include <unordered_map>
+#include <DirectXMath.h>
+#include "../../Maths/header/Matrix4.h"
+
 
 using namespace Microsoft::WRL;
 using namespace std;
@@ -23,10 +28,11 @@ using namespace std;
 
 struct SObjectData
 {
-
+	Math::SMatrix4								mWorldMatrix;
 };
 
 struct SWorldData
 {
-
+	Math::SMatrix4								mViewMatrix;
+	Math::SMatrix4								mProjectionMatrix;
 };

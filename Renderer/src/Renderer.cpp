@@ -1,9 +1,9 @@
 #include "Renderer.h"
-#include <iostream>
-#include <vector>
 #include "ResourceManager.h"
 #include "FrameData.h"
 #include "Util.h"
+#include <Vector3.h>
+#include "Camera.h"
 
 namespace Renderer
 {
@@ -59,8 +59,14 @@ namespace Renderer
 		//change scissor and viewport
 	}
 
+	void CRenderer::SetCamera(shared_ptr<CCamera> pCamera)
+	{
+		mCamera = pCamera;
+	}
+
 	void CRenderer::DrawBegin()
 	{
+		//wait until current frame is done with rendering.
 		mCurrentFrame = (mCurrentFrame + 1) % mFrameNum;
 
 		UINT64 pFenceValue = mFrameData->GetFenceValue(mCurrentFrame);
@@ -73,6 +79,12 @@ namespace Renderer
 			CloseHandle(event);
 		}
 
+
+		//upload world data
+		UploadWorldConstantBuffer();
+
+
+		//reset command list
 		mFrameData->GetCommandAllocator(mCurrentFrame)->Reset();
 		mCommandList->Reset(mFrameData->GetCommandAllocator(mCurrentFrame), nullptr);
 
@@ -81,8 +93,8 @@ namespace Renderer
 		mCommandList->RSSetScissorRects(1, &mScissor);
 		mCommandList->RSSetViewports(1, &mViewport);
 
-		D3D12_CPU_DESCRIPTOR_HANDLE lRtvHandle = mResourceManager->GetCpuHandle(EDescriptorType::eRTV,mRtvHandle[mCurrentBackBuffer]);
-		D3D12_CPU_DESCRIPTOR_HANDLE lDsvHandle = mResourceManager->GetCpuHandle(EDescriptorType::eDSV,mDsvHandle);
+		D3D12_CPU_DESCRIPTOR_HANDLE lRtvHandle = mResourceManager->GetCpuHandle(mRtvHandle[mCurrentBackBuffer]);
+		D3D12_CPU_DESCRIPTOR_HANDLE lDsvHandle = mResourceManager->GetCpuHandle(mDsvHandle);
 		float lRgba[4] = { 0.00f,0.00f,0.00f,1.0f };
 		mCommandList->ClearRenderTargetView(lRtvHandle, lRgba, 0, nullptr);
 		mCommandList->ClearDepthStencilView(lDsvHandle,D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
@@ -112,7 +124,7 @@ namespace Renderer
 		mCommandList->SetGraphicsRootSignature(mRootSignatures["Line"].Get());
 		mCommandList->SetPipelineState(mPSOs["Line"].Get());
 		mCommandList->SetGraphicsRoot32BitConstants(0, 9, pData, 0);
-		//mCommandList->SetGraphicsRootConstantBufferView(1, );
+		mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
 		mCommandList->IASetVertexBuffers(0, 0, nullptr);
 		mCommandList->IASetIndexBuffer(nullptr);
 		mCommandList->DrawInstanced(2,1,0,0);
@@ -240,7 +252,7 @@ namespace Renderer
 	{
 		mDepthBufferHandle = mResourceManager->CreateDepthTexture(mWidth, mHeight, 1, mDepthBufferFormat, EResourceHeapType::eDefault, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
-		mResourceManager->ChangeState(mDepthBufferHandle, D3D12_RESOURCE_STATE_DEPTH_READ);
+		mResourceManager->ChangeState(mDepthBufferHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 		mDsvHandle = mResourceManager->CreateDescriptor(mDepthBufferHandle, EDescriptorType::eDSV);
 	}
@@ -369,5 +381,13 @@ namespace Renderer
 		mScissor.top = 0;
 		mScissor.right = mWidth;
 		mScissor.bottom = mHeight;
+	}
+
+	void CRenderer::UploadWorldConstantBuffer()
+	{
+		SWorldData lWorldData;
+		lWorldData.mViewMatrix = mCamera->GetViewMatrix();
+		lWorldData.mProjectionMatrix = mCamera->GetProjectionMatrix();
+		mResourceManager->Upload(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame), &lWorldData, sizeof(SWorldData), 1, 0, 0);
 	}
 }

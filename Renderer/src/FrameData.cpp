@@ -22,9 +22,19 @@ namespace Renderer
 		mFrameStats[pIndex].mObjectConstantBufferHandle = pHandle;
 	}
 
+	int CFrameData::GetObjectConstantBufferHandle(int pIndex) const
+	{
+		return mFrameStats[pIndex].mObjectConstantBufferHandle;
+	}
+
 	void CFrameData::SetWorldConstantBufferHandle(int pIndex, int pHandle)
 	{
 		mFrameStats[pIndex].mWorldConstantBufferHandle = pHandle;
+	}
+
+	int CFrameData::GetWorldConstantBufferHandle(int pIndex) const
+	{
+		return mFrameStats[pIndex].mWorldConstantBufferHandle;
 	}
 
 	UINT64 CFrameData::GetFenceValue(int pIndex) const

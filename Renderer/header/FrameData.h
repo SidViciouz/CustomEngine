@@ -19,7 +19,10 @@ namespace Renderer
 												~CFrameData();
 
 		void									SetObjectConstantBufferHandle(int pIndex,int pHandle);
-		void									SetWorldConstantBufferHandle(int pIndex,int pHandle);
+		int										GetObjectConstantBufferHandle(int pIndex) const;
+
+		void									SetWorldConstantBufferHandle(int pIndex, int pHandle);
+		int 									GetWorldConstantBufferHandle(int pIndex) const;
 
 		UINT64									GetFenceValue(int pIndex) const;
 		void									SetFenceValue(int pIndex,UINT64 pFenceValue);

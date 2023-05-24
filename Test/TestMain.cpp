@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include <iostream>
+#include "Camera.h"
 
 using namespace Renderer;
 
@@ -54,12 +55,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		ShowWindow(lWindowHandle, SW_SHOW);
 		UpdateWindow(lWindowHandle);
 
+		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
+
 		CRenderer r(lWindowHandle);
 		r.Initialize();
 
-		float lData1[9] = { 1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,1.0f,1.0f,1.0f };
-		float lData2[9] = { 0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,-1.0f,1.0f,1.0f };
-		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,-1.0f,1.0f };
+		float lData1[9] = { 1.0f,0.0f,0.0f,0.0f,0.0f,1.0f,1.0f,0.0f,1.0f };
+		float lData2[9] = { 0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,1.0f,1.0f };
+		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,2.0f };
+
+		r.SetCamera(lCamera);
 
 		while (1)
 		{

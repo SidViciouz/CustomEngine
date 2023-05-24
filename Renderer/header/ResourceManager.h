@@ -75,15 +75,22 @@ namespace Renderer
 		int									CreateDepthTexture(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 
 		void								ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState);
-
+		/*
+		* This method uploads pData to Resource.
+		* if pHeight == 1, upload buffer or texture1D
+		* else upload texture2D
+		* pWidth is byte size of width.
+		*/
+		void								Upload(int pResourceHandle, const void* pData, int pWidth, int pHeight, int pOffsetX, int pOffsetY);
 
 
 		/*
 		* create descriptor and return descriptor handle.
 		*/
 		int									CreateDescriptor(int pResourceHandle, EDescriptorType pType); //buffer, texture2d array and textureCube must be dealt with in other method.
-		D3D12_CPU_DESCRIPTOR_HANDLE			GetCpuHandle(EDescriptorType pType, int pHandle);
-		D3D12_GPU_DESCRIPTOR_HANDLE			GetGpuHandle(EDescriptorType pType, int pHandle);
+		D3D12_CPU_DESCRIPTOR_HANDLE			GetCpuHandle(int pHandle);
+		D3D12_GPU_DESCRIPTOR_HANDLE			GetGpuHandle(int pHandle);
+		D3D12_GPU_VIRTUAL_ADDRESS			GetGpuVirtualAddress(int pResourceHandle) const;
 
 	private:
 		/*

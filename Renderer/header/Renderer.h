@@ -6,6 +6,7 @@ namespace Renderer
 {
 	class CResourceManager;
 	class CFrameData;
+	class CCamera;
 
 	class CRenderer
 	{
@@ -14,6 +15,7 @@ namespace Renderer
 												~CRenderer();
 		void									Initialize();
 		void									Resize();
+		void									SetCamera(shared_ptr<CCamera> pCamera);
 		void									DrawBegin();
 		void									DrawEnd();
 		void									DrawLine(void* pData);
@@ -126,5 +128,12 @@ namespace Renderer
 		void									SetViewportAndScissor();
 		D3D12_VIEWPORT							mViewport;
 		D3D12_RECT								mScissor;
+
+		/*
+		* camera data
+		*/
+		void									UploadWorldConstantBuffer();
+		shared_ptr<CCamera>						mCamera;
+
 	};
 }
