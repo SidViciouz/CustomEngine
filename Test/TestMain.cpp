@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include <iostream>
 #include "Camera.h"
+#include "Mesh.h"
 
 using namespace Renderer;
 
@@ -56,6 +57,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		UpdateWindow(lWindowHandle);
 
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
+		shared_ptr<CMesh>	lMesh = make_shared<CMesh>("../Model/AnimMan.FBX");
 
 		CRenderer r(lWindowHandle);
 		r.Initialize();
@@ -65,6 +67,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,2.0f };
 
 		r.SetCamera(lCamera);
+		r.SetMesh(lMesh);
 
 		while (1)
 		{

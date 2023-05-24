@@ -4,6 +4,8 @@
 #include "Util.h"
 #include <Vector3.h>
 #include "Camera.h"
+#include "Mesh.h"
+#include "Object.h"
 
 namespace Renderer
 {
@@ -19,10 +21,14 @@ namespace Renderer
 		printf("width : %d, height ; %d\n", mWidth, mHeight);
 	}
 
+
+
 	CRenderer::~CRenderer()
 	{
 
 	}
+
+
 
 	void CRenderer::Initialize()
 	{
@@ -44,6 +50,8 @@ namespace Renderer
 		mCommandQueue->ExecuteCommandLists(1, lists);
 	}
 
+
+
 	void CRenderer::Resize()
 	{
 		RECT lRect;
@@ -59,10 +67,31 @@ namespace Renderer
 		//change scissor and viewport
 	}
 
+
+
 	void CRenderer::SetCamera(shared_ptr<CCamera> pCamera)
 	{
 		mCamera = pCamera;
 	}
+
+
+
+	int	CRenderer::SetMesh(shared_ptr<CMesh> pMesh)
+	{
+
+		int lVertexCount = pMesh->GetVertexCount();
+		const SVertex* lVertexDatas = pMesh->GetVertexDatas();
+
+		int lResourceHandle = mResourceManager->CreateBuffer(sizeof(SVertex) * lVertexCount, EResourceHeapType::eUpload);
+		mResourceManager->Upload(lResourceHandle, lVertexDatas, sizeof(SVertex) * lVertexCount, 1, 0, 0);
+
+		mMeshResourceHandles.push_back(lResourceHandle);
+		mMeshes.push_back(pMesh);
+
+		return mMeshCount++;
+	}
+
+
 
 	void CRenderer::DrawBegin()
 	{
@@ -101,6 +130,8 @@ namespace Renderer
 		mCommandList->OMSetRenderTargets(1, &lRtvHandle, true, &lDsvHandle);
 	}
 
+
+
 	void CRenderer::DrawEnd()
 	{
 		mResourceManager->ChangeState(mSwapchainBufferHandle[mCurrentBackBuffer], D3D12_RESOURCE_STATE_PRESENT);
@@ -118,6 +149,8 @@ namespace Renderer
 		mCommandQueue->Signal(mFence.Get(), mFenceValue);
 	}
 
+
+
 	void CRenderer::DrawLine(void* pData)
 	{
 		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -129,6 +162,15 @@ namespace Renderer
 		mCommandList->IASetIndexBuffer(nullptr);
 		mCommandList->DrawInstanced(2,1,0,0);
 	}
+
+
+
+	void CRenderer::DrawMesh(int pMeshHandle, const CObject& pMeshData)
+	{
+
+	}
+
+
 
 	void CRenderer::EnableDebug()
 	{
@@ -145,6 +187,8 @@ namespace Renderer
 
 	}
 
+
+
 	void CRenderer::CreateDevice()
 	{
 		if (!SUCCEEDED(CreateDXGIFactory1(IID_PPV_ARGS(mFactory.GetAddressOf()))))
@@ -157,11 +201,15 @@ namespace Renderer
 
 	}
 
+
+
 	void CRenderer::CreateFence()
 	{
 		if (!SUCCEEDED(mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf()))))
 			throw string("creating fence fails.");
 	}
+
+
 
 	void CRenderer::InitAdaptInfo()
 	{
@@ -176,6 +224,8 @@ namespace Renderer
 		for (int i = 0; i < mAdapterNum; ++i)
 			wcout << mAdapterNames[i] << endl;
 	}
+
+
 
 	void CRenderer::CreateCommandObjects()
 	{
@@ -196,10 +246,14 @@ namespace Renderer
 			throw string("creating command list fails");
 	}
 
+
+
 	void CRenderer::CreateResourceManager()
 	{
 		mResourceManager = make_unique<CResourceManager>(mDevice.Get(), mCommandList.Get());
 	}
+
+
 
 	void CRenderer::CreateFrameData()
 	{
@@ -212,6 +266,8 @@ namespace Renderer
 				lFrameIndex, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SWorldData), 256), EResourceHeapType::eUpload));
 		}
 	}
+
+
 
 	void CRenderer::CreateSwapchain()
 	{
@@ -248,6 +304,8 @@ namespace Renderer
 		}
 	}
 
+
+
 	void CRenderer::CreateDepthBuffer()
 	{
 		mDepthBufferHandle = mResourceManager->CreateDepthTexture(mWidth, mHeight, 1, mDepthBufferFormat, EResourceHeapType::eDefault, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
@@ -256,6 +314,8 @@ namespace Renderer
 
 		mDsvHandle = mResourceManager->CreateDescriptor(mDepthBufferHandle, EDescriptorType::eDSV);
 	}
+
+
 
 	void CRenderer::LoadShaders()
 	{
@@ -271,6 +331,8 @@ namespace Renderer
 		if (!SUCCEEDED(D3DReadFileToBlob(L"../Renderer/shader/LinePS.cso", mShaders["LinePS"].GetAddressOf())))
 			throw string("read shader fails.");
 	}
+
+
 
 	void CRenderer::CreateRootSignatures()
 	{
@@ -294,6 +356,8 @@ namespace Renderer
 		AddRootSignature("Line",lDesc);
 	}
 
+
+
 	void CRenderer::AddRootSignature(const char* pName,const D3D12_ROOT_SIGNATURE_DESC& pDesc)
 	{
 		ComPtr<ID3DBlob> lSerialized;
@@ -308,6 +372,8 @@ namespace Renderer
 
 		mRootSignatures[string(pName)] = move(lRootSignature);
 	}
+
+
 
 	void CRenderer::CreatePSO()
 	{
@@ -368,6 +434,8 @@ namespace Renderer
 		mPSOs["Line"] = move(lPSO);
 	}
 
+
+
 	void CRenderer::SetViewportAndScissor()
 	{
 		mViewport.TopLeftX = 0;
@@ -382,6 +450,8 @@ namespace Renderer
 		mScissor.right = mWidth;
 		mScissor.bottom = mHeight;
 	}
+
+
 
 	void CRenderer::UploadWorldConstantBuffer()
 	{

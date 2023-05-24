@@ -7,6 +7,8 @@ namespace Renderer
 	class CResourceManager;
 	class CFrameData;
 	class CCamera;
+	class CMesh;
+	class CObject;
 
 	class CRenderer
 	{
@@ -16,12 +18,14 @@ namespace Renderer
 		void									Initialize();
 		void									Resize();
 		void									SetCamera(shared_ptr<CCamera> pCamera);
+		int										SetMesh(shared_ptr<CMesh> pMesh);
 		void									DrawBegin();
 		void									DrawEnd();
 		void									DrawLine(void* pData);
+		void									DrawAxis();
 		void									DrawSquare();
 		void									DrawCube();
-		void									DrawMesh();
+		void									DrawMesh(int pMeshHandle,const CObject& pMeshData);
 
 	private:
 		/*
@@ -135,5 +139,11 @@ namespace Renderer
 		void									UploadWorldConstantBuffer();
 		shared_ptr<CCamera>						mCamera;
 
+		/*
+		* mesh data
+		*/
+		vector<shared_ptr<CMesh>>				mMeshes;
+		vector<int>								mMeshResourceHandles;
+		int										mMeshCount = 0;
 	};
 }
