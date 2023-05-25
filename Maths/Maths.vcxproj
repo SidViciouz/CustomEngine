@@ -144,11 +144,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="header\Matrix4.h" />
+    <ClInclude Include="header\Quaternion.h" />
+    <ClInclude Include="header\Transform.h" />
     <ClInclude Include="header\Util.h" />
     <ClInclude Include="header\Vector3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Matrix4.cpp" />
+    <ClCompile Include="src\Quaternion.cpp" />
+    <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\Util.cpp" />
     <ClCompile Include="src\Vector3.cpp" />
   </ItemGroup>

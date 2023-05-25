@@ -25,7 +25,7 @@ namespace Renderer
 		void									DrawAxis();
 		void									DrawSquare();
 		void									DrawCube();
-		void									DrawMesh(int pMeshHandle,const CObject& pMeshData);
+		void									DrawMesh(int pMeshHandle,shared_ptr<CObject> pMeshData);
 
 	private:
 		/*
@@ -142,8 +142,9 @@ namespace Renderer
 		/*
 		* mesh data
 		*/
+		void									UploadObjectConstantBuffer();
 		vector<shared_ptr<CMesh>>				mMeshes;
-		vector<int>								mMeshResourceHandles;
+		//vector<int>								mMeshResourceHandles;
 		int										mMeshCount = 0;
 	};
 }

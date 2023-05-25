@@ -85,8 +85,27 @@ namespace Renderer
 		int lResourceHandle = mResourceManager->CreateBuffer(sizeof(SVertex) * lVertexCount, EResourceHeapType::eUpload);
 		mResourceManager->Upload(lResourceHandle, lVertexDatas, sizeof(SVertex) * lVertexCount, 1, 0, 0);
 
-		mMeshResourceHandles.push_back(lResourceHandle);
+		pMesh->SetVertexBufferHandle(lResourceHandle);
+		//mMeshResourceHandles.push_back(lResourceHandle);
+
+		for (int lSubMeshIndex = 0; lSubMeshIndex < pMesh->GetSubMeshCount(); ++lSubMeshIndex)
+		{
+			int lIndexCount = pMesh->GetIndexCount(lSubMeshIndex);
+			const uint16_t* lIndexDatas = pMesh->GetIndexDatas(lSubMeshIndex);
+
+			int lIndexHandle = mResourceManager->CreateBuffer(sizeof(uint16_t) * lIndexCount, EResourceHeapType::eUpload);
+			mResourceManager->Upload(lIndexHandle, lIndexDatas, sizeof(uint16_t) * lIndexCount, 1, 0, 0);
+
+			pMesh->SetIndexBufferHandle(lSubMeshIndex, lIndexHandle);
+		}
+
 		mMeshes.push_back(pMesh);
+
+		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
+		{
+			mFrameData->SetObjectConstantBufferHandle(
+				lFrameIndex, mMeshCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData), 256), EResourceHeapType::eUpload));
+		}
 
 		return mMeshCount++;
 	}
@@ -111,7 +130,7 @@ namespace Renderer
 
 		//upload world data
 		UploadWorldConstantBuffer();
-
+		UploadObjectConstantBuffer();
 
 		//reset command list
 		mFrameData->GetCommandAllocator(mCurrentFrame)->Reset();
@@ -165,8 +184,29 @@ namespace Renderer
 
 
 
-	void CRenderer::DrawMesh(int pMeshHandle, const CObject& pMeshData)
+	void CRenderer::DrawMesh(int pMeshHandle, shared_ptr<CObject> pMeshData)
 	{
+		D3D12_VERTEX_BUFFER_VIEW lVertexBufferView;
+		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetVertexBufferHandle());
+		lVertexBufferView.SizeInBytes = sizeof(SVertex) * mMeshes[pMeshHandle]->GetVertexCount();
+		lVertexBufferView.StrideInBytes = sizeof(SVertex);
+
+		for (int lSubMeshIndex = 0; lSubMeshIndex < mMeshes[pMeshHandle]->GetSubMeshCount(); ++lSubMeshIndex)
+		{
+			D3D12_INDEX_BUFFER_VIEW lIndexBufferView;
+			lIndexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetIndexBufferHandle(lSubMeshIndex));
+			lIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+			lIndexBufferView.SizeInBytes = sizeof(uint16_t) * mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex);
+
+			mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			mCommandList->SetGraphicsRootSignature(mRootSignatures["Default"].Get());
+			mCommandList->SetPipelineState(mPSOs["Default"].Get());
+			mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pMeshHandle)));
+			mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
+			mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
+			mCommandList->IASetIndexBuffer(&lIndexBufferView);
+			mCommandList->DrawIndexedInstanced(mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex), 1, 0, 0,0);
+		}
 
 	}
 
@@ -260,8 +300,6 @@ namespace Renderer
 		mFrameData = make_unique<CFrameData>(mDevice.Get(), mFrameNum);
 		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
 		{
-			mFrameData->SetObjectConstantBufferHandle(
-				lFrameIndex, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData) * MAX_OBJECT_NUM, 256), EResourceHeapType::eUpload));
 			mFrameData->SetWorldConstantBufferHandle(
 				lFrameIndex, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SWorldData), 256), EResourceHeapType::eUpload));
 		}
@@ -336,24 +374,45 @@ namespace Renderer
 
 	void CRenderer::CreateRootSignatures()
 	{
-		D3D12_ROOT_PARAMETER lParameter[2];
-		lParameter[0].Constants.Num32BitValues = 9;
-		lParameter[0].Constants.RegisterSpace = 0;
-		lParameter[0].Constants.ShaderRegister = 0;
-		lParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		lParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-		lParameter[1].Descriptor.RegisterSpace = 0;
-		lParameter[1].Descriptor.ShaderRegister = 1;
-		lParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		lParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		D3D12_ROOT_PARAMETER lLineParameter[2];
+		lLineParameter[0].Constants.Num32BitValues = 9;
+		lLineParameter[0].Constants.RegisterSpace = 0;
+		lLineParameter[0].Constants.ShaderRegister = 0;
+		lLineParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lLineParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+		lLineParameter[1].Descriptor.RegisterSpace = 0;
+		lLineParameter[1].Descriptor.ShaderRegister = 1;
+		lLineParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lLineParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 
-		D3D12_ROOT_SIGNATURE_DESC lDesc = {};
-		lDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-		lDesc.NumParameters = 2;
-		lDesc.NumStaticSamplers = 0;
-		lDesc.pParameters = lParameter;
+		D3D12_ROOT_SIGNATURE_DESC lLineDesc = {};
+		lLineDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+		lLineDesc.NumParameters = 2;
+		lLineDesc.NumStaticSamplers = 0;
+		lLineDesc.pParameters = lLineParameter;
 
-		AddRootSignature("Line",lDesc);
+		AddRootSignature("Line", lLineDesc);
+
+
+
+		D3D12_ROOT_PARAMETER lDefaultParameter[2];
+
+		lDefaultParameter[0].Descriptor.RegisterSpace = 0;
+		lDefaultParameter[0].Descriptor.ShaderRegister = 0;
+		lDefaultParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lDefaultParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		lDefaultParameter[1].Descriptor.RegisterSpace = 0;
+		lDefaultParameter[1].Descriptor.ShaderRegister = 1;
+		lDefaultParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lDefaultParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+
+		D3D12_ROOT_SIGNATURE_DESC lDefaultDesc = {};
+		lDefaultDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		lDefaultDesc.NumParameters = 2;
+		lDefaultDesc.NumStaticSamplers = 0;
+		lDefaultDesc.pParameters = lDefaultParameter;
+
+		AddRootSignature("Default", lDefaultDesc);
 	}
 
 
@@ -379,28 +438,28 @@ namespace Renderer
 	{
 		ComPtr<ID3D12PipelineState> lPSO;
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC lPsoDesc = {};
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC lLinePsoDesc = {};
 
-		lPsoDesc.InputLayout.NumElements = 0;
-		lPsoDesc.pRootSignature = mRootSignatures["Line"].Get();
-		lPsoDesc.VS.pShaderBytecode = mShaders["LineVS"]->GetBufferPointer();
-		lPsoDesc.VS.BytecodeLength = mShaders["LineVS"]->GetBufferSize();
-		lPsoDesc.PS.pShaderBytecode = mShaders["LinePS"]->GetBufferPointer();
-		lPsoDesc.PS.BytecodeLength = mShaders["LinePS"]->GetBufferSize();
-		lPsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-		lPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-		lPsoDesc.RasterizerState.FrontCounterClockwise = FALSE;
-		lPsoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
-		lPsoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-		lPsoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
-		lPsoDesc.RasterizerState.DepthClipEnable = TRUE;
-		lPsoDesc.RasterizerState.MultisampleEnable = FALSE;
-		lPsoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
-		lPsoDesc.RasterizerState.ForcedSampleCount = 0;
-		lPsoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-		lPsoDesc.BlendState.AlphaToCoverageEnable = FALSE;
-		lPsoDesc.BlendState.IndependentBlendEnable = FALSE;
-		const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc =
+		lLinePsoDesc.InputLayout.NumElements = 0;
+		lLinePsoDesc.pRootSignature = mRootSignatures["Line"].Get();
+		lLinePsoDesc.VS.pShaderBytecode = mShaders["LineVS"]->GetBufferPointer();
+		lLinePsoDesc.VS.BytecodeLength = mShaders["LineVS"]->GetBufferSize();
+		lLinePsoDesc.PS.pShaderBytecode = mShaders["LinePS"]->GetBufferPointer();
+		lLinePsoDesc.PS.BytecodeLength = mShaders["LinePS"]->GetBufferSize();
+		lLinePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+		lLinePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+		lLinePsoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+		lLinePsoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		lLinePsoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		lLinePsoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		lLinePsoDesc.RasterizerState.DepthClipEnable = TRUE;
+		lLinePsoDesc.RasterizerState.MultisampleEnable = FALSE;
+		lLinePsoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+		lLinePsoDesc.RasterizerState.ForcedSampleCount = 0;
+		lLinePsoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		lLinePsoDesc.BlendState.AlphaToCoverageEnable = FALSE;
+		lLinePsoDesc.BlendState.IndependentBlendEnable = FALSE;
+		const D3D12_RENDER_TARGET_BLEND_DESC lLineRenderTargetBlendDesc =
 		{
 			FALSE,FALSE,
 			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
@@ -409,29 +468,89 @@ namespace Renderer
 			D3D12_COLOR_WRITE_ENABLE_ALL,
 		};
 		for (int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
-			lPsoDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
-		lPsoDesc.DepthStencilState.DepthEnable = TRUE;
-		lPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		lPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-		lPsoDesc.DepthStencilState.StencilEnable = FALSE;
-		lPsoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
-		lPsoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
-		const D3D12_DEPTH_STENCILOP_DESC defaultStencilOp =
+			lLinePsoDesc.BlendState.RenderTarget[i] = lLineRenderTargetBlendDesc;
+		lLinePsoDesc.DepthStencilState.DepthEnable = TRUE;
+		lLinePsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		lLinePsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		lLinePsoDesc.DepthStencilState.StencilEnable = FALSE;
+		lLinePsoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+		lLinePsoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+		const D3D12_DEPTH_STENCILOP_DESC lLineStencilOp =
 		{ D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS };
-		lPsoDesc.DepthStencilState.FrontFace = defaultStencilOp;
-		lPsoDesc.DepthStencilState.BackFace = defaultStencilOp;
-		lPsoDesc.SampleMask = UINT_MAX;
-		lPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-		lPsoDesc.NumRenderTargets = 1;
-		lPsoDesc.RTVFormats[0] = mBackBufferFormat;
-		lPsoDesc.SampleDesc.Count = 1;
-		lPsoDesc.SampleDesc.Quality = 0;
-		lPsoDesc.DSVFormat = mDepthBufferFormat;
+		lLinePsoDesc.DepthStencilState.FrontFace = lLineStencilOp;
+		lLinePsoDesc.DepthStencilState.BackFace = lLineStencilOp;
+		lLinePsoDesc.SampleMask = UINT_MAX;
+		lLinePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		lLinePsoDesc.NumRenderTargets = 1;
+		lLinePsoDesc.RTVFormats[0] = mBackBufferFormat;
+		lLinePsoDesc.SampleDesc.Count = 1;
+		lLinePsoDesc.SampleDesc.Quality = 0;
+		lLinePsoDesc.DSVFormat = mDepthBufferFormat;
 
-		if (!SUCCEEDED(mDevice->CreateGraphicsPipelineState(&lPsoDesc, IID_PPV_ARGS(lPSO.GetAddressOf()))))
+		if (!SUCCEEDED(mDevice->CreateGraphicsPipelineState(&lLinePsoDesc, IID_PPV_ARGS(lPSO.GetAddressOf()))))
 			throw string("creating graphics pipeline state fails.");
 
 		mPSOs["Line"] = move(lPSO);
+
+
+
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC lDefaultPsoDesc = {};
+
+		D3D12_INPUT_ELEMENT_DESC lDefaultInputElements[1];
+		lDefaultInputElements[0] = { "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lDefaultPsoDesc.InputLayout.NumElements = 1;
+		lDefaultPsoDesc.InputLayout.pInputElementDescs = lDefaultInputElements;
+		lDefaultPsoDesc.pRootSignature = mRootSignatures["Default"].Get();
+		lDefaultPsoDesc.VS.pShaderBytecode = mShaders["DefaultVS"]->GetBufferPointer();
+		lDefaultPsoDesc.VS.BytecodeLength = mShaders["DefaultVS"]->GetBufferSize();
+		lDefaultPsoDesc.PS.pShaderBytecode = mShaders["DefaultPS"]->GetBufferPointer();
+		lDefaultPsoDesc.PS.BytecodeLength = mShaders["DefaultPS"]->GetBufferSize();
+		lDefaultPsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+		lDefaultPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+		lDefaultPsoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+		lDefaultPsoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		lDefaultPsoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		lDefaultPsoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		lDefaultPsoDesc.RasterizerState.DepthClipEnable = TRUE;
+		lDefaultPsoDesc.RasterizerState.MultisampleEnable = FALSE;
+		lDefaultPsoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+		lDefaultPsoDesc.RasterizerState.ForcedSampleCount = 0;
+		lDefaultPsoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		lDefaultPsoDesc.BlendState.AlphaToCoverageEnable = FALSE;
+		lDefaultPsoDesc.BlendState.IndependentBlendEnable = FALSE;
+		const D3D12_RENDER_TARGET_BLEND_DESC lDefaultRenderTargetBlendDesc =
+		{
+			FALSE,FALSE,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_LOGIC_OP_NOOP,
+			D3D12_COLOR_WRITE_ENABLE_ALL,
+		};
+		for (int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
+			lDefaultPsoDesc.BlendState.RenderTarget[i] = lDefaultRenderTargetBlendDesc;
+		lDefaultPsoDesc.DepthStencilState.DepthEnable = TRUE;
+		lDefaultPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		lDefaultPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		lDefaultPsoDesc.DepthStencilState.StencilEnable = FALSE;
+		lDefaultPsoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+		lDefaultPsoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+		const D3D12_DEPTH_STENCILOP_DESC lDefaultStencilOp =
+		{ D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS };
+		lDefaultPsoDesc.DepthStencilState.FrontFace = lDefaultStencilOp;
+		lDefaultPsoDesc.DepthStencilState.BackFace = lDefaultStencilOp;
+		lDefaultPsoDesc.SampleMask = UINT_MAX;
+		lDefaultPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		lDefaultPsoDesc.NumRenderTargets = 1;
+		lDefaultPsoDesc.RTVFormats[0] = mBackBufferFormat;
+		lDefaultPsoDesc.SampleDesc.Count = 1;
+		lDefaultPsoDesc.SampleDesc.Quality = 0;
+		lDefaultPsoDesc.DSVFormat = mDepthBufferFormat;
+
+		if (!SUCCEEDED(mDevice->CreateGraphicsPipelineState(&lDefaultPsoDesc, IID_PPV_ARGS(lPSO.GetAddressOf()))))
+			throw string("creating graphics pipeline state fails.");
+
+		mPSOs["Default"] = move(lPSO);
 	}
 
 
@@ -459,5 +578,14 @@ namespace Renderer
 		lWorldData.mViewMatrix = mCamera->GetViewMatrix();
 		lWorldData.mProjectionMatrix = mCamera->GetProjectionMatrix();
 		mResourceManager->Upload(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame), &lWorldData, sizeof(SWorldData), 1, 0, 0);
+	}
+
+
+	void CRenderer::UploadObjectConstantBuffer()
+	{
+		Math::SMatrix4 lIdentity;
+		SObjectData lObjectdData;
+		lObjectdData.mWorldMatrix = lIdentity;
+		mResourceManager->Upload(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame,0), &lObjectdData, sizeof(SObjectData), 1, 0, 0);
 	}
 }

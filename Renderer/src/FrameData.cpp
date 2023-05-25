@@ -17,14 +17,14 @@ namespace Renderer
 
 	}
 
-	void CFrameData::SetObjectConstantBufferHandle(int pIndex, int pHandle)
+	void CFrameData::SetObjectConstantBufferHandle(int pFrameIndex, int pObjectHandle, int pHandle)
 	{
-		mFrameStats[pIndex].mObjectConstantBufferHandle = pHandle;
+		mFrameStats[pFrameIndex].mObjectConstantBufferHandle[pObjectHandle] = pHandle;
 	}
 
-	int CFrameData::GetObjectConstantBufferHandle(int pIndex) const
+	int CFrameData::GetObjectConstantBufferHandle(int pFrameIndex, int pObjectHandle) const
 	{
-		return mFrameStats[pIndex].mObjectConstantBufferHandle;
+		return mFrameStats[pFrameIndex].mObjectConstantBufferHandle[pObjectHandle];
 	}
 
 	void CFrameData::SetWorldConstantBufferHandle(int pIndex, int pHandle)

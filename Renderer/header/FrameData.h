@@ -7,7 +7,7 @@ namespace Renderer
 	struct SFrameStats
 	{
 		UINT64									mFenceValue = 0;
-		int										mObjectConstantBufferHandle = -1;
+		int										mObjectConstantBufferHandle[MAX_OBJECT_NUM] = {-1,};
 		int										mWorldConstantBufferHandle = -1;
 		ComPtr<ID3D12CommandAllocator>			mCommandAllocator;
 	};
@@ -18,8 +18,8 @@ namespace Renderer
 												CFrameData(ID3D12Device* pDevice,int pNum);
 												~CFrameData();
 
-		void									SetObjectConstantBufferHandle(int pIndex,int pHandle);
-		int										GetObjectConstantBufferHandle(int pIndex) const;
+		void									SetObjectConstantBufferHandle(int pFrameIndex,int pObjectHandle,int pHandle);
+		int										GetObjectConstantBufferHandle(int pFrameIndex, int pObjectHandle) const;
 
 		void									SetWorldConstantBufferHandle(int pIndex, int pHandle);
 		int 									GetWorldConstantBufferHandle(int pIndex) const;
