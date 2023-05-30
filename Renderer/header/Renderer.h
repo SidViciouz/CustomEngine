@@ -19,13 +19,14 @@ namespace Renderer
 		void									Resize();
 		void									SetCamera(shared_ptr<CCamera> pCamera);
 		int										SetMesh(shared_ptr<CMesh> pMesh);
+		int										SetObject(shared_ptr<CObject> pObject);
 		void									DrawBegin();
 		void									DrawEnd();
 		void									DrawLine(void* pData);
 		void									DrawAxis();
 		void									DrawSquare();
 		void									DrawCube();
-		void									DrawMesh(int pMeshHandle,shared_ptr<CObject> pMeshData);
+		void									DrawMesh(int pMeshHandle, int pObjectHandle);
 
 	private:
 		/*
@@ -146,5 +147,8 @@ namespace Renderer
 		vector<shared_ptr<CMesh>>				mMeshes;
 		//vector<int>								mMeshResourceHandles;
 		int										mMeshCount = 0;
+
+		int										mObjectCount = 0;
+		vector<shared_ptr<CObject>>				mObjects;
 	};
 }

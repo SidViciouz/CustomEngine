@@ -2,8 +2,14 @@
 #include "../../Maths/header/Transform.h"
 #include "../../Maths/header/Matrix4.h"
 
+namespace Math
+{
+	struct SVector3;
+}
+
 namespace Renderer
 {
+
 	class CObject
 	{
 	public:
@@ -11,6 +17,8 @@ namespace Renderer
 												CObject(const Math::CTransform& pTransform);
 
 		Math::SMatrix4							GetWorldMatrix() const;
+
+		void									SetTranslation(const Math::SVector3& pTranslation);
 
 	protected:
 		//transform, bone, ...

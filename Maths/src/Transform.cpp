@@ -14,6 +14,11 @@ namespace Math
 		return mTranslation;
 	}
 
+	void CTransform::SetTranslation(const SVector3& pTranslation)
+	{
+		mTranslation = pTranslation;
+	}
+
 	const SQuaternion& CTransform::GetOrientation() const
 	{
 		return mOrientation;

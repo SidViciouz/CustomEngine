@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "Vector3.h"
 
 namespace Renderer
 {
@@ -21,5 +22,10 @@ namespace Renderer
 		Math::SMatrix4 lMatrix = Math::SMatrix4::Orientation(lOrientation) * Math::SMatrix4::Scale(lScale) * Math::SMatrix4::Translation(lTranslation);
 
 		return lMatrix;
+	}
+
+	void CObject::SetTranslation(const Math::SVector3& pTranslation)
+	{
+		mTransform.SetTranslation(pTranslation);
 	}
 }

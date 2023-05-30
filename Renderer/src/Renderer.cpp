@@ -101,15 +101,21 @@ namespace Renderer
 
 		mMeshes.push_back(pMesh);
 
-		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
-		{
-			mFrameData->SetObjectConstantBufferHandle(
-				lFrameIndex, mMeshCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData), 256), EResourceHeapType::eUpload));
-		}
-
 		return mMeshCount++;
 	}
 
+	int CRenderer::SetObject(shared_ptr<CObject> pObject)
+	{
+		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
+		{
+			mFrameData->SetObjectConstantBufferHandle(
+				lFrameIndex, mObjectCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData), 256), EResourceHeapType::eUpload));
+		}
+
+		mObjects.push_back(pObject);
+
+		return mObjectCount++;
+	}
 
 
 	void CRenderer::DrawBegin()
@@ -184,7 +190,7 @@ namespace Renderer
 
 
 
-	void CRenderer::DrawMesh(int pMeshHandle, shared_ptr<CObject> pMeshData)
+	void CRenderer::DrawMesh(int pMeshHandle, int pObjectHandle)
 	{
 		D3D12_VERTEX_BUFFER_VIEW lVertexBufferView;
 		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetVertexBufferHandle());
@@ -201,7 +207,7 @@ namespace Renderer
 			mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			mCommandList->SetGraphicsRootSignature(mRootSignatures["Default"].Get());
 			mCommandList->SetPipelineState(mPSOs["Default"].Get());
-			mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pMeshHandle)));
+			mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObjectHandle)));
 			mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
 			mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
 			mCommandList->IASetIndexBuffer(&lIndexBufferView);
@@ -582,9 +588,13 @@ namespace Renderer
 
 	void CRenderer::UploadObjectConstantBuffer()
 	{
-		Math::SMatrix4 lIdentity;
-		SObjectData lObjectdData;
-		lObjectdData.mWorldMatrix = lIdentity;
-		mResourceManager->Upload(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame,0), &lObjectdData, sizeof(SObjectData), 1, 0, 0);
+		for (int lObjectIndex = 0; lObjectIndex < mObjectCount; ++lObjectIndex)
+		{
+			SObjectData lObjectData;
+
+			lObjectData.mWorldMatrix = mObjects[lObjectIndex]->GetWorldMatrix();
+
+			mResourceManager->Upload(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, lObjectIndex), &lObjectData, sizeof(SObjectData), 1, 0, 0);
+		}
 	}
 }

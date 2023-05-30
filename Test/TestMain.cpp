@@ -63,8 +63,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
-		shared_ptr<CMesh>	lMesh = make_shared<CMesh>("../Model/Donut.fbx");
-		shared_ptr<CObject>	lObject = make_shared<CObject>();
+		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Donut.fbx");
+		shared_ptr<CObject>	lObject1 = make_shared<CObject>();
+		shared_ptr<CMesh>	lMesh2 = make_shared<CMesh>("../Model/Sphere.fbx");
+		shared_ptr<CObject>	lObject2 = make_shared<CObject>();
+		lObject2->SetTranslation(Math::SVector3(3, 0, 0));
 
 		CRenderer r(lWindowHandle);
 		r.Initialize();
@@ -74,7 +77,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,2.0f };
 
 		r.SetCamera(lCamera);
-		int lMeshHandle = r.SetMesh(lMesh);
+		int lMesh1Handle = r.SetMesh(lMesh1);
+		int lObject1Handle = r.SetObject(lObject1);
+
+		int lMesh2Handle = r.SetMesh(lMesh2);
+		int lObject2Handle = r.SetObject(lObject2);
 
 		while (1)
 		{
@@ -84,7 +91,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			r.DrawLine(lData2);
 			r.DrawLine(lData3);
 
-			r.DrawMesh(lMeshHandle, lObject);
+			r.DrawMesh(lMesh1Handle, lObject1Handle);
+
+			r.DrawMesh(lMesh2Handle, lObject2Handle);
 
 			r.DrawEnd();
 		}

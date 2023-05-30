@@ -9,7 +9,10 @@ namespace Math
 	{
 	public:
 												CTransform();
+
 		const SVector3&							GetTranslation() const;
+		void									SetTranslation(const SVector3& pTranslation);
+
 		const SQuaternion&						GetOrientation() const;
 		const SVector3&							GetScale() const;
 
