@@ -1,5 +1,6 @@
 #include "ResourceManager.h"
 #include "Util.h"
+#include "DDSTextureLoader12.h"
 
 namespace Renderer
 {
