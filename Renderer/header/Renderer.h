@@ -20,6 +20,11 @@ namespace Renderer
 		void									SetCamera(shared_ptr<CCamera> pCamera);
 		int										SetMesh(shared_ptr<CMesh> pMesh);
 		int										SetObject(shared_ptr<CObject> pObject);
+
+		void									LoadBegin();
+		void									LoadEnd();
+		int										LoadTexture(const wchar_t* pFilePath);
+
 		void									DrawBegin();
 		void									DrawEnd();
 		void									DrawLine(void* pData);
@@ -73,6 +78,8 @@ namespace Renderer
 		ComPtr<ID3D12CommandQueue>				mCommandQueue;
 		ComPtr<ID3D12CommandAllocator>			mCommandAllocator;
 		ComPtr<ID3D12GraphicsCommandList>		mCommandList;
+		ComPtr<ID3D12CommandAllocator>			mCopyCommandAllocator;
+		ComPtr<ID3D12GraphicsCommandList>		mCopyCommandList;
 
 		/*
 		* resource management
@@ -145,10 +152,16 @@ namespace Renderer
 		*/
 		void									UploadObjectConstantBuffer();
 		vector<shared_ptr<CMesh>>				mMeshes;
-		//vector<int>								mMeshResourceHandles;
 		int										mMeshCount = 0;
 
 		int										mObjectCount = 0;
 		vector<shared_ptr<CObject>>				mObjects;
+
+		
+		/*
+		* texture data
+		*/
+		unordered_map<int, int>					mUploadBufferHandleMap; // textureHandle -> uploadBufferHandle
+		unordered_map<int, int>					mDescriptorHandleMap; // textureHandle -> DescriptorHandle
 	};
 }

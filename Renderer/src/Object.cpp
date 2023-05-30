@@ -38,4 +38,24 @@ namespace Renderer
 	{
 		mTransform.SetScale(pScale);
 	}
+
+	void CObject::SetBaseColorResourceHandle(int pResourceHandle)
+	{
+		mBaseColorResourceHandle = pResourceHandle;
+	}
+
+	void CObject::SetMetallicResourceHandle(int pResourceHandle)
+	{
+		mMetallicResourceHandle = pResourceHandle;
+	}
+
+	void CObject::SetNormalResourceHandle(int pResourceHandle)
+	{
+		mNormalResourceHandle = pResourceHandle;
+	}
+
+	void CObject::SetRoughnessResourceHandle(int pResourceHandle)
+	{
+		mRoughnessResourceHandle = pResourceHandle;
+	}
 }

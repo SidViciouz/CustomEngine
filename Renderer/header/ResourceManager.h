@@ -61,7 +61,7 @@ namespace Renderer
 	class CResourceManager
 	{
 	public:
-											CResourceManager(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+											CResourceManager(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList, ID3D12GraphicsCommandList* pCopyCommandList);
 											~CResourceManager();
 
 		/*
@@ -73,7 +73,7 @@ namespace Renderer
 		int									CreateTexture3D(int pWidth, int pHeight, int pDepth, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 		int									StoreSwapchainBuffer(IDXGISwapChain* pSwapchain,int pBufferIndex);
 		int									CreateDepthTexture(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
-
+		int									CreateNullResourcePointer();
 		void								ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState);
 		/*
 		* This method uploads pData to Resource.
@@ -82,6 +82,10 @@ namespace Renderer
 		* pWidth is byte size of width.
 		*/
 		void								Upload(int pResourceHandle, const void* pData, int pWidth, int pHeight, int pOffsetX, int pOffsetY);
+		/*
+		* 
+		*/
+		void								LoadDDS(int pResoureceHandle, int pUploadResourceHandle,const wchar_t* pFilePath);
 
 
 		/*
@@ -121,5 +125,6 @@ namespace Renderer
 
 		ID3D12Device*						mDevice;
 		ID3D12GraphicsCommandList*			mCommandList;
+		ID3D12GraphicsCommandList*			mCopyCommandList;
 	};
 }

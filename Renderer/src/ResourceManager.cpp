@@ -1,12 +1,13 @@
 #include "ResourceManager.h"
 #include "Util.h"
 #include "DDSTextureLoader12.h"
+#include "d3dx12.h"
 
 namespace Renderer
 {
 	
-	CResourceManager::CResourceManager(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
-		:mDevice{ pDevice }, mCommandList{pCommandList}
+	CResourceManager::CResourceManager(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList, ID3D12GraphicsCommandList* pCopyCommandList)
+		:mDevice{ pDevice }, mCommandList{pCommandList}, mCopyCommandList{pCopyCommandList}
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC lHeapDesc = {};
 
@@ -162,6 +163,13 @@ namespace Renderer
 		return CreateResource(lResourceDescription);
 	}
 
+	int	CResourceManager::CreateNullResourcePointer()
+	{
+		return mResourceCount++;
+	}
+
+
+
 	void CResourceManager::ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState)
 	{
 		D3D12_RESOURCE_BARRIER lBarrier;
@@ -198,6 +206,50 @@ namespace Renderer
 		}
 
 		mResources[pResourceHandle].mResource->Unmap(0, nullptr);
+	}
+
+	void CResourceManager::LoadDDS(int pResoureceHandle, int pUploadResourceHandle, const wchar_t* pFilePath)
+	{
+		unique_ptr<uint8_t[]> lDDSData;
+		vector<D3D12_SUBRESOURCE_DATA> lSubresources;
+
+		if (!SUCCEEDED(DirectX::LoadDDSTextureFromFile(mDevice,  pFilePath, mResources[pResoureceHandle].mResource.ReleaseAndGetAddressOf(), lDDSData, lSubresources)))
+			throw string("load dds texture fails.");
+		mResources[pResoureceHandle].mState = D3D12_RESOURCE_STATE_COPY_DEST;
+
+		const UINT64 lUploadBufferSize = GetRequiredIntermediateSize(mResources[pResoureceHandle].mResource.Get(), 0,
+			static_cast<UINT>(lSubresources.size()));
+
+		// Create the GPU upload buffer.
+		CD3DX12_HEAP_PROPERTIES lHeapProps(D3D12_HEAP_TYPE_UPLOAD);
+
+		auto lDesc = CD3DX12_RESOURCE_DESC::Buffer(lUploadBufferSize);
+
+		if (!SUCCEEDED(mDevice->CreateCommittedResource(
+			&lHeapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&lDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(mResources[pUploadResourceHandle].mResource.ReleaseAndGetAddressOf()))))
+			throw string("create uploadRes fails.");
+
+		UpdateSubresources(mCopyCommandList, mResources[pResoureceHandle].mResource.Get(), mResources[pUploadResourceHandle].mResource.Get(),
+			0, 0, static_cast<UINT>(lSubresources.size()), lSubresources.data());
+	
+
+		D3D12_RESOURCE_BARRIER lBarrier;
+		lBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		lBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		lBarrier.Transition.pResource = mResources[pResoureceHandle].mResource.Get();
+		lBarrier.Transition.StateBefore = mResources[pResoureceHandle].mState;
+		lBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		lBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		mCopyCommandList->ResourceBarrier(1, &lBarrier);
+
+		mResources[pResoureceHandle].mState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+
 	}
 
 	int	CResourceManager::CreateResource(const SResourceDescription& pDescrption)

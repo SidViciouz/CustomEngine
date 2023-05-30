@@ -86,7 +86,6 @@ namespace Renderer
 		mResourceManager->Upload(lResourceHandle, lVertexDatas, sizeof(SVertex) * lVertexCount, 1, 0, 0);
 
 		pMesh->SetVertexBufferHandle(lResourceHandle);
-		//mMeshResourceHandles.push_back(lResourceHandle);
 
 		for (int lSubMeshIndex = 0; lSubMeshIndex < pMesh->GetSubMeshCount(); ++lSubMeshIndex)
 		{
@@ -104,6 +103,8 @@ namespace Renderer
 		return mMeshCount++;
 	}
 
+
+
 	int CRenderer::SetObject(shared_ptr<CObject> pObject)
 	{
 		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
@@ -116,6 +117,42 @@ namespace Renderer
 
 		return mObjectCount++;
 	}
+
+
+
+	void CRenderer::LoadBegin()
+	{
+		mCopyCommandAllocator->Reset();
+		mCopyCommandList->Reset(mCopyCommandAllocator.Get(), nullptr);
+	}
+
+
+
+	void CRenderer::LoadEnd()
+	{
+		mCopyCommandList->Close();
+		ID3D12CommandList* lists[] = { mCopyCommandList.Get() };
+		mCommandQueue->ExecuteCommandLists(1, lists);
+	}
+
+
+
+	int	CRenderer::LoadTexture(const wchar_t* pFilePath)
+	{
+		int lUploadHandle = mResourceManager->CreateNullResourcePointer();
+
+		int lTextureHandle = mResourceManager->CreateNullResourcePointer();
+		mResourceManager->LoadDDS(lTextureHandle, lUploadHandle, pFilePath);
+;
+		int lDescriptorHandle = mResourceManager->CreateDescriptor(lTextureHandle, EDescriptorType::eSRV);
+
+		mUploadBufferHandleMap[lTextureHandle] = lUploadHandle;
+
+		mDescriptorHandleMap[lTextureHandle] = lDescriptorHandle;
+
+		return lTextureHandle;
+	}
+
 
 
 	void CRenderer::DrawBegin()
@@ -289,14 +326,32 @@ namespace Renderer
 
 		if (!SUCCEEDED(mDevice->CreateCommandList(
 			0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf()))))
-			throw string("creating command list fails");
+			throw string("creating command list fails.");
+
+
+
+		if (!SUCCEEDED(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCopyCommandAllocator.GetAddressOf()))))
+			throw string("creating copy command allocator fails.");
+
+		D3D12_COMMAND_QUEUE_DESC lCopyDesc = {};
+		lDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		lDesc.NodeMask = 0;
+		lDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+		lDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+
+		if (!SUCCEEDED(mDevice->CreateCommandList(
+			0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCopyCommandAllocator.Get(), nullptr, IID_PPV_ARGS(mCopyCommandList.GetAddressOf()))))
+			throw string("creating copy command list fails.");
+
+		if (!SUCCEEDED(mCopyCommandList->Close()))
+			throw string("closing copy command list fails.");
 	}
 
 
 
 	void CRenderer::CreateResourceManager()
 	{
-		mResourceManager = make_unique<CResourceManager>(mDevice.Get(), mCommandList.Get());
+		mResourceManager = make_unique<CResourceManager>(mDevice.Get(), mCommandList.Get(), mCopyCommandList.Get());
 	}
 
 

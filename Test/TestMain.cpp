@@ -74,6 +74,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		CRenderer r(lWindowHandle);
 		r.Initialize();
 
+		r.LoadBegin();
+		int lTexture1Handle = r.LoadTexture(L"../Material/rustediron2_basecolor.dds");
+		int lTexture2Handle = r.LoadTexture(L"../Material/rustediron2_metallic.dds");
+		int lTexture3Handle = r.LoadTexture(L"../Material/rustediron2_normal.dds");
+		int lTexture4Handle = r.LoadTexture(L"../Material/rustediron2_roughness.dds");
+		r.LoadEnd();
+
 		float lData1[9] = { 1.0f,0.0f,0.0f,0.0f,0.0f,1.0f,1.0f,0.0f,1.0f };
 		float lData2[9] = { 0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,1.0f,1.0f };
 		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,2.0f };

@@ -22,8 +22,18 @@ namespace Renderer
 		void									SetOrientation(const Math::SQuaternion& pOrientation);
 		void									SetScale(const Math::SVector3& pScale);
 
+		void									SetBaseColorResourceHandle(int pResourceHandle);
+		void									SetMetallicResourceHandle(int pResourceHandle);
+		void									SetNormalResourceHandle(int pResourceHandle);
+		void									SetRoughnessResourceHandle(int pResourceHandle);
+
 	protected:
 		//transform, bone, ...
 		Math::CTransform						mTransform;
+
+		int										mBaseColorResourceHandle = -1;
+		int										mMetallicResourceHandle = -1;
+		int										mNormalResourceHandle = -1;
+		int										mRoughnessResourceHandle = -1;
 	};
 }
