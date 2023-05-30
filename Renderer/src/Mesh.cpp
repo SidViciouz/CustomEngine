@@ -34,39 +34,48 @@ void StoreIndex(FbxMesh* pFbxMesh, vector<Renderer::SSubMesh>& pSubMeshes,int pS
 
 	pSubMeshes.resize(pSubMeshCount);
 
-	FbxLayerElementArrayTemplate<int>& lMaterialIndexArray = pFbxMesh->GetElementMaterial()->GetIndexArray();
-
-	int lPolygonCount = pFbxMesh->GetPolygonCount();
-	for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
+	if (pFbxMesh->GetElementMaterialCount() == 0)
 	{
-		int lMaterialIndex = lMaterialIndexArray.GetAt(lPolygonIndex);
+		//when there is no material
 
-		int lPolygonSize = pFbxMesh->GetPolygonSize(lPolygonIndex);
 
-		if (lPolygonSize == 3)
+	}
+	else
+	{
+		FbxLayerElementArrayTemplate<int>& lMaterialIndexArray = pFbxMesh->GetElementMaterial()->GetIndexArray();
+
+		int lPolygonCount = pFbxMesh->GetPolygonCount();
+		for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
 		{
-			for (int lPolygonPosition = 0; lPolygonPosition < 3; ++lPolygonPosition)
+			int lMaterialIndex = lMaterialIndexArray.GetAt(lPolygonIndex);
+
+			int lPolygonSize = pFbxMesh->GetPolygonSize(lPolygonIndex);
+
+			if (lPolygonSize == 3)
 			{
-				int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lPolygonPosition);
-				pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
-			}
+				for (int lPolygonPosition = 0; lPolygonPosition < 3; ++lPolygonPosition)
+				{
+					int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lPolygonPosition);
+					pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
+				}
 
-			//pSubMeshes[lMaterialIndex]->AddTriangle();
-		}
-		else if (lPolygonSize == 4)
-		{
-			for (int i = 0; i < 6; ++i)
+				//pSubMeshes[lMaterialIndex]->AddTriangle();
+			}
+			else if (lPolygonSize == 4)
 			{
-				int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lTriangle[i]);
-				pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
+				for (int i = 0; i < 6; ++i)
+				{
+					int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lTriangle[i]);
+					pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
 
+				}
+
+				//pSubMeshes[lMaterialIndex]->AddTriangle(2);
 			}
-
-			//pSubMeshes[lMaterialIndex]->AddTriangle(2);
-		}
-		else
-		{
-			printf("lPolygonSize is %d\n", lPolygonSize);
+			else
+			{
+				printf("lPolygonSize is %d\n", lPolygonSize);
+			}
 		}
 	}
 }

@@ -9,6 +9,10 @@ namespace Math
 	{
 	public:
 												CTransform();
+		const SVector3&							GetTranslation() const;
+		const SQuaternion&						GetOrientation() const;
+		const SVector3&							GetScale() const;
+
 	protected:
 		SVector3								mTranslation;
 		SQuaternion								mOrientation;

@@ -580,7 +580,6 @@ namespace Renderer
 		mResourceManager->Upload(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame), &lWorldData, sizeof(SWorldData), 1, 0, 0);
 	}
 
-
 	void CRenderer::UploadObjectConstantBuffer()
 	{
 		Math::SMatrix4 lIdentity;

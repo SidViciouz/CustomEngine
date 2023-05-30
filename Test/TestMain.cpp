@@ -57,8 +57,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		ShowWindow(lWindowHandle, SW_SHOW);
 		UpdateWindow(lWindowHandle);
 
+
+
+
+
+
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
-		shared_ptr<CMesh>	lMesh = make_shared<CMesh>("../Model/AnimMan.FBX");
+		shared_ptr<CMesh>	lMesh = make_shared<CMesh>("../Model/Donut.fbx");
 		shared_ptr<CObject>	lObject = make_shared<CObject>();
 
 		CRenderer r(lWindowHandle);
