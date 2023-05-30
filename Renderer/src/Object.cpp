@@ -28,4 +28,14 @@ namespace Renderer
 	{
 		mTransform.SetTranslation(pTranslation);
 	}
+
+	void CObject::SetOrientation(const Math::SQuaternion& pOrientation)
+	{
+		mTransform.SetOrientation(pOrientation);
+	}
+
+	void CObject::SetScale(const Math::SVector3& pScale)
+	{
+		mTransform.SetScale(pScale);
+	}
 }

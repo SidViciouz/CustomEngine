@@ -24,8 +24,18 @@ namespace Math
 		return mOrientation;
 	}
 
+	void CTransform::SetOrientation(const SQuaternion& pOrientation)
+	{
+		mOrientation = pOrientation;
+	}
+
 	const SVector3& CTransform::GetScale() const
 	{
 		return mScale;
+	}
+
+	void CTransform::SetScale(const SVector3& pScale)
+	{
+		mScale = pScale;
 	}
 }

@@ -63,11 +63,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
-		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Donut.fbx");
+		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");
 		shared_ptr<CObject>	lObject1 = make_shared<CObject>();
 		shared_ptr<CMesh>	lMesh2 = make_shared<CMesh>("../Model/Sphere.fbx");
 		shared_ptr<CObject>	lObject2 = make_shared<CObject>();
 		lObject2->SetTranslation(Math::SVector3(3, 0, 0));
+		lObject1->SetOrientation(Math::SQuaternion(1*cosf(DirectX::XMConvertToRadians(-45)),0,0, sinf(DirectX::XMConvertToRadians(-45))));
+		lObject1->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
 
 		CRenderer r(lWindowHandle);
 		r.Initialize();
