@@ -61,13 +61,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 
 
-
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
 		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");
 		shared_ptr<CObject>	lObject1 = make_shared<CObject>();
-		shared_ptr<CMesh>	lMesh2 = make_shared<CMesh>("../Model/Sphere.fbx");
+		shared_ptr<CMesh>	lMesh2 = make_shared<CMesh>("../Model/AnimMan2.FBX");
 		shared_ptr<CObject>	lObject2 = make_shared<CObject>();
-		lObject2->SetTranslation(Math::SVector3(3, 0, 0));
+		shared_ptr<CMesh>	lMesh3 = make_shared<CMesh>("../Model/Sphere.fbx");
+		shared_ptr<CObject>	lObject3 = make_shared<CObject>();
+		lObject3->SetTranslation(Math::SVector3(3, 0, 5));
+		lObject3->SetScale(Math::SVector3(2, 2, 2));
+		lObject2->SetTranslation(Math::SVector3(0, 0, 10));
+		lObject2->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
+		lObject2->SetScale(Math::SVector3(0.01f,0.01f,0.01f));
+		lObject1->SetTranslation(Math::SVector3(0, -3, 3));
 		lObject1->SetOrientation(Math::SQuaternion(1*cosf(DirectX::XMConvertToRadians(-45)),0,0, sinf(DirectX::XMConvertToRadians(-45))));
 		lObject1->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
 
@@ -92,17 +98,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		int lMesh2Handle = r.SetMesh(lMesh2);
 		int lObject2Handle = r.SetObject(lObject2);
 
+		int lMesh3Handle = r.SetMesh(lMesh3);
+		int lObject3Handle = r.SetObject(lObject3);
+
 		while (1)
 		{
 			r.DrawBegin();
 
-			r.DrawLine(lData1);
-			r.DrawLine(lData2);
-			r.DrawLine(lData3);
+			//r.DrawLine(lData1);
+			//r.DrawLine(lData2);
+			//r.DrawLine(lData3);
 
-			r.DrawMesh(lMesh1Handle, lObject1Handle);
+			//r.DrawMesh(lMesh1Handle, lObject1Handle);
+			//r.DrawMesh(lMesh2Handle, lObject2Handle);
+			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, lTexture1Handle,lTexture2Handle,lTexture3Handle, lTexture4Handle,-1);
+			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 
-			r.DrawMesh(lMesh2Handle, lObject2Handle);
 
 			r.DrawEnd();
 		}

@@ -32,6 +32,7 @@ namespace Renderer
 		void									DrawSquare();
 		void									DrawCube();
 		void									DrawMesh(int pMeshHandle, int pObjectHandle);
+		void									DrawMeshPBR(int pMeshHandle, int pObjectHandle,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle);
 
 	private:
 		/*

@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Object.h"
+#include "d3dx12.h"
 
 namespace Renderer
 {
@@ -117,7 +118,6 @@ namespace Renderer
 
 		return mObjectCount++;
 	}
-
 
 
 	void CRenderer::LoadBegin()
@@ -234,6 +234,13 @@ namespace Renderer
 		lVertexBufferView.SizeInBytes = sizeof(SVertex) * mMeshes[pMeshHandle]->GetVertexCount();
 		lVertexBufferView.StrideInBytes = sizeof(SVertex);
 
+		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mCommandList->SetGraphicsRootSignature(mRootSignatures["Default"].Get());
+		mCommandList->SetPipelineState(mPSOs["Default"].Get());
+		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObjectHandle)));
+		mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
+		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
+
 		for (int lSubMeshIndex = 0; lSubMeshIndex < mMeshes[pMeshHandle]->GetSubMeshCount(); ++lSubMeshIndex)
 		{
 			D3D12_INDEX_BUFFER_VIEW lIndexBufferView;
@@ -241,18 +248,50 @@ namespace Renderer
 			lIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
 			lIndexBufferView.SizeInBytes = sizeof(uint16_t) * mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex);
 
-			mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			mCommandList->SetGraphicsRootSignature(mRootSignatures["Default"].Get());
-			mCommandList->SetPipelineState(mPSOs["Default"].Get());
-			mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObjectHandle)));
-			mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
-			mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
 			mCommandList->IASetIndexBuffer(&lIndexBufferView);
 			mCommandList->DrawIndexedInstanced(mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex), 1, 0, 0,0);
 		}
 
 	}
 
+	void CRenderer::DrawMeshPBR(int pMeshHandle, int pObjectHandle,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle)
+	{
+		D3D12_VERTEX_BUFFER_VIEW lVertexBufferView;
+		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetVertexBufferHandle());
+		lVertexBufferView.SizeInBytes = sizeof(SVertex) * mMeshes[pMeshHandle]->GetVertexCount();
+		lVertexBufferView.StrideInBytes = sizeof(SVertex);
+
+
+		ID3D12DescriptorHeap* lDescriptorHeap = mResourceManager->GetDescriptorHeap(EDescriptorType::eSRV);
+		mCommandList->SetDescriptorHeaps(1, &lDescriptorHeap);
+		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mCommandList->SetGraphicsRootSignature(mRootSignatures["PBR"].Get());
+		mCommandList->SetPipelineState(mPSOs["PBR"].Get());
+		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObjectHandle)));
+		mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
+		if (pBaseColorTextureHandle > -1)
+			mCommandList->SetGraphicsRootDescriptorTable(2, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pBaseColorTextureHandle]));
+		if (pMetallicTextureHandle > -1)
+			mCommandList->SetGraphicsRootDescriptorTable(3, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pMetallicTextureHandle]));
+		if (pNormalTextureHandle > -1)
+			mCommandList->SetGraphicsRootDescriptorTable(4, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pNormalTextureHandle]));
+		if (pRoughnessTextureHandle > -1)
+			mCommandList->SetGraphicsRootDescriptorTable(5, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pRoughnessTextureHandle]));
+		if (pAmbientOcculstionTextureHandle > -1)
+			mCommandList->SetGraphicsRootDescriptorTable(6, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pAmbientOcculstionTextureHandle]));
+		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
+
+		for (int lSubMeshIndex = 0; lSubMeshIndex < mMeshes[pMeshHandle]->GetSubMeshCount(); ++lSubMeshIndex)
+		{
+			D3D12_INDEX_BUFFER_VIEW lIndexBufferView;
+			lIndexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetIndexBufferHandle(lSubMeshIndex));
+			lIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+			lIndexBufferView.SizeInBytes = sizeof(uint16_t) * mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex);
+
+			mCommandList->IASetIndexBuffer(&lIndexBufferView);
+			mCommandList->DrawIndexedInstanced(mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex), 1, 0, 0, 0);
+		}
+	}
 
 
 	void CRenderer::EnableDebug()
@@ -429,12 +468,22 @@ namespace Renderer
 
 		if (!SUCCEEDED(D3DReadFileToBlob(L"../Renderer/shader/LinePS.cso", mShaders["LinePS"].GetAddressOf())))
 			throw string("read shader fails.");
+
+		if (!SUCCEEDED(D3DReadFileToBlob(L"../Renderer/shader/PBRVS.cso", mShaders["PBRVS"].GetAddressOf())))
+			throw string("read shader fails.");
+
+		if (!SUCCEEDED(D3DReadFileToBlob(L"../Renderer/shader/PBRPS.cso", mShaders["PBRPS"].GetAddressOf())))
+			throw string("read shader fails.");
 	}
 
 
 
 	void CRenderer::CreateRootSignatures()
 	{
+		/*
+		* line root signature
+		*/
+
 		D3D12_ROOT_PARAMETER lLineParameter[2];
 		lLineParameter[0].Constants.Num32BitValues = 9;
 		lLineParameter[0].Constants.RegisterSpace = 0;
@@ -454,10 +503,11 @@ namespace Renderer
 
 		AddRootSignature("Line", lLineDesc);
 
-
+		/*
+		* default root signature
+		*/
 
 		D3D12_ROOT_PARAMETER lDefaultParameter[2];
-
 		lDefaultParameter[0].Descriptor.RegisterSpace = 0;
 		lDefaultParameter[0].Descriptor.ShaderRegister = 0;
 		lDefaultParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -474,6 +524,83 @@ namespace Renderer
 		lDefaultDesc.pParameters = lDefaultParameter;
 
 		AddRootSignature("Default", lDefaultDesc);
+
+
+
+		/*
+		*  PBR root signature
+		*/
+		D3D12_DESCRIPTOR_RANGE lPBRDescriptorRange[5];
+		lPBRDescriptorRange[0].BaseShaderRegister = 0;
+		lPBRDescriptorRange[0].NumDescriptors = 1;
+		lPBRDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		lPBRDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		lPBRDescriptorRange[0].RegisterSpace = 0;
+		lPBRDescriptorRange[1].BaseShaderRegister = 1;
+		lPBRDescriptorRange[1].NumDescriptors = 1;
+		lPBRDescriptorRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		lPBRDescriptorRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		lPBRDescriptorRange[1].RegisterSpace = 0;
+		lPBRDescriptorRange[2].BaseShaderRegister = 2;
+		lPBRDescriptorRange[2].NumDescriptors = 1;
+		lPBRDescriptorRange[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		lPBRDescriptorRange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		lPBRDescriptorRange[2].RegisterSpace = 0;
+		lPBRDescriptorRange[3].BaseShaderRegister = 3;
+		lPBRDescriptorRange[3].NumDescriptors = 1;
+		lPBRDescriptorRange[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		lPBRDescriptorRange[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		lPBRDescriptorRange[3].RegisterSpace = 0;
+		lPBRDescriptorRange[4].BaseShaderRegister = 4;
+		lPBRDescriptorRange[4].NumDescriptors = 1;
+		lPBRDescriptorRange[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		lPBRDescriptorRange[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		lPBRDescriptorRange[4].RegisterSpace = 0;
+
+		D3D12_ROOT_PARAMETER lPBRParameter[7];
+		lPBRParameter[0].Descriptor.RegisterSpace = 0;
+		lPBRParameter[0].Descriptor.ShaderRegister = 0;
+		lPBRParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		lPBRParameter[1].Descriptor.RegisterSpace = 0;
+		lPBRParameter[1].Descriptor.ShaderRegister = 1;
+		lPBRParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		lPBRParameter[2].DescriptorTable.NumDescriptorRanges = 1;
+		lPBRParameter[2].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[0];
+		lPBRParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		lPBRParameter[3].DescriptorTable.NumDescriptorRanges = 1;
+		lPBRParameter[3].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[1];
+		lPBRParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		lPBRParameter[4].DescriptorTable.NumDescriptorRanges = 1;
+		lPBRParameter[4].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[2];
+		lPBRParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		lPBRParameter[5].DescriptorTable.NumDescriptorRanges = 1;
+		lPBRParameter[5].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[3];
+		lPBRParameter[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		lPBRParameter[6].DescriptorTable.NumDescriptorRanges = 1;
+		lPBRParameter[6].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[4];
+		lPBRParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+
+		CD3DX12_STATIC_SAMPLER_DESC lPBRSamplerDesc(0,
+			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+
+		D3D12_ROOT_SIGNATURE_DESC lPBRDesc = {};
+		lPBRDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		lPBRDesc.NumParameters = 7;
+		lPBRDesc.pParameters = lPBRParameter;
+		lPBRDesc.NumStaticSamplers = 1;
+		lPBRDesc.pStaticSamplers = &lPBRSamplerDesc;
+
+		AddRootSignature("PBR", lPBRDesc);
 	}
 
 
@@ -498,6 +625,10 @@ namespace Renderer
 	void CRenderer::CreatePSO()
 	{
 		ComPtr<ID3D12PipelineState> lPSO;
+
+		/*
+		* line pipeline
+		*/
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC lLinePsoDesc = {};
 
@@ -554,6 +685,9 @@ namespace Renderer
 		mPSOs["Line"] = move(lPSO);
 
 
+		/*
+		* default pipeline
+		*/
 
 
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC lDefaultPsoDesc = {};
@@ -612,6 +746,71 @@ namespace Renderer
 			throw string("creating graphics pipeline state fails.");
 
 		mPSOs["Default"] = move(lPSO);
+
+
+		/*
+		* PBR pipeline
+		*/
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC lPBRPsoDesc = {};
+
+		D3D12_INPUT_ELEMENT_DESC lPBRInputElements[5];
+		lPBRInputElements[0] = { "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lPBRInputElements[1] = { "TEX",0,DXGI_FORMAT_R32G32_FLOAT,0,12,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lPBRInputElements[2] = { "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,20,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lPBRInputElements[3] = { "TANGENT",0,DXGI_FORMAT_R32G32B32_FLOAT,0,32,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lPBRInputElements[4] = { "BINORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,44,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lPBRPsoDesc.InputLayout.NumElements = 5;
+		lPBRPsoDesc.InputLayout.pInputElementDescs = lPBRInputElements;
+		lPBRPsoDesc.pRootSignature = mRootSignatures["PBR"].Get();
+		lPBRPsoDesc.VS.pShaderBytecode = mShaders["PBRVS"]->GetBufferPointer();
+		lPBRPsoDesc.VS.BytecodeLength = mShaders["PBRVS"]->GetBufferSize();
+		lPBRPsoDesc.PS.pShaderBytecode = mShaders["PBRPS"]->GetBufferPointer();
+		lPBRPsoDesc.PS.BytecodeLength = mShaders["PBRPS"]->GetBufferSize();
+		lPBRPsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+		lPBRPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+		lPBRPsoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+		lPBRPsoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		lPBRPsoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		lPBRPsoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		lPBRPsoDesc.RasterizerState.DepthClipEnable = TRUE;
+		lPBRPsoDesc.RasterizerState.MultisampleEnable = FALSE;
+		lPBRPsoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+		lPBRPsoDesc.RasterizerState.ForcedSampleCount = 0;
+		lPBRPsoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		lPBRPsoDesc.BlendState.AlphaToCoverageEnable = FALSE;
+		lPBRPsoDesc.BlendState.IndependentBlendEnable = FALSE;
+		const D3D12_RENDER_TARGET_BLEND_DESC lPBRRenderTargetBlendDesc =
+		{
+			FALSE,FALSE,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_LOGIC_OP_NOOP,
+			D3D12_COLOR_WRITE_ENABLE_ALL,
+		};
+		for (int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
+			lPBRPsoDesc.BlendState.RenderTarget[i] = lPBRRenderTargetBlendDesc;
+		lPBRPsoDesc.DepthStencilState.DepthEnable = TRUE;
+		lPBRPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		lPBRPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		lPBRPsoDesc.DepthStencilState.StencilEnable = FALSE;
+		lPBRPsoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+		lPBRPsoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+		const D3D12_DEPTH_STENCILOP_DESC lPBRStencilOp =
+		{ D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS };
+		lPBRPsoDesc.DepthStencilState.FrontFace = lPBRStencilOp;
+		lPBRPsoDesc.DepthStencilState.BackFace = lPBRStencilOp;
+		lPBRPsoDesc.SampleMask = UINT_MAX;
+		lPBRPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		lPBRPsoDesc.NumRenderTargets = 1;
+		lPBRPsoDesc.RTVFormats[0] = mBackBufferFormat;
+		lPBRPsoDesc.SampleDesc.Count = 1;
+		lPBRPsoDesc.SampleDesc.Quality = 0;
+		lPBRPsoDesc.DSVFormat = mDepthBufferFormat;
+
+		if (!SUCCEEDED(mDevice->CreateGraphicsPipelineState(&lPBRPsoDesc, IID_PPV_ARGS(lPSO.GetAddressOf()))))
+			throw string("creating graphics pipeline state fails.");
+
+		mPSOs["PBR"] = move(lPSO);
 	}
 
 

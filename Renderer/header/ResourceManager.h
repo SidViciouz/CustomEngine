@@ -95,15 +95,17 @@ namespace Renderer
 		D3D12_CPU_DESCRIPTOR_HANDLE			GetCpuHandle(int pHandle);
 		D3D12_GPU_DESCRIPTOR_HANDLE			GetGpuHandle(int pHandle);
 		D3D12_GPU_VIRTUAL_ADDRESS			GetGpuVirtualAddress(int pResourceHandle) const;
+		ID3D12DescriptorHeap*				GetDescriptorHeap(EDescriptorType pType) const;
 
 	private:
 		/*
 		* create buffer and return decriptor handle.
 		*/
 		int									CreateResource(const SResourceDescription& pDescrption);
-
 		array<SResourceInfo, MAX_RESOURCE_NUM> mResources;
 		int									mResourceCount = 0;
+
+
 
 		array<ComPtr<ID3D12DescriptorHeap>, 3> mDescriptorHeaps;
 		array<pair<int,int>, MAX_DESCRIPTOR_NUM> mDescriptorHandleToHeap; // descriptor Handle -> corresponding <desciptor heap, index>

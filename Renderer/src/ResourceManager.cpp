@@ -555,8 +555,29 @@ namespace Renderer
 		}
 	}
 
+
+
 	D3D12_GPU_VIRTUAL_ADDRESS CResourceManager::GetGpuVirtualAddress(int pResourceHandle) const
 	{
 		return mResources[pResourceHandle].mResource->GetGPUVirtualAddress();
+	}
+
+
+
+	ID3D12DescriptorHeap* CResourceManager::GetDescriptorHeap(EDescriptorType pType) const
+	{
+		if (pType == EDescriptorType::eRTV)
+		{
+			return mDescriptorHeaps[0].Get();
+		}
+		else if (pType == EDescriptorType::eDSV)
+		{
+			return mDescriptorHeaps[1].Get();
+		}
+		else
+		{
+			return mDescriptorHeaps[2].Get();
+		}
+
 	}
 }
