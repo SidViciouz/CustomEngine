@@ -28,7 +28,7 @@ namespace Renderer
 		void									SetRoughnessResourceHandle(int pResourceHandle);
 
 	protected:
-		//transform, bone, ...
+		//transform, ...
 		Math::CTransform						mTransform;
 
 		int										mBaseColorResourceHandle = -1;

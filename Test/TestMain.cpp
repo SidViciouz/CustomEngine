@@ -68,9 +68,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		shared_ptr<CObject>	lObject2 = make_shared<CObject>();
 		shared_ptr<CMesh>	lMesh3 = make_shared<CMesh>("../Model/Sphere.fbx");
 		shared_ptr<CObject>	lObject3 = make_shared<CObject>();
-		lObject3->SetTranslation(Math::SVector3(3, 0, 5));
+		lObject3->SetTranslation(Math::SVector3(0, 1.5, 5));
 		lObject3->SetScale(Math::SVector3(2, 2, 2));
-		lObject2->SetTranslation(Math::SVector3(0, 0, 10));
+		lObject2->SetTranslation(Math::SVector3(-1, -1, 1));
 		lObject2->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lObject2->SetScale(Math::SVector3(0.01f,0.01f,0.01f));
 		lObject1->SetTranslation(Math::SVector3(0, -3, 3));

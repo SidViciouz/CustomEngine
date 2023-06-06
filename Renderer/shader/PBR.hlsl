@@ -111,8 +111,11 @@ float4 PS(VertexOut pin) : SV_TARGET
 
 	float3 lFinalColor = lAmbient + lLo;
 
+	//tone mapping
 	lFinalColor = lFinalColor / (lFinalColor + 1.0f);
-	lFinalColor = pow(lFinalColor, 1.0f / 2.2f);
+	
+	//gamma correction
+	//lFinalColor = pow(lFinalColor, 1.0f / 2.2f);
 
 	return float4(lFinalColor,1.0f);
 }

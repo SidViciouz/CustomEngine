@@ -5,6 +5,8 @@
 
 namespace Renderer
 {
+	class CSkeleton;
+
 	struct SVertex
 	{
 		Math::SVector3 mPosition;
@@ -65,7 +67,14 @@ namespace Renderer
 		vector<SVertex>							mVertices;
 		vector<SSubMesh>						mSubMeshes;
 
+		// index of the vertex corresponding to controlPoint
+		vector<vector<uint16_t>>				mControlPointToVertex;
+		vector<uint16_t>						mVertexToControlPoint;
+
 		int										mVertexBufferHandle;
+
+		bool									mIsSkeleton = false;
+		shared_ptr<CSkeleton>					mSkeleton;
 	};
 
 }

@@ -166,6 +166,7 @@
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
+    <ClCompile Include="src\Skeleton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\Camera.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="header\Object.h" />
     <ClInclude Include="header\Renderer.h" />
     <ClInclude Include="header\ResourceManager.h" />
+    <ClInclude Include="header\Skeleton.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Maths\Maths.vcxproj">

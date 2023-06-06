@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Skeleton.h"
 #include <fbxsdk.h>
 
 void Print(FbxNode* pNode, int pTabNum)
@@ -13,7 +14,7 @@ void Print(FbxNode* pNode, int pTabNum)
 	}
 }
 
-void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector<Renderer::SSubMesh>& pSubMeshes, int pSubMeshCount)
+void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector<Renderer::SSubMesh>& pSubMeshes, int pSubMeshCount, vector<vector<uint16_t>>& pControlPointToVertex, vector<uint16_t>& pVertexToControlPoint)
 {
 	int	lTriangle[6] = { 0,1,2,0,2,3 };
 
@@ -21,6 +22,8 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 
 	FbxVector4* lControlPoints = pFbxMesh->GetControlPoints();
 	int lControlPointCount = pFbxMesh->GetControlPointsCount();
+
+	pControlPointToVertex.resize(lControlPointCount);
 
 	bool lIsByPolygonVertex = false;
 
@@ -91,6 +94,9 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 
 					int lControlPointIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lPolygonPosition);
 
+					pControlPointToVertex[lControlPointIndex].push_back(static_cast<uint16_t>(lVertexIndex));
+					pVertexToControlPoint.push_back(static_cast<uint16_t>(lControlPointIndex));
+
 					int lUvIndex = pFbxMesh->GetPolygonVertexIndex(lPolygonIndex) + lPolygonPosition;
 					if (lUvElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
 						lUvIndex = lUvElement->GetIndexArray().GetAt(lUvIndex);
@@ -144,6 +150,9 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 
 					int lControlPointIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lPolygonPosition);
 
+					pControlPointToVertex[lControlPointIndex].push_back(static_cast<uint16_t>(lVertexIndex));
+					pVertexToControlPoint.push_back(static_cast<uint16_t>(lControlPointIndex));
+
 					int lUvIndex = pFbxMesh->GetPolygonVertexIndex(lPolygonIndex) + lPolygonPosition;
 					if (lUvElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
 						lUvIndex = lUvElement->GetIndexArray().GetAt(lUvIndex);
@@ -191,6 +200,9 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 	{
 		for (int lControlPointIndex = 0; lControlPointIndex < lControlPointCount; ++lControlPointIndex)
 		{
+			pControlPointToVertex[lControlPointIndex].push_back(static_cast<uint16_t>(lControlPointIndex));
+			pVertexToControlPoint.push_back(static_cast<uint16_t>(lControlPointIndex));
+
 			Renderer::SVertex lVertex;
 			for (int i = 0; i < 3; ++i)
 				lVertex.mPosition.mElement[i] = lControlPoints[lControlPointIndex][i];
@@ -210,63 +222,59 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 			pVertices.push_back(lVertex);
 		}
 
-	}
 
-	//printf("element tangent count : %d, mapping mode : %d, reference mode :%d\n", pFbxMesh->GetElementTangentCount() , pFbxMesh->GetElementTangent()->GetMappingMode(), pFbxMesh->GetElementTangent()->GetReferenceMode());
-	//printf("element uv count : %d, mapping mode : %d, reference mode : %d\n", pFbxMesh->GetElementUVCount() , pFbxMesh->GetElementUV()->GetMappingMode(), pFbxMesh->GetElementUV()->GetReferenceMode());
-	//printf("element binormal count : %d, mapping mode : %d, reference mode %d\n", pFbxMesh->GetElementBinormalCount(),pFbxMesh->GetElementBinormal()->GetMappingMode(),pFbxMesh->GetElementBinormal()->GetReferenceMode());
+		if (pFbxMesh->GetElementMaterialCount() == 0)
+		{
+			//when there is no material
+
+
+		}
+		else
+		{
+			FbxLayerElementArrayTemplate<int>& lMaterialIndexArray = pFbxMesh->GetElementMaterial()->GetIndexArray();
+
+			int lPolygonCount = pFbxMesh->GetPolygonCount();
+			for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
+			{
+				int lMaterialIndex = lMaterialIndexArray.GetAt(lPolygonIndex);
+
+				int lPolygonSize = pFbxMesh->GetPolygonSize(lPolygonIndex);
+
+				if (lPolygonSize == 3)
+				{
+					for (int lPolygonPosition = 0; lPolygonPosition < 3; ++lPolygonPosition)
+					{
+						int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lPolygonPosition);
+						pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
+					}
+
+					//pSubMeshes[lMaterialIndex]->AddTriangle();
+				}
+				else if (lPolygonSize == 4)
+				{
+					for (int i = 0; i < 6; ++i)
+					{
+						int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lTriangle[i]);
+						pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
+					}
+
+					//pSubMeshes[lMaterialIndex]->AddTriangle(2);
+				}
+				else
+				{
+					printf("lPolygonSize is %d\n", lPolygonSize);
+				}
+			}
+		}
+
+	}
 	
 }
 
-void StoreIndex(FbxMesh* pFbxMesh, vector<Renderer::SSubMesh>& pSubMeshes,int pSubMeshCount)
+
+void StoreSkeleton(FbxSkeleton* pFbxSkeleton, shared_ptr<Renderer::CSkeleton> pSkeleton,FbxSkin* pSkinDeformer,int pControlPointCount)
 {
-	int lTriangle[6] = { 0,1,2,0,2,3 };
-
-	pSubMeshes.resize(pSubMeshCount);
-
-	if (pFbxMesh->GetElementMaterialCount() == 0)
-	{
-		//when there is no material
-
-
-	}
-	else
-	{
-		FbxLayerElementArrayTemplate<int>& lMaterialIndexArray = pFbxMesh->GetElementMaterial()->GetIndexArray();
-		
-		int lPolygonCount = pFbxMesh->GetPolygonCount();
-		for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
-		{
-			int lMaterialIndex = lMaterialIndexArray.GetAt(lPolygonIndex);
-
-			int lPolygonSize = pFbxMesh->GetPolygonSize(lPolygonIndex);
-
-			if (lPolygonSize == 3)
-			{
-				for (int lPolygonPosition = 0; lPolygonPosition < 3; ++lPolygonPosition)
-				{
-					int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lPolygonPosition);
-					pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
-				}
-
-				//pSubMeshes[lMaterialIndex]->AddTriangle();
-			}
-			else if (lPolygonSize == 4)
-			{
-				for (int i = 0; i < 6; ++i)
-				{
-					int lIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, lTriangle[i]);
-					pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
-				}
-
-				//pSubMeshes[lMaterialIndex]->AddTriangle(2);
-			}
-			else
-			{
-				printf("lPolygonSize is %d\n", lPolygonSize);
-			}
-		}
-	}
+	pSkeleton = make_shared<Renderer::CSkeleton>(pFbxSkeleton,pSkinDeformer,pControlPointCount);
 }
 
 namespace Renderer
@@ -311,13 +319,22 @@ namespace Renderer
 
 		//Print(lFbxScene->GetRootNode(),0);
 
-		FbxMesh* lMesh = FbxCast<FbxMesh>(lFbxScene->GetSrcObject(FbxCriteria::ObjectType(FbxMesh::ClassId)));
+		FbxMesh* lMesh = FbxCast<FbxMesh>(lFbxScene->GetSrcObject<FbxMesh>());
 
 		//store vertex data
-		StoreVertex(lMesh, mVertices, mSubMeshes, lFbxScene->GetMaterialCount());
+		StoreVertex(lMesh, mVertices, mSubMeshes, lFbxScene->GetMaterialCount(), mControlPointToVertex, mVertexToControlPoint);
 
-		//store index data
-		//StoreIndex(lMesh, mSubMeshes, lFbxScene->GetMaterialCount());
+		//store skeleton data
+		FbxSkeleton* lFbxSkeleton = lFbxScene->GetSrcObject<FbxSkeleton>();
+		
+		if (lFbxSkeleton != nullptr)
+		{
+			FbxSkin* lSkinDeformer = FbxCast<FbxSkin>(lMesh->GetDeformer(0));
+
+			StoreSkeleton(lFbxSkeleton,mSkeleton, lSkinDeformer, lMesh->GetControlPointsCount());
+
+			mIsSkeleton = true;
+		}
 	}
 
 	int	CMesh::GetVertexCount() const

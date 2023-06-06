@@ -36,6 +36,9 @@
     <ClCompile Include="src\DDSTextureLoader12.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="src\Skeleton.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\Renderer.h">
@@ -63,6 +66,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="header\d3dx12.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="header\Skeleton.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
