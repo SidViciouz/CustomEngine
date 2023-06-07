@@ -1,6 +1,7 @@
 #include "Matrix4.h"
 #include "Vector3.h"
 #include "Quaternion.h"
+#include "Transform.h"
 
 namespace Math
 {
@@ -121,6 +122,8 @@ namespace Math
 		return lMatrix;
 	}
 
+
+
 	SMatrix4 SMatrix4::Scale(const SVector3& pScale)
 	{
 		SMatrix4 lMatrix;
@@ -129,6 +132,13 @@ namespace Math
 			lMatrix.mElement[i][i] = pScale.mElement[i];
 
 		return lMatrix;
+	}
+
+
+
+	SMatrix4 SMatrix4::Transform(const CTransform& pTransform)
+	{
+		return Orientation(pTransform.GetOrientation()) * Scale(pTransform.GetScale()) * Translation(pTransform.GetTranslation());
 	}
 
 }

@@ -20,22 +20,27 @@ namespace Renderer
 	class CBone
 	{
 	public:
-												CBone(FbxNode* pLimbNode);
+												CBone(FbxNode* pLimbNode,int pBoneIndex);
 
 		void									AddChild(shared_ptr<CBone> pChild);
 		void									SetParent(shared_ptr<CBone> pParent);
 
+		int										GetIndex() const;
 		const char*								GetName() const;
 
 		shared_ptr<SCluster>					GetCluster();
 		void									SetCluster(shared_ptr<SCluster> pCluster);
 
+		Math::CTransform						GetGlobalTransform() const;
+		Math::CTransform						GetLocalTransform() const;
+
 	protected:
 
 		const char*								mName;
+		int										mBoneIndex;
 
-		shared_ptr<Math::CTransform>			mLocalTransform;
-		shared_ptr<Math::CTransform>			mGlobalTransform;
+		Math::CTransform						mLocalTransform;
+		Math::CTransform						mGlobalTransform;
 
 		shared_ptr<CBone>						mParent;
 		vector<shared_ptr<CBone>>				mChilds;
@@ -54,7 +59,12 @@ namespace Renderer
 	public:
 												CSkeleton(FbxSkeleton* pFbxSkeleton,FbxSkin* pSkinDeformer,int pControlPointCount);
 
+		void									GetBoneTransformMatrix(vector<Math::SMatrix4>& pMatrices) const;
+		int										GetBoneCount() const;
+
 	protected:
+
+		int										mBoneCount = 0;
 		shared_ptr<CBone>						mRootBone;
 		Bones									mBones;
 

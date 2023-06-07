@@ -8,6 +8,9 @@ namespace Math
 
 	struct SQuaternion;
 
+	class CTransform;
+
+
 	/*
 	* row major¿Ã¥Ÿ.
 	*/
@@ -30,6 +33,8 @@ namespace Math
 		*/
 		static SMatrix4							Orientation(const SQuaternion& pOrientation);
 		static SMatrix4							Scale(const SVector3& pScale);
+
+		static SMatrix4							Transform(const CTransform& pTransform);
 
 		union
 		{

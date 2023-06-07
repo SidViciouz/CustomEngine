@@ -92,6 +92,7 @@ namespace Renderer
 		* create descriptor and return descriptor handle.
 		*/
 		int									CreateDescriptor(int pResourceHandle, EDescriptorType pType); //buffer, texture2d array and textureCube must be dealt with in other method.
+		int									CreateBufferSrv(int pResourceHandle,int pElementNum,int pByteStride);
 		D3D12_CPU_DESCRIPTOR_HANDLE			GetCpuHandle(int pHandle);
 		D3D12_GPU_DESCRIPTOR_HANDLE			GetGpuHandle(int pHandle);
 		D3D12_GPU_VIRTUAL_ADDRESS			GetGpuVirtualAddress(int pResourceHandle) const;

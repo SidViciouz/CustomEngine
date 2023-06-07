@@ -83,6 +83,7 @@ namespace Renderer
 		int lVertexCount = pMesh->GetVertexCount();
 		const SVertex* lVertexDatas = pMesh->GetVertexDatas();
 
+		//create vertex buffer
 		int lResourceHandle = mResourceManager->CreateBuffer(sizeof(SVertex) * lVertexCount, EResourceHeapType::eUpload);
 		mResourceManager->Upload(lResourceHandle, lVertexDatas, sizeof(SVertex) * lVertexCount, 1, 0, 0);
 
@@ -92,11 +93,28 @@ namespace Renderer
 		{
 			int lIndexCount = pMesh->GetIndexCount(lSubMeshIndex);
 			const uint16_t* lIndexDatas = pMesh->GetIndexDatas(lSubMeshIndex);
-
+			
+			//create Index buffer
 			int lIndexHandle = mResourceManager->CreateBuffer(sizeof(uint16_t) * lIndexCount, EResourceHeapType::eUpload);
 			mResourceManager->Upload(lIndexHandle, lIndexDatas, sizeof(uint16_t) * lIndexCount, 1, 0, 0);
 
 			pMesh->SetIndexBufferHandle(lSubMeshIndex, lIndexHandle);
+		}
+
+		//create skeleton buffer
+		if (pMesh->HasSkeleton())
+		{
+			vector<Math::SMatrix4> lBoneTransformMatrices;
+			pMesh->GetBoneTransformMatrices(lBoneTransformMatrices);
+
+			int lSkeletonBufferHandle = mResourceManager->CreateBuffer(sizeof(Math::SMatrix4) * pMesh->GetBoneCount(), EResourceHeapType::eUpload);
+
+			mResourceManager->Upload(lSkeletonBufferHandle, lBoneTransformMatrices.data(), sizeof(Math::SMatrix4) * pMesh->GetBoneCount(), 1, 0, 0);
+			int lSkeletonBufferSrvHandle = mResourceManager->CreateBufferSrv(lSkeletonBufferHandle, pMesh->GetBoneCount(), sizeof(Math::SMatrix4));
+
+			mDescriptorHandleMap[lSkeletonBufferHandle] = lSkeletonBufferSrvHandle;
+
+			pMesh->SetSkeletonBufferHandle(lSkeletonBufferHandle);
 		}
 
 		mMeshes.push_back(pMesh);
@@ -279,6 +297,9 @@ namespace Renderer
 			mCommandList->SetGraphicsRootDescriptorTable(5, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pRoughnessTextureHandle]));
 		if (pAmbientOcculstionTextureHandle > -1)
 			mCommandList->SetGraphicsRootDescriptorTable(6, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pAmbientOcculstionTextureHandle]));
+		if(mMeshes[pMeshHandle]->HasSkeleton())
+			mCommandList->SetGraphicsRootDescriptorTable(7, mResourceManager->GetGpuHandle(mDescriptorHandleMap[mMeshes[pMeshHandle]->GetSkeletonBufferHandle()]));
+
 		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
 
 		for (int lSubMeshIndex = 0; lSubMeshIndex < mMeshes[pMeshHandle]->GetSubMeshCount(); ++lSubMeshIndex)
@@ -530,7 +551,7 @@ namespace Renderer
 		/*
 		*  PBR root signature
 		*/
-		D3D12_DESCRIPTOR_RANGE lPBRDescriptorRange[5];
+		D3D12_DESCRIPTOR_RANGE lPBRDescriptorRange[6];
 		lPBRDescriptorRange[0].BaseShaderRegister = 0;
 		lPBRDescriptorRange[0].NumDescriptors = 1;
 		lPBRDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -556,8 +577,13 @@ namespace Renderer
 		lPBRDescriptorRange[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 		lPBRDescriptorRange[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		lPBRDescriptorRange[4].RegisterSpace = 0;
+		lPBRDescriptorRange[5].BaseShaderRegister = 5;
+		lPBRDescriptorRange[5].NumDescriptors = 1;
+		lPBRDescriptorRange[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		lPBRDescriptorRange[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		lPBRDescriptorRange[5].RegisterSpace = 0;
 
-		D3D12_ROOT_PARAMETER lPBRParameter[7];
+		D3D12_ROOT_PARAMETER lPBRParameter[8];
 		lPBRParameter[0].Descriptor.RegisterSpace = 0;
 		lPBRParameter[0].Descriptor.ShaderRegister = 0;
 		lPBRParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -586,6 +612,10 @@ namespace Renderer
 		lPBRParameter[6].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[4];
 		lPBRParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		lPBRParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		lPBRParameter[7].DescriptorTable.NumDescriptorRanges = 1;
+		lPBRParameter[7].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[5];
+		lPBRParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 
 		CD3DX12_STATIC_SAMPLER_DESC lPBRSamplerDesc(0,
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
@@ -595,7 +625,7 @@ namespace Renderer
 
 		D3D12_ROOT_SIGNATURE_DESC lPBRDesc = {};
 		lPBRDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-		lPBRDesc.NumParameters = 7;
+		lPBRDesc.NumParameters = 8;
 		lPBRDesc.pParameters = lPBRParameter;
 		lPBRDesc.NumStaticSamplers = 1;
 		lPBRDesc.pStaticSamplers = &lPBRSamplerDesc;
@@ -753,13 +783,15 @@ namespace Renderer
 		*/
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC lPBRPsoDesc = {};
 
-		D3D12_INPUT_ELEMENT_DESC lPBRInputElements[5];
+		D3D12_INPUT_ELEMENT_DESC lPBRInputElements[7];
 		lPBRInputElements[0] = { "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
 		lPBRInputElements[1] = { "TEX",0,DXGI_FORMAT_R32G32_FLOAT,0,12,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
 		lPBRInputElements[2] = { "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,20,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
 		lPBRInputElements[3] = { "TANGENT",0,DXGI_FORMAT_R32G32B32_FLOAT,0,32,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
 		lPBRInputElements[4] = { "BINORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,44,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
-		lPBRPsoDesc.InputLayout.NumElements = 5;
+		lPBRInputElements[5] = { "BONEINDICES",0,DXGI_FORMAT_R32G32B32A32_UINT,0,56,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lPBRInputElements[6] = { "BONEWEIGHTS",0,DXGI_FORMAT_R32G32B32_FLOAT,0,72,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lPBRPsoDesc.InputLayout.NumElements = 7;
 		lPBRPsoDesc.InputLayout.pInputElementDescs = lPBRInputElements;
 		lPBRPsoDesc.pRootSignature = mRootSignatures["PBR"].Get();
 		lPBRPsoDesc.VS.pShaderBytecode = mShaders["PBRVS"]->GetBufferPointer();

@@ -133,7 +133,7 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 
 					for (int i = 0; i < 3; ++i)
 						lVertex.mBinormal.mElement[i] = lBinormal[i];
-						
+
 					pVertices.push_back(lVertex);
 
 					pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lVertexIndex++));
@@ -272,10 +272,6 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 }
 
 
-void StoreSkeleton(FbxSkeleton* pFbxSkeleton, shared_ptr<Renderer::CSkeleton> pSkeleton,FbxSkin* pSkinDeformer,int pControlPointCount)
-{
-	pSkeleton = make_shared<Renderer::CSkeleton>(pFbxSkeleton,pSkinDeformer,pControlPointCount);
-}
 
 namespace Renderer
 {
@@ -331,9 +327,9 @@ namespace Renderer
 		{
 			FbxSkin* lSkinDeformer = FbxCast<FbxSkin>(lMesh->GetDeformer(0));
 
-			StoreSkeleton(lFbxSkeleton, mSkeleton, lSkinDeformer, lMesh->GetControlPointsCount());
+			mSkeleton =  make_shared<Renderer::CSkeleton>(lFbxSkeleton, lSkinDeformer, lMesh->GetControlPointsCount());
 
-			mIsSkeleton = true;
+			mHasSkeleton = true;
 		}
 	}
 
@@ -362,6 +358,22 @@ namespace Renderer
 		return mSubMeshes[pSubMeshIndex].mIndices.data();
 	}
 
+	bool CMesh::HasSkeleton() const
+	{
+		return mHasSkeleton;
+	}
+
+	int	CMesh::GetBoneCount() const
+	{
+		return mSkeleton->GetBoneCount();
+	}
+
+	void CMesh::GetBoneTransformMatrices(vector<Math::SMatrix4>& pMatrices) const
+	{
+		mSkeleton->GetBoneTransformMatrix(pMatrices);
+	}
+
+
 	void CMesh::SetVertexBufferHandle(int pResourceHandle)
 	{
 		mVertexBufferHandle = pResourceHandle;
@@ -382,4 +394,13 @@ namespace Renderer
 		return mSubMeshes[pSubMeshIndex].GetIndexBufferHandle();
 	}
 
+	void CMesh::SetSkeletonBufferHandle(int pResourceHandle)
+	{
+		mSkeletonBufferHandle = pResourceHandle;
+	}
+
+	int	CMesh::GetSkeletonBufferHandle() const
+	{
+		return mSkeletonBufferHandle;
+	}
 }

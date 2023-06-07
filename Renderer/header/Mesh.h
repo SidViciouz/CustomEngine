@@ -29,6 +29,11 @@ namespace Renderer
 		Math::SVector3 mNormal;
 		Math::SVector3 mTangent;
 		Math::SVector3 mBinormal;
+		struct SBoneIndices
+		{
+			unsigned int mElement[4];
+		} mBoneIndices;
+		Math::SVector3 mBoneWeights;
 	};
 
 	struct SSubMesh
@@ -54,11 +59,18 @@ namespace Renderer
 		int										GetIndexCount(int pSubMeshIndex) const;
 		const uint16_t*							GetIndexDatas(int pSubMeshIndex) const;
 
+		bool									HasSkeleton() const;
+		int										GetBoneCount() const;
+		void									GetBoneTransformMatrices(vector<Math::SMatrix4>& pMatrices) const;
+
 		void									SetVertexBufferHandle(int pResourceHandle);
 		int										GetVertexBufferHandle() const;
 
 		void									SetIndexBufferHandle(int pSubMeshIndex, int pResourceHandle);
 		int										GetIndexBufferHandle(int pSubMeshIndex) const;
+
+		void									SetSkeletonBufferHandle(int pResourceHandle);
+		int										GetSkeletonBufferHandle() const;
 
 		// mesh, bone weight, ...
 	protected:
@@ -73,8 +85,9 @@ namespace Renderer
 
 		int										mVertexBufferHandle;
 
-		bool									mIsSkeleton = false;
+		bool									mHasSkeleton = false;
 		shared_ptr<CSkeleton>					mSkeleton;
+		int										mSkeletonBufferHandle;
 	};
 
 }

@@ -19,6 +19,13 @@ texture2D<float> tAO : register(t4);
 
 SamplerState sSampler: register(s0);
 
+struct Bone
+{
+	float4x4 transform;
+};
+
+StructuredBuffer<Bone> Skeleton : register(t5);
+
 struct VertexIn
 {
 	float3 localPosition : POSITION;
@@ -26,6 +33,8 @@ struct VertexIn
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float3 binormal : BINORMAL;
+	int4 boneIndices : BONEINDICES;
+	float3 boneWeights : BONEWEIGHTS;
 };
 
 struct VertexOut

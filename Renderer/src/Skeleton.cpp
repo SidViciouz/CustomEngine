@@ -5,8 +5,8 @@
 namespace Renderer
 {
 
-	CBone::CBone(FbxNode* pLimbNode) :
-		mLocalTransform{ make_shared<Math::CTransform>() }, mGlobalTransform{ make_shared<Math::CTransform>() }
+	CBone::CBone(FbxNode* pLimbNode,int pBoneIndex) :
+		mBoneIndex{pBoneIndex}
 	{
 		mName = pLimbNode->GetName();
 		
@@ -22,9 +22,9 @@ namespace Renderer
 		FbxVector4 lFbxLocalScale = lLocalTransformMatrix.GetS();
 		Math::SVector3 lLocalScale(lFbxLocalScale[0], lFbxLocalScale[1], lFbxLocalScale[2]);
 
-		mLocalTransform->SetTranslation(lLocalTranslation);
-		mLocalTransform->SetOrientation(lLocalOrientation);
-		mLocalTransform->SetScale(lLocalScale);
+		mLocalTransform.SetTranslation(lLocalTranslation);
+		mLocalTransform.SetOrientation(lLocalOrientation);
+		mLocalTransform.SetScale(lLocalScale);
 
 
 		FbxVector4 lFbxGlobalTranslation = lGlobalTransformMatrix.GetT();
@@ -36,9 +36,9 @@ namespace Renderer
 		FbxVector4 lFbxGlobalScale = lGlobalTransformMatrix.GetS();
 		Math::SVector3 lGlobalScale(lFbxGlobalScale[0], lFbxGlobalScale[1], lFbxGlobalScale[2]);
 
-		mGlobalTransform->SetTranslation(lGlobalTranslation);
-		mGlobalTransform->SetOrientation(lGlobalOrientation);
-		mGlobalTransform->SetScale(lGlobalScale);
+		mGlobalTransform.SetTranslation(lGlobalTranslation);
+		mGlobalTransform.SetOrientation(lGlobalOrientation);
+		mGlobalTransform.SetScale(lGlobalScale);
 
 	}
 
@@ -54,6 +54,13 @@ namespace Renderer
 	void CBone::SetParent(shared_ptr<CBone> pParent)
 	{
 		mParent = pParent;
+	}
+
+
+
+	int	CBone::GetIndex() const
+	{
+		return mBoneIndex;
 	}
 
 
@@ -79,6 +86,20 @@ namespace Renderer
 
 
 
+	Math::CTransform CBone::GetGlobalTransform() const
+	{
+		return mGlobalTransform;
+	}
+
+
+
+	Math::CTransform CBone::GetLocalTransform() const
+	{
+		return mLocalTransform;
+	}
+
+
+
 	CSkeleton::CSkeleton(FbxSkeleton* pFbxSkeleton, FbxSkin* pSkinDeformer, int pControlPointCount)
 	{
 		stack<pair<FbxNode*,shared_ptr<CBone>>> lStack;
@@ -96,7 +117,7 @@ namespace Renderer
 			FbxNode* lFbxNode = lTop.first;
 			shared_ptr<CBone> lParentBone = lTop.second;
 
-			shared_ptr<CBone> lNewBone = make_shared<CBone>(lFbxNode);
+			shared_ptr<CBone> lNewBone = make_shared<CBone>(lFbxNode,mBoneCount++);
 
 			if (lIsRoot)
 			{
@@ -158,4 +179,21 @@ namespace Renderer
 
 
 
+	void CSkeleton::GetBoneTransformMatrix(vector<Math::SMatrix4>& pMatrices) const
+	{
+		pMatrices.resize(mBoneCount);
+
+		for (auto it = mBones.cbegin(); it != mBones.cend(); it++)
+		{
+			if(it->second != nullptr)
+				pMatrices[it->second->GetIndex()] = Math::SMatrix4::Transform(it->second->GetGlobalTransform());
+		}
+	}
+
+
+
+	int CSkeleton::GetBoneCount() const
+	{
+		return mBoneCount;
+	}
 }

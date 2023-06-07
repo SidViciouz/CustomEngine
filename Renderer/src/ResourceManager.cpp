@@ -497,6 +497,33 @@ namespace Renderer
 
 
 
+	int CResourceManager::CreateBufferSrv(int pResourceHandle, int pElementNum, int pByteStride)
+	{
+		D3D12_RESOURCE_DESC lResourceDesc = mResources[pResourceHandle].mResource->GetDesc();
+
+		mDescriptorHandleToHeap[mDescriptorCount] = { 2, mCbvSrvUavCount };
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC lSrvDesc = {};
+
+		lSrvDesc.Format = lResourceDesc.Format;
+		lSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		lSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		lSrvDesc.Buffer.FirstElement = 0;
+		lSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		lSrvDesc.Buffer.NumElements = pElementNum;
+		lSrvDesc.Buffer.StructureByteStride = pByteStride;
+
+		mDevice->CreateShaderResourceView(mResources[pResourceHandle].mResource.Get(), &lSrvDesc, GetCpuHandle(mDescriptorCount));
+
+		++mCbvSrvUavCount;
+
+		return mDescriptorCount++;
+
+	}
+
+
+
+
 	D3D12_CPU_DESCRIPTOR_HANDLE CResourceManager::GetCpuHandle(int pHandle)
 	{
 		int lDescriptorType = mDescriptorHandleToHeap[pHandle].first;
