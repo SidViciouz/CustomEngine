@@ -8,7 +8,7 @@ namespace Renderer
 		mUp.Set(0, 1, 0);
 		mFront.Set(0, 0, 1);
 
-		mPosition.Set(0.0, 0.0, 0.0);
+		mPosition.Set(0.0, 0.0, 0.0f);
 
 		mWidth = pWidth;
 		mHeight = pHeight;

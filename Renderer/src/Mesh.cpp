@@ -331,7 +331,7 @@ namespace Renderer
 		{
 			FbxSkin* lSkinDeformer = FbxCast<FbxSkin>(lMesh->GetDeformer(0));
 
-			StoreSkeleton(lFbxSkeleton,mSkeleton, lSkinDeformer, lMesh->GetControlPointsCount());
+			StoreSkeleton(lFbxSkeleton, mSkeleton, lSkinDeformer, lMesh->GetControlPointsCount());
 
 			mIsSkeleton = true;
 		}

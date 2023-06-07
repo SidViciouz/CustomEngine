@@ -42,7 +42,7 @@ static float3 LightPosition = {0,0,0};
 
 static float3 LightColor = {1,1,1};
 
-static float3 CamPosition = {0,0,0};
+//static float3 CamPosition = {0,0,0};
 
 
 VertexOut VS(VertexIn vin)
@@ -73,7 +73,9 @@ float4 PS(VertexOut pin) : SV_TARGET
 
 	float2 lUV = float2(pin.texCoord[0], pin.texCoord[1]);
 
-	float3 lV = normalize(CamPosition - pin.worldPosition);
+	float3 lCamPosition = float3(view[0][3], view[1][3], view[2][3]);
+
+	float3 lV = normalize(lCamPosition - pin.worldPosition);
 
 	//vector pointing at light position
 	float3 lL = normalize(LightPosition - pin.worldPosition);
