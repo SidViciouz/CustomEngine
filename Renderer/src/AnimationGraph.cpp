@@ -53,6 +53,16 @@ namespace Renderer
 		return mSkeleton;
 	}
 
+	const double& CAnimation::GetBeginTime() const
+	{
+		return mBeginTime;
+	}
+
+	const double& CAnimation::GetEndTime() const
+	{
+		return mEndTime;
+	}
+
 	CAnimationGraph::CAnimationGraph(shared_ptr<CSkeleton> pOutputSkeleton) :
 		mOutputSkeleton{pOutputSkeleton}
 	{
@@ -70,7 +80,25 @@ namespace Renderer
 		if (mAnimations[pName] == nullptr)
 			return;
 
-		shared_ptr<CSkeleton> lSkeleton = mAnimations[pName]->GetSkeleton();
+		mOutputAnimName = pName;
+	}
+
+	void CAnimationGraph::Update(float pDeltaTime)
+	{
+		const double& lBeginTime = mAnimations[mOutputAnimName]->GetBeginTime();
+		const double& lEndTime = mAnimations[mOutputAnimName]->GetEndTime();
+
+		double lTimeSpan = lEndTime - lBeginTime;
+
+		double lCurrentTime = mAnimPhase * lTimeSpan + pDeltaTime;
+
+		while (lCurrentTime > lTimeSpan)
+			lCurrentTime -= lTimeSpan;
+
+		mAnimPhase = lCurrentTime / lTimeSpan;
+
+
+		shared_ptr<CSkeleton> lSkeleton = mAnimations[mOutputAnimName]->GetSkeleton();
 
 		Bones::iterator lBegin, lEnd;
 		mOutputSkeleton->GetBonesIterator(lBegin, lEnd);
@@ -84,7 +112,8 @@ namespace Renderer
 			if (lOutputBone == nullptr || lAnimBone == nullptr)
 				continue;
 
-			lOutputBone->SetGlobalTransform(lAnimBone->EvaluateGlobalTransform(0.5f));
+			lOutputBone->SetGlobalTransform(lAnimBone->EvaluateGlobalTransform(lCurrentTime));
 		}
+
 	}
 }

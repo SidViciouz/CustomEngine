@@ -80,7 +80,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lAnimGraph.LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
 		lAnimGraph.LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
 		lAnimGraph.LoadAnimation("tpose", "../Model/ALS_Mannequin_T_Pose.FBX");
-		lAnimGraph.LinkToOutput("n_walk_f");
+		lAnimGraph.LinkToOutput("cls_walk_f");
 
 		CRenderer r(lWindowHandle);
 		r.Initialize();
@@ -108,6 +108,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		while (1)
 		{
+			lAnimGraph.Update(1 / 60.0f);
+
 			r.DrawBegin();
 
 			//r.DrawLine(lData1);
