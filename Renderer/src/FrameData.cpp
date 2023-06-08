@@ -37,6 +37,16 @@ namespace Renderer
 		return mFrameStats[pIndex].mWorldConstantBufferHandle;
 	}
 
+	void CFrameData::SetSkeletonConstantBufferHandle(int pFrameIndex, int pObjectHandle, int pHandle)
+	{
+		mFrameStats[pFrameIndex].mSkeletonConstantBufferHandle[pObjectHandle] = pHandle;
+	}
+
+	int CFrameData::GetSkeletonConstantBufferHandle(int pFrameIndex, int pObjectHandle) const
+	{
+		return mFrameStats[pFrameIndex].mSkeletonConstantBufferHandle[pObjectHandle];
+	}
+
 	UINT64 CFrameData::GetFenceValue(int pIndex) const
 	{
 		return mFrameStats[pIndex].mFenceValue;

@@ -151,10 +151,11 @@ namespace Renderer
 		/*
 		* mesh data
 		*/
-		void									UploadObjectConstantBuffer();
+		void									UploadSkeletonConstantBuffer();
 		vector<shared_ptr<CMesh>>				mMeshes;
 		int										mMeshCount = 0;
 
+		void									UploadObjectConstantBuffer();
 		int										mObjectCount = 0;
 		vector<shared_ptr<CObject>>				mObjects;
 

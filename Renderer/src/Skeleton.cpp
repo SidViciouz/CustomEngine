@@ -194,7 +194,7 @@ namespace Renderer
 					FbxAMatrix lInvReference;
 					lInvReference = lFbxCluster->GetTransformMatrix(lInvReference);
 
-
+					// FbxAMatrix is multiplied like column major
 					lFbxInvinit = lFbxInvinit * lInvReference;
 				
 					Math::SMatrix4 lInvInit;

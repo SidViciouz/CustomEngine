@@ -104,17 +104,11 @@ namespace Renderer
 		//create skeleton buffer
 		if (pMesh->HasSkeleton())
 		{
-			vector<Math::SMatrix4> lBoneTransformMatrices;
-			pMesh->GetBoneTransformMatrices(lBoneTransformMatrices);
-
-			int lSkeletonBufferHandle = mResourceManager->CreateBuffer(sizeof(Math::SMatrix4) * pMesh->GetBoneCount(), EResourceHeapType::eUpload);
-
-			mResourceManager->Upload(lSkeletonBufferHandle, lBoneTransformMatrices.data(), sizeof(Math::SMatrix4) * pMesh->GetBoneCount(), 1, 0, 0);
-			int lSkeletonBufferSrvHandle = mResourceManager->CreateBufferSrv(lSkeletonBufferHandle, pMesh->GetBoneCount(), sizeof(Math::SMatrix4));
-
-			mDescriptorHandleMap[lSkeletonBufferHandle] = lSkeletonBufferSrvHandle;
-
-			pMesh->SetSkeletonBufferHandle(lSkeletonBufferHandle);
+			for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
+			{
+				mFrameData->SetSkeletonConstantBufferHandle(
+					lFrameIndex, mMeshCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(Math::SMatrix4) * pMesh->GetBoneCount(), 256), EResourceHeapType::eUpload));
+			}
 		}
 
 		mMeshes.push_back(pMesh);
@@ -192,6 +186,7 @@ namespace Renderer
 		//upload world data
 		UploadWorldConstantBuffer();
 		UploadObjectConstantBuffer();
+		UploadSkeletonConstantBuffer();
 
 		//reset command list
 		mFrameData->GetCommandAllocator(mCurrentFrame)->Reset();
@@ -299,7 +294,8 @@ namespace Renderer
 			mCommandList->SetGraphicsRootDescriptorTable(6, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pAmbientOcculstionTextureHandle]));
 		if (mMeshes[pMeshHandle]->HasSkeleton())
 		{
-			mCommandList->SetGraphicsRootDescriptorTable(7, mResourceManager->GetGpuHandle(mDescriptorHandleMap[mMeshes[pMeshHandle]->GetSkeletonBufferHandle()]));
+			mCommandList->SetGraphicsRootConstantBufferView(7, mResourceManager->GetGpuVirtualAddress(mFrameData->GetSkeletonConstantBufferHandle(mCurrentFrame,pMeshHandle)));
+			//mCommandList->SetGraphicsRootDescriptorTable(7, mResourceManager->GetGpuHandle(mDescriptorHandleMap[mMeshes[pMeshHandle]->GetSkeletonBufferHandle()]));
 			mCommandList->SetGraphicsRoot32BitConstant(8, 1, 0);
 		}
 		else
@@ -558,7 +554,7 @@ namespace Renderer
 		/*
 		*  PBR root signature
 		*/
-		D3D12_DESCRIPTOR_RANGE lPBRDescriptorRange[6];
+		D3D12_DESCRIPTOR_RANGE lPBRDescriptorRange[5];
 		lPBRDescriptorRange[0].BaseShaderRegister = 0;
 		lPBRDescriptorRange[0].NumDescriptors = 1;
 		lPBRDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -584,11 +580,6 @@ namespace Renderer
 		lPBRDescriptorRange[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 		lPBRDescriptorRange[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		lPBRDescriptorRange[4].RegisterSpace = 0;
-		lPBRDescriptorRange[5].BaseShaderRegister = 5;
-		lPBRDescriptorRange[5].NumDescriptors = 1;
-		lPBRDescriptorRange[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		lPBRDescriptorRange[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		lPBRDescriptorRange[5].RegisterSpace = 0;
 
 		D3D12_ROOT_PARAMETER lPBRParameter[9];
 		lPBRParameter[0].Descriptor.RegisterSpace = 0;
@@ -619,13 +610,13 @@ namespace Renderer
 		lPBRParameter[6].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[4];
 		lPBRParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		lPBRParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		lPBRParameter[7].DescriptorTable.NumDescriptorRanges = 1;
-		lPBRParameter[7].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[5];
+		lPBRParameter[7].Descriptor.RegisterSpace = 0;
+		lPBRParameter[7].Descriptor.ShaderRegister = 2;
 		lPBRParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		lPBRParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		lPBRParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 		lPBRParameter[8].Constants.Num32BitValues = 1;
 		lPBRParameter[8].Constants.RegisterSpace = 0;
-		lPBRParameter[8].Constants.ShaderRegister = 2;
+		lPBRParameter[8].Constants.ShaderRegister = 3;
 		lPBRParameter[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		lPBRParameter[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 
@@ -894,6 +885,21 @@ namespace Renderer
 			lObjectData.mWorldMatrix = mObjects[lObjectIndex]->GetWorldMatrix();
 
 			mResourceManager->Upload(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, lObjectIndex), &lObjectData, sizeof(SObjectData), 1, 0, 0);
+		}
+	}
+
+	void CRenderer::UploadSkeletonConstantBuffer()
+	{
+		for (int lMeshIndex = 0; lMeshIndex < mMeshCount; ++lMeshIndex)
+		{
+			if (!mMeshes[lMeshIndex]->HasSkeleton())
+				continue;
+
+			vector<Math::SMatrix4> lBoneTransformMatrices;
+
+			mMeshes[lMeshIndex]->GetBoneTransformMatrices(lBoneTransformMatrices);
+
+			mResourceManager->Upload(mFrameData->GetSkeletonConstantBufferHandle(mCurrentFrame,lMeshIndex), lBoneTransformMatrices.data(), sizeof(Math::SMatrix4) * mMeshes[lMeshIndex]->GetBoneCount(), 1, 0, 0);
 		}
 	}
 }

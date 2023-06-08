@@ -19,14 +19,20 @@ texture2D<float> tAO : register(t4);
 
 SamplerState sSampler: register(s0);
 
+/*
 struct Bone
 {
 	float4x4 transform;
 };
 
 StructuredBuffer<Bone> Skeleton : register(t5);
+*/
+cbuffer Skeleton : register(b2)
+{
+	float4x4 boneTransform[100];
+}
 
-cbuffer SkeletonData : register(b2)
+cbuffer SkeletonData : register(b3)
 {
 	int hasSkeleton;
 }
@@ -65,9 +71,9 @@ VertexOut VS(VertexIn vin)
 
 	if (hasSkeleton == 1)
 	{
-		float4x4 transform = Skeleton[vin.boneIndices[0]].transform;
+		//float4x4 transform = boneTransform[vin.boneIndices[0]];
 
-		lPos = mul(transform, lPos);
+		lPos = mul(boneTransform[vin.boneIndices[0]], lPos);
 	}
 
 	float4 lWorldPosition = mul(world, lPos);

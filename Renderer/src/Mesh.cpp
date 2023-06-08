@@ -409,14 +409,4 @@ namespace Renderer
 	{
 		return mSubMeshes[pSubMeshIndex].GetIndexBufferHandle();
 	}
-
-	void CMesh::SetSkeletonBufferHandle(int pResourceHandle)
-	{
-		mSkeletonBufferHandle = pResourceHandle;
-	}
-
-	int	CMesh::GetSkeletonBufferHandle() const
-	{
-		return mSkeletonBufferHandle;
-	}
 }

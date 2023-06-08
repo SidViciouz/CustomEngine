@@ -69,9 +69,6 @@ namespace Renderer
 		void									SetIndexBufferHandle(int pSubMeshIndex, int pResourceHandle);
 		int										GetIndexBufferHandle(int pSubMeshIndex) const;
 
-		void									SetSkeletonBufferHandle(int pResourceHandle);
-		int										GetSkeletonBufferHandle() const;
-
 		// mesh, bone weight, ...
 	protected:
 		void									Load(const char* pPath);
@@ -87,7 +84,6 @@ namespace Renderer
 
 		bool									mHasSkeleton = false;
 		shared_ptr<CSkeleton>					mSkeleton;
-		int										mSkeletonBufferHandle;
 	};
 
 }
