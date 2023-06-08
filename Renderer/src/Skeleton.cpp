@@ -5,11 +5,11 @@
 namespace Renderer
 {
 
-	CBone::CBone(FbxNode* pLimbNode,int pBoneIndex) :
-		mBoneIndex{pBoneIndex}
+	CBone::CBone(FbxNode* pLimbNode, int pBoneIndex) :
+		mBoneIndex{ pBoneIndex }, mLimbNode{ pLimbNode }
 	{
 		mName = pLimbNode->GetName();
-		
+
 		FbxAMatrix lLocalTransformMatrix = pLimbNode->EvaluateLocalTransform();
 		FbxAMatrix lGlobalTransformMatrix = pLimbNode->EvaluateGlobalTransform();
 
@@ -92,9 +92,24 @@ namespace Renderer
 
 
 
+	void CBone::SetGlobalTransform(const Math::CTransform& pTransform)
+	{
+		mGlobalTransform = pTransform;
+	}
+
+
+
+
 	Math::CTransform CBone::GetLocalTransform() const
 	{
 		return mLocalTransform;
+	}
+
+
+
+	void CBone::SetLocalTransform(const Math::CTransform& pTransform)
+	{
+		mLocalTransform = pTransform;
 	}
 
 
@@ -111,6 +126,49 @@ namespace Renderer
 		return mInverseInitialTransformMatrix;
 	}
 
+
+
+	Math::CTransform CBone::EvaluateGlobalTransform(double pTime)
+	{
+		FbxTime lFbxTime;
+		lFbxTime.SetSecondDouble(pTime);
+
+		FbxAMatrix lMatrix = mLimbNode->EvaluateGlobalTransform(lFbxTime);
+
+		FbxVector4 lScale = lMatrix.GetS();
+		FbxQuaternion lOrientation = lMatrix.GetQ();
+		FbxVector4 lTranslation = lMatrix.GetT();
+
+		Math::CTransform lTransform;
+
+		lTransform.SetScale(Math::SVector3(lScale[0], lScale[1], lScale[2]));
+		lTransform.SetOrientation(Math::SQuaternion(lOrientation[0], lOrientation[1], lOrientation[2], lOrientation[3]));
+		lTransform.SetTranslation(Math::SVector3(lTranslation[0], lTranslation[1], lTranslation[2]));
+
+		return lTransform;
+	}
+
+
+
+	Math::CTransform CBone::EvaluateLocalTransform(double pTime)
+	{
+		FbxTime lFbxTime;
+		lFbxTime.SetSecondDouble(pTime);
+
+		FbxAMatrix lMatrix = mLimbNode->EvaluateGlobalTransform(lFbxTime);
+
+		FbxVector4 lScale = lMatrix.GetS();
+		FbxQuaternion lOrientation = lMatrix.GetQ();
+		FbxVector4 lTranslation = lMatrix.GetT();
+
+		Math::CTransform lTransform;
+
+		lTransform.SetScale(Math::SVector3(lScale[0], lScale[1], lScale[2]));
+		lTransform.SetOrientation(Math::SQuaternion(lOrientation[0], lOrientation[1], lOrientation[2], lOrientation[3]));
+		lTransform.SetTranslation(Math::SVector3(lTranslation[0], lTranslation[1], lTranslation[2]));
+
+		return lTransform;
+	}
 
 
 
@@ -195,7 +253,7 @@ namespace Renderer
 					lInvReference = lFbxCluster->GetTransformMatrix(lInvReference);
 
 					// FbxAMatrix is multiplied like column major
-					lFbxInvinit = lFbxInvinit * lInvReference;
+					lFbxInvinit =  lFbxInvinit * lInvReference;
 				
 					Math::SMatrix4 lInvInit;
 					for (int lRow = 0; lRow < 4; ++lRow)
@@ -240,4 +298,20 @@ namespace Renderer
 	{
 		return mControlPointToBones[pControlPointIndex];
 	}
+
+
+
+	void CSkeleton::GetBonesIterator(Bones::iterator& pBegin, Bones::iterator& pEnd)
+	{
+		pBegin = mBones.begin();
+		pEnd = mBones.end();
+	}
+
+
+
+	shared_ptr<CBone> CSkeleton::GetBone(const string& pName)
+	{
+		return mBones[pName];
+	}
+
 }

@@ -32,10 +32,16 @@ namespace Renderer
 		void									SetCluster(shared_ptr<SCluster> pCluster);
 
 		Math::CTransform						GetGlobalTransform() const;
+		void									SetGlobalTransform(const Math::CTransform& pTransform);
+
 		Math::CTransform						GetLocalTransform() const;
+		void									SetLocalTransform(const Math::CTransform& pTransform);
 
 		void									SetInverseInitialTransformMatrix(const Math::SMatrix4& pMatrix);
 		Math::SMatrix4							GetInverseInitialTransformMatrix() const;
+
+		Math::CTransform						EvaluateGlobalTransform(double pTime);
+		Math::CTransform						EvaluateLocalTransform(double pTime);
 
 	protected:
 
@@ -50,6 +56,8 @@ namespace Renderer
 		vector<shared_ptr<CBone>>				mChilds;
 
 		shared_ptr<SCluster>					mCluster;
+
+		FbxNode*								mLimbNode;
 	};
 
 
@@ -67,6 +75,10 @@ namespace Renderer
 		int										GetBoneCount() const;
 
 		const vector<pair<int,double>>&			GetControlPointToBones(int pControlPointIndex);
+
+		void									GetBonesIterator(Bones::iterator& pBegin, Bones::iterator& pEnd);
+		shared_ptr<CBone>						GetBone(const string& pName);
+
 
 	protected:
 

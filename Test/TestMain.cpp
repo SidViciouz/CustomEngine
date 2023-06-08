@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Object.h"
+#include "AnimationGraph.h"
 
 using namespace Renderer;
 
@@ -58,9 +59,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		UpdateWindow(lWindowHandle);
 
 
-
-
-
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
 		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");
 		shared_ptr<CObject>	lObject1 = make_shared<CObject>();
@@ -71,10 +69,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lObject3->SetTranslation(Math::SVector3(0, 1.5, 5));
 		lObject3->SetScale(Math::SVector3(2, 2, 2));
 		lObject2->SetTranslation(Math::SVector3(0,-1.5,2));
+		lObject2->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lObject2->SetScale(Math::SVector3(0.01f,0.01f,0.01f));
 		lObject1->SetTranslation(Math::SVector3(0, -3, 3));
 		lObject1->SetOrientation(Math::SQuaternion(1*cosf(DirectX::XMConvertToRadians(-45)),0,0, sinf(DirectX::XMConvertToRadians(-45))));
 		lObject1->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
+
+		CAnimationGraph lAnimGraph(lMesh2->GetSkeleton());
+		lAnimGraph.LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
+		lAnimGraph.LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
+		lAnimGraph.LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
+		lAnimGraph.LoadAnimation("tpose", "../Model/ALS_Mannequin_T_Pose.FBX");
+		lAnimGraph.LinkToOutput("n_walk_f");
 
 		CRenderer r(lWindowHandle);
 		r.Initialize();
@@ -111,7 +117,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			//r.DrawMesh(lMesh1Handle, lObject1Handle);
 			//r.DrawMesh(lMesh2Handle, lObject2Handle);
 			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, lTexture1Handle,lTexture2Handle,lTexture3Handle, lTexture4Handle,-1);
+			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, lTexture1Handle,lTexture2Handle,lTexture3Handle, lTexture4Handle, -1);
 			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 
 

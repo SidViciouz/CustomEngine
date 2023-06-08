@@ -69,6 +69,8 @@ namespace Renderer
 		void									SetIndexBufferHandle(int pSubMeshIndex, int pResourceHandle);
 		int										GetIndexBufferHandle(int pSubMeshIndex) const;
 
+		shared_ptr<CSkeleton>					GetSkeleton() const;
+
 		// mesh, bone weight, ...
 	protected:
 		void									Load(const char* pPath);

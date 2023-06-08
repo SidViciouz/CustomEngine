@@ -409,4 +409,9 @@ namespace Renderer
 	{
 		return mSubMeshes[pSubMeshIndex].GetIndexBufferHandle();
 	}
+
+	shared_ptr<CSkeleton> CMesh::GetSkeleton() const
+	{
+		return mSkeleton;
+	}
 }
