@@ -34,6 +34,9 @@ namespace Renderer
 		Math::CTransform						GetGlobalTransform() const;
 		Math::CTransform						GetLocalTransform() const;
 
+		void									SetInverseInitialTransformMatrix(const Math::SMatrix4& pMatrix);
+		Math::SMatrix4							GetInverseInitialTransformMatrix() const;
+
 	protected:
 
 		const char*								mName;
@@ -41,6 +44,7 @@ namespace Renderer
 
 		Math::CTransform						mLocalTransform;
 		Math::CTransform						mGlobalTransform;
+		Math::SMatrix4							mInverseInitialTransformMatrix;
 
 		shared_ptr<CBone>						mParent;
 		vector<shared_ptr<CBone>>				mChilds;
@@ -62,6 +66,8 @@ namespace Renderer
 		void									GetBoneTransformMatrix(vector<Math::SMatrix4>& pMatrices) const;
 		int										GetBoneCount() const;
 
+		const vector<pair<int,double>>&			GetControlPointToBones(int pControlPointIndex);
+
 	protected:
 
 		int										mBoneCount = 0;
@@ -71,6 +77,6 @@ namespace Renderer
 		bool									mHasDeformer = false;
 
 		//get bones that affect the controlPoint
-		vector<vector<string>>					mControlPointToBones;
+		vector<vector<pair<int,double>>>		mControlPointToBones;
 	};
 }

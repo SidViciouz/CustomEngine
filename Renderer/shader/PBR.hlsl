@@ -26,6 +26,11 @@ struct Bone
 
 StructuredBuffer<Bone> Skeleton : register(t5);
 
+cbuffer SkeletonData : register(b2)
+{
+	int hasSkeleton;
+}
+
 struct VertexIn
 {
 	float3 localPosition : POSITION;
@@ -33,7 +38,7 @@ struct VertexIn
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float3 binormal : BINORMAL;
-	int4 boneIndices : BONEINDICES;
+	uint4 boneIndices : BONEINDICES;
 	float3 boneWeights : BONEWEIGHTS;
 };
 
@@ -51,14 +56,19 @@ static float3 LightPosition = {0,0,0};
 
 static float3 LightColor = {1,1,1};
 
-//static float3 CamPosition = {0,0,0};
-
 
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
 
 	float4 lPos = float4(vin.localPosition, 1.0f);
+
+	if (hasSkeleton == 1)
+	{
+		float4x4 transform = Skeleton[vin.boneIndices[0]].transform;
+
+		lPos = mul(transform, lPos);
+	}
 
 	float4 lWorldPosition = mul(world, lPos);
 	vout.worldPosition = lWorldPosition.xyz;

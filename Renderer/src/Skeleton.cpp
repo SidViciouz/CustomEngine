@@ -39,7 +39,6 @@ namespace Renderer
 		mGlobalTransform.SetTranslation(lGlobalTranslation);
 		mGlobalTransform.SetOrientation(lGlobalOrientation);
 		mGlobalTransform.SetScale(lGlobalScale);
-
 	}
 
 
@@ -97,6 +96,21 @@ namespace Renderer
 	{
 		return mLocalTransform;
 	}
+
+
+
+	void CBone::SetInverseInitialTransformMatrix(const Math::SMatrix4& pMatrix)
+	{
+		mInverseInitialTransformMatrix = pMatrix;
+	}
+
+
+
+	Math::SMatrix4 CBone::GetInverseInitialTransformMatrix() const
+	{
+		return mInverseInitialTransformMatrix;
+	}
+
 
 
 
@@ -168,10 +182,29 @@ namespace Renderer
 						lCluster->mIndices.push_back(static_cast<uint16_t>(lControlPointIndices[i]));
 						lCluster->mWeights.push_back(static_cast<double>(lControlPointWeights[i]));
 
-						mControlPointToBones[static_cast<uint16_t>(lControlPointIndices[i])].push_back(lLinkName);
+						mControlPointToBones[lControlPointIndices[i]].push_back({ mBones[lLinkName]->GetIndex(), lControlPointWeights[i] });
 					}
 
 					mBones[lLinkName]->SetCluster(lCluster);
+
+					//make initial transform matrix
+					FbxAMatrix lFbxInvinit;
+					lFbxInvinit = lFbxCluster->GetTransformLinkMatrix(lFbxInvinit).Inverse();
+
+					FbxAMatrix lInvReference;
+					lInvReference = lFbxCluster->GetTransformMatrix(lInvReference);
+
+
+					lFbxInvinit = lFbxInvinit * lInvReference;
+				
+					Math::SMatrix4 lInvInit;
+					for (int lRow = 0; lRow < 4; ++lRow)
+						for (int lColumn = 0; lColumn < 4; ++lColumn)
+						{
+							lInvInit.mElement[lRow][lColumn] = lFbxInvinit[lRow][lColumn];
+						}
+
+					mBones[lLinkName]->SetInverseInitialTransformMatrix(lInvInit);
 				}
 			}
 		}
@@ -185,8 +218,12 @@ namespace Renderer
 
 		for (auto it = mBones.cbegin(); it != mBones.cend(); it++)
 		{
-			if(it->second != nullptr)
-				pMatrices[it->second->GetIndex()] = Math::SMatrix4::Transform(it->second->GetGlobalTransform());
+			if (it->second != nullptr)
+			{
+				Math::SMatrix4 lGlobal = Math::SMatrix4::Transform(it->second->GetGlobalTransform());
+
+				pMatrices[it->second->GetIndex()] = it->second->GetInverseInitialTransformMatrix() * lGlobal;
+			}
 		}
 	}
 
@@ -195,5 +232,12 @@ namespace Renderer
 	int CSkeleton::GetBoneCount() const
 	{
 		return mBoneCount;
+	}
+
+
+
+	const vector<pair<int,double>>& CSkeleton::GetControlPointToBones(int pControlPointIndex)
+	{
+		return mControlPointToBones[pControlPointIndex];
 	}
 }

@@ -117,7 +117,6 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 						lBinormalIndex = lBinormalElement->GetIndexArray().GetAt(lBinormalIndex);
 					FbxVector4 lBinormal = lBinormalElement->GetDirectArray().GetAt(lBinormalIndex);
 
-
 					for (int i = 0; i < 3; ++i)
 						lVertex.mPosition.mElement[i] = lControlPoints[lControlPointIndex][i];
 
@@ -330,7 +329,24 @@ namespace Renderer
 			mSkeleton =  make_shared<Renderer::CSkeleton>(lFbxSkeleton, lSkinDeformer, lMesh->GetControlPointsCount());
 
 			mHasSkeleton = true;
+
+			//store bone datas to vertex
+			for (int i = 0; i < mVertices.size(); ++i)
+			{
+				const vector<pair<int,double>>& lBoneIndices = mSkeleton->GetControlPointToBones(mVertexToControlPoint[i]);
+
+				for (int j=0; j<4 && j < lBoneIndices.size(); ++j)
+				{
+					mVertices[i].mBoneIndices.mElement[j] = static_cast<unsigned int>(lBoneIndices[j].first);
+				}
+
+				for (int j = 0; j < 3 && j < lBoneIndices.size(); ++j)
+				{
+					mVertices[i].mBoneWeights.mElement[j] = lBoneIndices[j].second;
+				}
+			}
 		}
+
 	}
 
 	int	CMesh::GetVertexCount() const

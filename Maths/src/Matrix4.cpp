@@ -109,7 +109,7 @@ namespace Math
 
 		lMatrix.m11 = 1 - 2 * (lJ2 + lK2);
 		lMatrix.m12 = 2 * (lIJ + lKR);
-		lMatrix.m13 = 2 * (lIK + lJR);
+		lMatrix.m13 = 2 * (lIK - lJR);
 
 		lMatrix.m21 = 2 * (lIJ - lKR);
 		lMatrix.m22 = 1 - 2 * (lI2 + lK2);
@@ -138,7 +138,7 @@ namespace Math
 
 	SMatrix4 SMatrix4::Transform(const CTransform& pTransform)
 	{
-		return Orientation(pTransform.GetOrientation()) * Scale(pTransform.GetScale()) * Translation(pTransform.GetTranslation());
+		return Scale(pTransform.GetScale()) * Orientation(pTransform.GetOrientation()) * Translation(pTransform.GetTranslation());
 	}
 
 }

@@ -297,8 +297,15 @@ namespace Renderer
 			mCommandList->SetGraphicsRootDescriptorTable(5, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pRoughnessTextureHandle]));
 		if (pAmbientOcculstionTextureHandle > -1)
 			mCommandList->SetGraphicsRootDescriptorTable(6, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pAmbientOcculstionTextureHandle]));
-		if(mMeshes[pMeshHandle]->HasSkeleton())
+		if (mMeshes[pMeshHandle]->HasSkeleton())
+		{
 			mCommandList->SetGraphicsRootDescriptorTable(7, mResourceManager->GetGpuHandle(mDescriptorHandleMap[mMeshes[pMeshHandle]->GetSkeletonBufferHandle()]));
+			mCommandList->SetGraphicsRoot32BitConstant(8, 1, 0);
+		}
+		else
+		{
+			mCommandList->SetGraphicsRoot32BitConstant(8, 0, 0);
+		}
 
 		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
 
@@ -583,7 +590,7 @@ namespace Renderer
 		lPBRDescriptorRange[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		lPBRDescriptorRange[5].RegisterSpace = 0;
 
-		D3D12_ROOT_PARAMETER lPBRParameter[8];
+		D3D12_ROOT_PARAMETER lPBRParameter[9];
 		lPBRParameter[0].Descriptor.RegisterSpace = 0;
 		lPBRParameter[0].Descriptor.ShaderRegister = 0;
 		lPBRParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -616,6 +623,12 @@ namespace Renderer
 		lPBRParameter[7].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[5];
 		lPBRParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		lPBRParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		lPBRParameter[8].Constants.Num32BitValues = 1;
+		lPBRParameter[8].Constants.RegisterSpace = 0;
+		lPBRParameter[8].Constants.ShaderRegister = 2;
+		lPBRParameter[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+
 
 		CD3DX12_STATIC_SAMPLER_DESC lPBRSamplerDesc(0,
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
@@ -625,7 +638,7 @@ namespace Renderer
 
 		D3D12_ROOT_SIGNATURE_DESC lPBRDesc = {};
 		lPBRDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-		lPBRDesc.NumParameters = 8;
+		lPBRDesc.NumParameters = 9;
 		lPBRDesc.pParameters = lPBRParameter;
 		lPBRDesc.NumStaticSamplers = 1;
 		lPBRDesc.pStaticSamplers = &lPBRSamplerDesc;
