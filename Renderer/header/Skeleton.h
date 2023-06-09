@@ -23,6 +23,9 @@ namespace Renderer
 												CBone(FbxNode* pLimbNode,int pBoneIndex);
 
 		void									AddChild(shared_ptr<CBone> pChild);
+		void									GetChildIterators(vector<shared_ptr<CBone>>::iterator& lBegin, vector<shared_ptr<CBone>>::iterator& lEnd);
+
+		shared_ptr<CBone>						GetParent() const;
 		void									SetParent(shared_ptr<CBone> pParent);
 
 		int										GetIndex() const;
@@ -42,6 +45,7 @@ namespace Renderer
 
 		Math::CTransform						EvaluateGlobalTransform(double pTime);
 		Math::CTransform						EvaluateLocalTransform(double pTime);
+
 
 	protected:
 
@@ -79,6 +83,7 @@ namespace Renderer
 		void									GetBonesIterator(Bones::iterator& pBegin, Bones::iterator& pEnd);
 		shared_ptr<CBone>						GetBone(const string& pName);
 
+		void									UpdateGlobalFromLocal();
 
 	protected:
 

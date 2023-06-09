@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <DirectXMath.h>
 #include "../../Maths/header/Matrix4.h"
+#include <functional>
 
 
 using namespace Microsoft::WRL;

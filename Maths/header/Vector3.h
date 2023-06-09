@@ -12,6 +12,10 @@ namespace Math
 
 		SVector3								operator-();
 
+		SVector3								operator*(const double& pValue) const;
+
+		SVector3								operator+(const SVector3& pOther);
+
 	union
 	{
 		struct

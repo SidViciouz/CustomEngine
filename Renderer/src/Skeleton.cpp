@@ -50,6 +50,22 @@ namespace Renderer
 
 
 
+	void CBone::GetChildIterators(vector<shared_ptr<CBone>>::iterator& lBegin, vector<shared_ptr<CBone>>::iterator& lEnd)
+	{
+		lBegin = mChilds.begin();
+		lEnd = mChilds.end();
+	}
+
+
+
+
+	shared_ptr<CBone> CBone::GetParent() const
+	{
+		return mParent;
+	}
+
+
+
 	void CBone::SetParent(shared_ptr<CBone> pParent)
 	{
 		mParent = pParent;
@@ -155,7 +171,7 @@ namespace Renderer
 		FbxTime lFbxTime;
 		lFbxTime.SetSecondDouble(pTime);
 
-		FbxAMatrix lMatrix = mLimbNode->EvaluateGlobalTransform(lFbxTime);
+		FbxAMatrix lMatrix = mLimbNode->EvaluateLocalTransform(lFbxTime);
 
 		FbxVector4 lScale = lMatrix.GetS();
 		FbxQuaternion lOrientation = lMatrix.GetQ();
@@ -314,4 +330,73 @@ namespace Renderer
 		return mBones[pName];
 	}
 
+
+
+	void CSkeleton::UpdateGlobalFromLocal()
+	{
+		stack<shared_ptr<CBone>> lStack;
+
+		lStack.push(mRootBone);
+
+		while (!lStack.empty())
+		{
+			shared_ptr<CBone> lTop = lStack.top();
+			lStack.pop();
+
+			if (lTop == nullptr)
+				continue;
+
+			shared_ptr<CBone> lParent = lTop->GetParent();
+			if (lParent != nullptr)
+			{
+				Math::CTransform lLocalTransform = lTop->GetLocalTransform();
+				const Math::SVector3 lLocalScale = lLocalTransform.GetScale();
+				const Math::SQuaternion lLocalOrientation = lLocalTransform.GetOrientation();
+				const Math::SVector3 lLocalTranslation = lLocalTransform.GetTranslation();
+
+				FbxAMatrix lLocalMatrix;
+				lLocalMatrix.SetS(FbxVector4(lLocalScale.mX, lLocalScale.mY, lLocalScale.mZ));
+				lLocalMatrix.SetQ(FbxQuaternion(lLocalOrientation.mX, lLocalOrientation.mY, lLocalOrientation.mZ, lLocalOrientation.mW));
+				lLocalMatrix.SetT(FbxVector4(lLocalTranslation.mX, lLocalTranslation.mY, lLocalTranslation.mZ));
+
+
+				Math::CTransform lParentTransform = lParent->GetGlobalTransform();
+				const Math::SVector3 lParentScale = lParentTransform.GetScale();
+				const Math::SQuaternion lParentOrientation = lParentTransform.GetOrientation();
+				const Math::SVector3 lParentTranslation = lParentTransform.GetTranslation();
+
+				FbxAMatrix lParentMatrix;
+				lParentMatrix.SetS(FbxVector4(lParentScale.mX, lParentScale.mY, lParentScale.mZ));
+				lParentMatrix.SetQ(FbxQuaternion(lParentOrientation.mX, lParentOrientation.mY, lParentOrientation.mZ, lParentOrientation.mW));
+				lParentMatrix.SetT(FbxVector4(lParentTranslation.mX, lParentTranslation.mY, lParentTranslation.mZ));
+
+				FbxAMatrix lBlendMatrix = lParentMatrix * lLocalMatrix;
+
+				FbxVector4 lBlendScale = lBlendMatrix.GetS();
+				FbxQuaternion lBlendOrientation = lBlendMatrix.GetQ();
+				FbxVector4 lBlendTranslation = lBlendMatrix.GetT();
+
+				Math::CTransform lBlendTransform;
+				lBlendTransform.SetScale(Math::SVector3(lBlendScale[0], lBlendScale[1], lBlendScale[2]));
+				lBlendTransform.SetOrientation(Math::SQuaternion(lBlendOrientation[0], lBlendOrientation[1], lBlendOrientation[2], lBlendOrientation[3]));
+				lBlendTransform.SetTranslation(Math::SVector3(lBlendTranslation[0], lBlendTranslation[1], lBlendTranslation[2]));
+
+				lTop->SetGlobalTransform(lBlendTransform);
+			}
+			else
+			{
+				lTop->SetGlobalTransform(lTop->GetLocalTransform());
+			}
+
+			
+			vector<shared_ptr<CBone>>::iterator lBegin, lEnd;
+			lTop->GetChildIterators(lBegin, lEnd);
+			
+			for (auto it = lBegin; it != lEnd; it++)
+			{
+				lStack.push(*it);
+			}
+		}
+
+	}
 }

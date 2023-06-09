@@ -23,4 +23,14 @@ namespace Math
 	{
 		return SVector3(-mX, -mY, -mZ);
 	}
+
+	SVector3 SVector3::operator*(const double& pValue) const
+	{
+		return SVector3(mX * pValue, mY * pValue, mZ * pValue);
+	}
+
+	SVector3 SVector3::operator+(const SVector3& pOther)
+	{
+		return SVector3(mX + pOther.mX, mY + pOther.mY, mZ + pOther.mZ);
+	}
 }
