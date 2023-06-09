@@ -82,9 +82,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lAnimGraph.LoadAnimation("tpose", "../Model/ALS_Mannequin_T_Pose.FBX");
 		lAnimGraph.LoadAnimation("clf_getup_back", "../Model/ALS_CLF_GetUp_Back.FBX");
 		lAnimGraph.LoadAnimation("n_pose", "../Model/ALS_N_Pose.FBX");
+		lAnimGraph.LoadAnimation("n_jumpwalk_lf", "../Model/ALS_N_JumpWalk_LF.FBX");
 		lAnimGraph.Reset("n_walk_f");
-		lAnimGraph.AddTransition("n_walk_f", "cls_walk_f", []()->bool {return true; }, 2.0f);
-		lAnimGraph.AddTransition("cls_walk_f", "n_walk_f", []()->bool {return true; }, 2.0f);
+		lAnimGraph.AddTransition("n_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
+		lAnimGraph.AddTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 1.0f);
 
 
 
@@ -129,7 +130,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			//r.DrawMesh(lMesh1Handle, lObject1Handle);
 			//r.DrawMesh(lMesh2Handle, lObject2Handle);
 			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, lTexture1Handle,lTexture2Handle,lTexture3Handle, lTexture4Handle, -1);
+			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1,-1, -1, -1, -1);
 			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 
 

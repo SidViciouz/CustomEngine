@@ -10,6 +10,18 @@ namespace Renderer
 	class CMesh;
 	class CObject;
 
+	struct SPBRData
+	{
+		int mHasAlbedoMap = 1;
+		int mHasMetallicMap = 1;
+		int mHasNormalMap = 1;
+		int mHasRoughnessMap = 1;
+		int mHasAOMap = 1;
+		float mAlbedo[3];
+		float mMetallic;
+		float mRoughness;
+	};
+
 	class CRenderer
 	{
 	public:

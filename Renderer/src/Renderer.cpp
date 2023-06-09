@@ -321,6 +321,7 @@ namespace Renderer
 		lVertexBufferView.SizeInBytes = sizeof(SVertex) * mMeshes[pMeshHandle]->GetVertexCount();
 		lVertexBufferView.StrideInBytes = sizeof(SVertex);
 
+		SPBRData lPBRData = {};
 
 		ID3D12DescriptorHeap* lDescriptorHeap = mResourceManager->GetDescriptorHeap(EDescriptorType::eSRV);
 		mCommandList->SetDescriptorHeaps(1, &lDescriptorHeap);
@@ -328,27 +329,76 @@ namespace Renderer
 		mCommandList->SetGraphicsRootSignature(mRootSignatures["PBR"].Get());
 		mCommandList->SetPipelineState(mPSOs["PBR"].Get());
 		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObjectHandle)));
+
 		mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
+
 		if (pBaseColorTextureHandle > -1)
-			mCommandList->SetGraphicsRootDescriptorTable(2, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pBaseColorTextureHandle]));
-		if (pMetallicTextureHandle > -1)
-			mCommandList->SetGraphicsRootDescriptorTable(3, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pMetallicTextureHandle]));
-		if (pNormalTextureHandle > -1)
-			mCommandList->SetGraphicsRootDescriptorTable(4, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pNormalTextureHandle]));
-		if (pRoughnessTextureHandle > -1)
-			mCommandList->SetGraphicsRootDescriptorTable(5, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pRoughnessTextureHandle]));
-		if (pAmbientOcculstionTextureHandle > -1)
-			mCommandList->SetGraphicsRootDescriptorTable(6, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pAmbientOcculstionTextureHandle]));
-		if (mMeshes[pMeshHandle]->HasSkeleton())
 		{
-			mCommandList->SetGraphicsRootConstantBufferView(7, mResourceManager->GetGpuVirtualAddress(mFrameData->GetSkeletonConstantBufferHandle(mCurrentFrame,pMeshHandle)));
-			//mCommandList->SetGraphicsRootDescriptorTable(7, mResourceManager->GetGpuHandle(mDescriptorHandleMap[mMeshes[pMeshHandle]->GetSkeletonBufferHandle()]));
-			mCommandList->SetGraphicsRoot32BitConstant(8, 1, 0);
+			mCommandList->SetGraphicsRootDescriptorTable(2, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pBaseColorTextureHandle]));
+			lPBRData.mHasAlbedoMap = 1;
 		}
 		else
 		{
-			mCommandList->SetGraphicsRoot32BitConstant(8, 0, 0);
+			lPBRData.mHasAlbedoMap = 0;
+			lPBRData.mAlbedo[0] = 0.2;
+			lPBRData.mAlbedo[1] = 0.2;
+			lPBRData.mAlbedo[2] = 1.0;
 		}
+
+		if (pMetallicTextureHandle > -1)
+		{
+			mCommandList->SetGraphicsRootDescriptorTable(3, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pMetallicTextureHandle]));
+			lPBRData.mHasMetallicMap = 1;
+		}
+		else
+		{
+			lPBRData.mHasMetallicMap = 0;
+			lPBRData.mMetallic = 0.0f;
+		}
+
+		if (pNormalTextureHandle > -1)
+		{
+			mCommandList->SetGraphicsRootDescriptorTable(4, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pNormalTextureHandle]));
+			lPBRData.mHasNormalMap = 1;
+		}
+		else
+		{
+			lPBRData.mHasNormalMap = 0;
+		}
+
+		if (pRoughnessTextureHandle > -1)
+		{
+			mCommandList->SetGraphicsRootDescriptorTable(5, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pRoughnessTextureHandle]));
+			lPBRData.mHasRoughnessMap = 1;
+		}
+		else
+		{
+			lPBRData.mHasRoughnessMap = 0;
+			lPBRData.mRoughness = 1.0f;
+		}
+
+		if (pAmbientOcculstionTextureHandle > -1)
+		{
+			mCommandList->SetGraphicsRootDescriptorTable(6, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pAmbientOcculstionTextureHandle]));
+			lPBRData.mHasAOMap = 1;
+		}
+		else
+		{
+			lPBRData.mHasAOMap = 0;
+		}
+
+		if (mMeshes[pMeshHandle]->HasSkeleton())
+		{
+			mCommandList->SetGraphicsRootConstantBufferView(8, mResourceManager->GetGpuVirtualAddress(mFrameData->GetSkeletonConstantBufferHandle(mCurrentFrame,pMeshHandle)));
+			//mCommandList->SetGraphicsRootDescriptorTable(7, mResourceManager->GetGpuHandle(mDescriptorHandleMap[mMeshes[pMeshHandle]->GetSkeletonBufferHandle()]));
+			mCommandList->SetGraphicsRoot32BitConstant(9, 1, 0);
+		}
+		else
+		{
+			mCommandList->SetGraphicsRoot32BitConstant(9, 0, 0);
+		}
+
+		mCommandList->SetGraphicsRoot32BitConstants(7, 10, &lPBRData, 0);
 
 		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
 
@@ -646,7 +696,7 @@ namespace Renderer
 		lPBRDescriptorRange[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		lPBRDescriptorRange[4].RegisterSpace = 0;
 
-		D3D12_ROOT_PARAMETER lPBRParameter[9];
+		D3D12_ROOT_PARAMETER lPBRParameter[10];
 		lPBRParameter[0].Descriptor.RegisterSpace = 0;
 		lPBRParameter[0].Descriptor.ShaderRegister = 0;
 		lPBRParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -675,15 +725,20 @@ namespace Renderer
 		lPBRParameter[6].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[4];
 		lPBRParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		lPBRParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		lPBRParameter[7].Descriptor.RegisterSpace = 0;
-		lPBRParameter[7].Descriptor.ShaderRegister = 2;
+		lPBRParameter[7].Constants.Num32BitValues = 10;
+		lPBRParameter[7].Constants.RegisterSpace = 0;
+		lPBRParameter[7].Constants.ShaderRegister = 2;
 		lPBRParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		lPBRParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-		lPBRParameter[8].Constants.Num32BitValues = 1;
-		lPBRParameter[8].Constants.RegisterSpace = 0;
-		lPBRParameter[8].Constants.ShaderRegister = 3;
+		lPBRParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+		lPBRParameter[8].Descriptor.RegisterSpace = 0;
+		lPBRParameter[8].Descriptor.ShaderRegister = 3;
 		lPBRParameter[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		lPBRParameter[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+		lPBRParameter[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		lPBRParameter[9].Constants.Num32BitValues = 1;
+		lPBRParameter[9].Constants.RegisterSpace = 0;
+		lPBRParameter[9].Constants.ShaderRegister = 4;
+		lPBRParameter[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lPBRParameter[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 
 
 		CD3DX12_STATIC_SAMPLER_DESC lPBRSamplerDesc(0,
@@ -694,7 +749,7 @@ namespace Renderer
 
 		D3D12_ROOT_SIGNATURE_DESC lPBRDesc = {};
 		lPBRDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-		lPBRDesc.NumParameters = 9;
+		lPBRDesc.NumParameters = 10;
 		lPBRDesc.pParameters = lPBRParameter;
 		lPBRDesc.NumStaticSamplers = 1;
 		lPBRDesc.pStaticSamplers = &lPBRSamplerDesc;

@@ -19,20 +19,24 @@ texture2D<float> tAO : register(t4);
 
 SamplerState sSampler: register(s0);
 
-/*
-struct Bone
+cbuffer pbrData : register(b2)
 {
-	float4x4 transform;
-};
+	int hasAlbedoMap;
+	int hasMetallicMap;
+	int hasNormalMap;
+	int hasRoughnessMap;
+	int hasAOMap;
+	float3 albedo;
+	float metallic;
+	float roughness;
+}
 
-StructuredBuffer<Bone> Skeleton : register(t5);
-*/
-cbuffer Skeleton : register(b2)
+cbuffer Skeleton : register(b3)
 {
 	float4x4 boneTransform[100];
 }
 
-cbuffer SkeletonData : register(b3)
+cbuffer SkeletonData : register(b4)
 {
 	int hasSkeleton;
 }
@@ -92,9 +96,26 @@ float4 PS(VertexOut pin) : SV_TARGET
 {
 	float3 lLo = 0.0f;
 
-	float lMetallic = tMetallic.Sample(sSampler, pin.texCoord);
-	float lRoughness = tRoughness.Sample(sSampler, pin.texCoord);
-	float3 lAlbedo = tAlbedo.Sample(sSampler, pin.texCoord);
+	float3 lAlbedo;
+	float lMetallic;
+	float lRoughness;
+
+
+	if (hasAlbedoMap == 1)
+		lAlbedo = tAlbedo.Sample(sSampler, pin.texCoord);
+	else
+		lAlbedo = albedo;
+
+	if (hasMetallicMap == 1)
+		lMetallic = tMetallic.Sample(sSampler, pin.texCoord);
+	else
+		lMetallic = metallic;
+
+	if (hasRoughnessMap == 1)
+		lRoughness = tRoughness.Sample(sSampler, pin.texCoord);
+	else
+		lRoughness = roughness;
+
 
 	float2 lUV = float2(pin.texCoord[0], pin.texCoord[1]);
 
@@ -106,7 +127,11 @@ float4 PS(VertexOut pin) : SV_TARGET
 	float3 lL = normalize(LightPosition - pin.worldPosition);
 
 	//normal vector in tangent space
-	float3 lN = tNormal.Sample(sSampler, lUV);
+	float3 lN;
+	if (hasNormalMap == 1)
+		lN = tNormal.Sample(sSampler, lUV);
+	else
+		lN = float3(0,0,1);
 	ConvertToTangentSpace(lN, pin.tangent, pin.binormal, pin.normal);
 
 	float lCosine = max(dot(lN, lL), 0.0f);
@@ -116,7 +141,7 @@ float4 PS(VertexOut pin) : SV_TARGET
 	float3 lRadiance = LightColor;// *lAttenuation;
 
 	float3 lF0 = 0.04f;
-	lF0 = lerp(lF0, tAlbedo.Sample(sSampler, pin.texCoord), lMetallic);
+	lF0 = lerp(lF0, lAlbedo, lMetallic);
 
 	float3 lH = normalize(lV + lL);
 
