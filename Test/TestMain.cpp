@@ -81,11 +81,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lAnimGraph.LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
 		lAnimGraph.LoadAnimation("tpose", "../Model/ALS_Mannequin_T_Pose.FBX");
 		lAnimGraph.LoadAnimation("clf_getup_back", "../Model/ALS_CLF_GetUp_Back.FBX");
-		lAnimGraph.Reset("n_run_f");
+		lAnimGraph.LoadAnimation("n_pose", "../Model/ALS_N_Pose.FBX");
+		lAnimGraph.Reset("n_walk_f");
 		lAnimGraph.AddTransition("n_walk_f", "cls_walk_f", []()->bool {return true; }, 2.0f);
-		lAnimGraph.AddTransition("cls_walk_f", "n_run_f", []()->bool {return true; }, 2.0f);
-		lAnimGraph.AddTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 5.0f);
-		//lAnimGraph.AddTransition("n_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
+		lAnimGraph.AddTransition("cls_walk_f", "n_walk_f", []()->bool {return true; }, 2.0f);
 
 
 
@@ -112,6 +111,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		int lMesh3Handle = r.SetMesh(lMesh3);
 		int lObject3Handle = r.SetObject(lObject3);
+
+		SetWindowPos(lWindowHandle, NULL, 0, 0, 2000, 1000, SWP_NOZORDER | SWP_NOACTIVATE);
+		lCamera->Resize(2000, 1000);
+		r.Resize();
 
 		while (1)
 		{

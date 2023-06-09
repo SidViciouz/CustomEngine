@@ -18,6 +18,12 @@ namespace Renderer
 		mMaxPlane = 1000.0f;
 	}
 	
+	void CCamera::Resize(const int& pWidth, const int& pHeight)
+	{
+		mWidth = pWidth;
+		mHeight = pHeight;
+	}
+
 	Math::SMatrix4 CCamera::GetViewMatrix()
 	{
 		Math::SMatrix4 lView;

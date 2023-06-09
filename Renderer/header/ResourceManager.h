@@ -71,10 +71,12 @@ namespace Renderer
 		int									CreateTexture1D(int pWidth, DXGI_FORMAT pFormat, EResourceHeapType pType,D3D12_RESOURCE_FLAGS pFlags);
 		int									CreateTexture2D(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 		int									CreateTexture3D(int pWidth, int pHeight, int pDepth, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
-		int									StoreSwapchainBuffer(IDXGISwapChain* pSwapchain,int pBufferIndex);
+		int									StoreSwapchainBuffer(IDXGISwapChain* pSwapchain,int pBufferIndex,int pResoureceHandle = -1);
 		int									CreateDepthTexture(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags);
 		int									CreateNullResourcePointer();
 		void								ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState);
+
+		void								ReleaseResource(int pResourceHandle);
 		/*
 		* This method uploads pData to Resource.
 		* if pHeight == 1, upload buffer or texture1D
@@ -92,6 +94,7 @@ namespace Renderer
 		* create descriptor and return descriptor handle.
 		*/
 		int									CreateDescriptor(int pResourceHandle, EDescriptorType pType); //buffer, texture2d array and textureCube must be dealt with in other method.
+		int									RecreateDescriptor(int pResourceHandle, EDescriptorType pType, int pDescriptorHandle); //buffer, texture2d array and textureCube must be dealt with in other method.
 		int									CreateBufferSrv(int pResourceHandle,int pElementNum,int pByteStride);
 		D3D12_CPU_DESCRIPTOR_HANDLE			GetCpuHandle(int pHandle);
 		D3D12_GPU_DESCRIPTOR_HANDLE			GetGpuHandle(int pHandle);
@@ -103,6 +106,7 @@ namespace Renderer
 		* create buffer and return decriptor handle.
 		*/
 		int									CreateResource(const SResourceDescription& pDescrption);
+
 		array<SResourceInfo, MAX_RESOURCE_NUM> mResources;
 		int									mResourceCount = 0;
 

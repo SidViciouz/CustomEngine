@@ -46,7 +46,8 @@ namespace Renderer
 		CreateRootSignatures();
 		CreatePSO();
 
-		mCommandList->Close();
+		if(!SUCCEEDED(mCommandList->Close()))
+			throw string("commandlist closing fails.");
 		ID3D12CommandList* lists[] = { mCommandList.Get() };
 		mCommandQueue->ExecuteCommandLists(1, lists);
 	}
@@ -55,17 +56,63 @@ namespace Renderer
 
 	void CRenderer::Resize()
 	{
+		//resize window
 		RECT lRect;
 		GetWindowRect(mWindowHandle, &lRect);
 
 		mWidth = lRect.right - lRect.left;
 		mHeight = lRect.bottom - lRect.top;
 
-		//change swap chain size
-		// 
-		//change depth buffer size
-		//
-		//change scissor and viewport
+
+
+		WaitUntilAllCommandDone();
+
+		if (!SUCCEEDED(mCommandList->Reset(mCommandAllocator.Get(), nullptr)))
+			throw string("reset command list fails.");
+
+
+		//release back buffer and depth buffer
+		for (int lBackBufferIndex = 0; lBackBufferIndex < mSwapchainBufferNum; ++lBackBufferIndex)
+		{
+			mResourceManager->ReleaseResource(mSwapchainBufferHandle[lBackBufferIndex]);
+		}
+
+		mResourceManager->ReleaseResource(mDepthBufferHandle);
+
+		//resize swapchain
+		mSwapchain->ResizeBuffers(mSwapchainBufferNum, mWidth, mHeight, mBackBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+
+		mCurrentBackBuffer = 0;
+
+
+		//store back buffer
+		for (int lBackBufferIndex = 0; lBackBufferIndex < SWAPCHAIN_BUFFER_NUM; ++lBackBufferIndex)
+		{
+			//store buffer in resource manager and get its handle
+			mResourceManager->StoreSwapchainBuffer(mSwapchain.Get(), lBackBufferIndex, mSwapchainBufferHandle[lBackBufferIndex]);
+
+			//recreate RTV for a swapchain buffer
+			mResourceManager->RecreateDescriptor(mSwapchainBufferHandle[lBackBufferIndex], EDescriptorType::eRTV, mRtvHandle[lBackBufferIndex]);
+		}
+
+		//recreate depth buffer
+		mDepthBufferHandle = mResourceManager->CreateDepthTexture(mWidth, mHeight, 1, mDepthBufferFormat, EResourceHeapType::eDefault, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
+		mResourceManager->ChangeState(mDepthBufferHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+		mResourceManager->RecreateDescriptor(mDepthBufferHandle, EDescriptorType::eDSV, mDsvHandle);
+
+
+		//reset viewport and scissor rect
+		SetViewportAndScissor();
+
+
+		if (!SUCCEEDED(mCommandList->Close()))
+			throw string("commandlist closing fails.");
+		ID3D12CommandList* lists[] = { mCommandList.Get() };
+		mCommandQueue->ExecuteCommandLists(1, lists);
+
+		WaitUntilAllCommandDone();
 	}
 
 
@@ -316,6 +363,24 @@ namespace Renderer
 			mCommandList->DrawIndexedInstanced(mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex), 1, 0, 0, 0);
 		}
 	}
+
+
+
+	void CRenderer::WaitUntilAllCommandDone()
+	{
+		++mFenceValue;
+
+		mCommandQueue->Signal(mFence.Get(), mFenceValue);
+
+		if (mFence->GetCompletedValue() < mFenceValue)
+		{
+			HANDLE event = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
+			mFence->SetEventOnCompletion(mFenceValue, event);
+			WaitForSingleObject(event, INFINITE);
+			CloseHandle(event);
+		}
+	}
+
 
 
 	void CRenderer::EnableDebug()

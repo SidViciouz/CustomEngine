@@ -131,16 +131,30 @@ namespace Renderer
 		return CreateResource(lResourceDescription);
 	}
 
-	int	CResourceManager::StoreSwapchainBuffer(IDXGISwapChain* pSwapchain, int pBufferIndex)
+	int	CResourceManager::StoreSwapchainBuffer(IDXGISwapChain* pSwapchain, int pBufferIndex, int pResourceHandle)
 	{
-		SResourceInfo& lResourceInfo = mResources[mResourceCount];
+		if (pResourceHandle == -1)
+		{
+			SResourceInfo& lResourceInfo = mResources[mResourceCount];
 
-		if (!SUCCEEDED(pSwapchain->GetBuffer(pBufferIndex, IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
-			throw string("getting swapchain buffer fails.");
+			if (!SUCCEEDED(pSwapchain->GetBuffer(pBufferIndex, IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
+				throw string("getting swapchain buffer fails.");
 
-		lResourceInfo.mState = D3D12_RESOURCE_STATE_PRESENT;
+			lResourceInfo.mState = D3D12_RESOURCE_STATE_PRESENT;
 
-		return mResourceCount++;
+			return mResourceCount++;
+		}
+		else
+		{
+			SResourceInfo& lResourceInfo = mResources[pResourceHandle];
+
+			if (!SUCCEEDED(pSwapchain->GetBuffer(pBufferIndex, IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
+				throw string("getting swapchain buffer fails.");
+
+			lResourceInfo.mState = D3D12_RESOURCE_STATE_PRESENT;
+
+			return pResourceHandle;
+		}
 	}
 
 	int CResourceManager::CreateDepthTexture(int pWidth, int pHeight, int pArraySize, DXGI_FORMAT pFormat, EResourceHeapType pType, D3D12_RESOURCE_FLAGS pFlags)
@@ -352,6 +366,14 @@ namespace Renderer
 
 
 
+	void CResourceManager::ReleaseResource(int pResourceHandle)
+	{
+		mResources[pResourceHandle].mResource.Reset();
+	}
+
+
+
+
 	int	CResourceManager::CreateDescriptor(int pResourceHandle, EDescriptorType pType)
 	{
 		D3D12_RESOURCE_DESC lResourceDesc = mResources[pResourceHandle].mResource->GetDesc();
@@ -492,6 +514,143 @@ namespace Renderer
 			++mCbvSrvUavCount;
 
 			return mDescriptorCount++;
+		}
+	}
+
+
+
+	int	CResourceManager::RecreateDescriptor(int pResourceHandle, EDescriptorType pType, int pDescriptorHandle)
+	{
+		D3D12_RESOURCE_DESC lResourceDesc = mResources[pResourceHandle].mResource->GetDesc();
+
+		if (pType == EDescriptorType::eRTV)
+		{
+			mDevice->CreateRenderTargetView(mResources[pResourceHandle].mResource.Get(), nullptr, GetCpuHandle(pDescriptorHandle));
+
+			return pDescriptorHandle;
+		}
+
+		else if (pType == EDescriptorType::eDSV)
+		{
+			mDevice->CreateDepthStencilView(mResources[pResourceHandle].mResource.Get(), nullptr, GetCpuHandle(pDescriptorHandle));
+
+
+			return pDescriptorHandle;
+		}
+
+		else // CBV, SRV, UAV
+		{
+			if (pType == EDescriptorType::eCBV)
+			{
+				D3D12_CONSTANT_BUFFER_VIEW_DESC lCbvDesc = { };
+				lCbvDesc.BufferLocation = mResources[pResourceHandle].mResource->GetGPUVirtualAddress();
+				lCbvDesc.SizeInBytes = lResourceDesc.Width;
+				mDevice->CreateConstantBufferView(&lCbvDesc, GetCpuHandle(pDescriptorHandle));
+			}
+
+			else if (pType == EDescriptorType::eSRV)
+			{
+				D3D12_SRV_DIMENSION lDimension;
+				switch (lResourceDesc.Dimension)
+				{
+				case D3D12_RESOURCE_DIMENSION_BUFFER:
+					throw string("buffer dimension resource must be dealt with in other method."); break;
+
+				case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+					lDimension = D3D12_SRV_DIMENSION_TEXTURE1D; break;
+
+				case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+					lDimension = D3D12_SRV_DIMENSION_TEXTURE2D; break;
+
+				case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+					lDimension = D3D12_SRV_DIMENSION_TEXTURE3D; break;
+
+				case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+					lDimension = D3D12_SRV_DIMENSION_UNKNOWN; break;
+				}
+
+				D3D12_SHADER_RESOURCE_VIEW_DESC lSrvDesc = {};
+				lSrvDesc.Format = lResourceDesc.Format;
+				lSrvDesc.ViewDimension = lDimension;
+				lSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+				if (lDimension == D3D12_SRV_DIMENSION_TEXTURE1D)
+				{
+					lSrvDesc.Texture1D.MipLevels = -1;
+					lSrvDesc.Texture1D.MostDetailedMip = 0;
+					lSrvDesc.Texture1D.ResourceMinLODClamp = 0.0f;
+				}
+				else if (lDimension == D3D12_SRV_DIMENSION_TEXTURE2D)
+				{
+					lSrvDesc.Texture2D.MipLevels = -1;
+					lSrvDesc.Texture2D.MostDetailedMip = 0;
+					lSrvDesc.Texture2D.PlaneSlice = 0;
+					lSrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+				}
+				else if (lDimension == D3D12_SRV_DIMENSION_TEXTURE3D)
+				{
+					lSrvDesc.Texture3D.MipLevels = -1;
+					lSrvDesc.Texture3D.MostDetailedMip = 0;
+					lSrvDesc.Texture3D.ResourceMinLODClamp = 0.0f;
+				}
+				else
+				{
+					throw string("creating SRV fails.");
+				}
+
+				mDevice->CreateShaderResourceView(mResources[pResourceHandle].mResource.Get(), &lSrvDesc, GetCpuHandle(pDescriptorHandle));
+			}
+
+			else //UAV
+			{
+				D3D12_UAV_DIMENSION lDimension;
+				switch (lResourceDesc.Dimension)
+				{
+				case D3D12_RESOURCE_DIMENSION_BUFFER:
+					throw string("buffer dimension resource must be dealt with in other method."); break;
+
+				case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+					lDimension = D3D12_UAV_DIMENSION_TEXTURE1D; break;
+
+				case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+					lDimension = D3D12_UAV_DIMENSION_TEXTURE2D; break;
+
+				case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+					lDimension = D3D12_UAV_DIMENSION_TEXTURE3D; break;
+
+				case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+					lDimension = D3D12_UAV_DIMENSION_UNKNOWN; break;
+				}
+
+				D3D12_UNORDERED_ACCESS_VIEW_DESC lUavDesc = {};
+				lUavDesc.Format = lResourceDesc.Format;
+				lUavDesc.ViewDimension = lDimension;
+
+				if (lDimension == D3D12_UAV_DIMENSION_TEXTURE1D)
+				{
+					lUavDesc.Texture1D.MipSlice = 0;
+				}
+				else if (lDimension == D3D12_UAV_DIMENSION_TEXTURE2D)
+				{
+					lUavDesc.Texture2D.MipSlice = 0;
+					lUavDesc.Texture2D.PlaneSlice = 0;
+
+				}
+				else if (lDimension == D3D12_UAV_DIMENSION_TEXTURE3D)
+				{
+					lUavDesc.Texture3D.FirstWSlice = 0;
+					lUavDesc.Texture3D.MipSlice = 0;
+					lUavDesc.Texture3D.WSize = -1;
+				}
+				else
+				{
+					throw string("creating UAV fails.");
+				}
+
+				mDevice->CreateUnorderedAccessView(mResources[pResourceHandle].mResource.Get(), nullptr, &lUavDesc, GetCpuHandle(pDescriptorHandle));
+			}
+
+			return pDescriptorHandle;
 		}
 	}
 

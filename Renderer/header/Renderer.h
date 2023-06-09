@@ -35,6 +35,7 @@ namespace Renderer
 		void									DrawMeshPBR(int pMeshHandle, int pObjectHandle,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle);
 
 	private:
+		void									WaitUntilAllCommandDone();
 		/*
 		* window data
 		*/
