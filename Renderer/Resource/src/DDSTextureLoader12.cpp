@@ -14,7 +14,7 @@
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
 
-#include "DDSTextureLoader12.h"
+#include "../Resource/header/DDSTextureLoader12.h"
 
 #include <algorithm>
 #include <cassert>
@@ -50,7 +50,7 @@
 #if !defined(_WIN32) || defined(USING_DIRECTX_HEADERS)
 #include "directx/d3dx12.h"
 #else
-#include "d3dx12.h"
+#include "../Common/header/d3dx12.h"
 #endif
 
 using namespace DirectX;

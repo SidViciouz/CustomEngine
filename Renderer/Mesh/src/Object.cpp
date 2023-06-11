@@ -1,4 +1,4 @@
-#include "Object.h"
+#include "../Mesh/header/Object.h"
 #include "Vector3.h"
 
 namespace Renderer

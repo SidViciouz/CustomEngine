@@ -1,6 +1,6 @@
-#include "AnimationGraph.h"
-#include "Mesh.h"
-#include "Skeleton.h"
+#include "../Animation/header/AnimationGraph.h"
+#include "../Mesh/header/Mesh.h"
+#include "../Mesh/header/Skeleton.h"
 #include <fbxsdk.h>
 
 namespace Renderer

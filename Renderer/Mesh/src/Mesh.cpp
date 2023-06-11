@@ -1,5 +1,5 @@
-#include "Mesh.h"
-#include "Skeleton.h"
+#include "../Mesh/header/Mesh.h"
+#include "../Mesh/header/Skeleton.h"
 #include <fbxsdk.h>
 
 void Print(FbxNode* pNode, int pTabNum)

@@ -1,4 +1,4 @@
-#include "Skeleton.h"
+#include "../Mesh/header/Skeleton.h"
 #include <stack>
 #include <utility>
 

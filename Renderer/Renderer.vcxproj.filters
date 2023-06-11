@@ -15,66 +15,69 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Renderer.cpp">
+    <ClCompile Include="Render\src\Renderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\ResourceManager.cpp">
+    <ClCompile Include="Resource\src\ResourceManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\FrameData.cpp">
+    <ClCompile Include="Render\src\FrameData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\Camera.cpp">
+    <ClCompile Include="Camera\src\Camera.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
+    <ClCompile Include="Mesh\src\Mesh.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\Object.cpp">
+    <ClCompile Include="Mesh\src\Object.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\DDSTextureLoader12.cpp">
+    <ClCompile Include="Resource\src\DDSTextureLoader12.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\Skeleton.cpp">
+    <ClCompile Include="Mesh\src\Skeleton.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="src\AnimationGraph.cpp">
+    <ClCompile Include="Animation\src\AnimationGraph.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\Renderer.h">
+    <ClInclude Include="Render\header\Renderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\ResourceManager.h">
+    <ClInclude Include="Resource\header\ResourceManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\Common.h">
+    <ClInclude Include="Common\header\Common.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\FrameData.h">
+    <ClInclude Include="Render\header\FrameData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\Camera.h">
+    <ClInclude Include="Camera\header\Camera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\Mesh.h">
+    <ClInclude Include="Mesh\header\Mesh.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\Object.h">
+    <ClInclude Include="Mesh\header\Object.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\DDSTextureLoader12.h">
+    <ClInclude Include="Resource\header\DDSTextureLoader12.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\d3dx12.h">
+    <ClInclude Include="Common\header\d3dx12.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\Skeleton.h">
+    <ClInclude Include="Mesh\header\Skeleton.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="header\AnimationGraph.h">
+    <ClInclude Include="Animation\header\AnimationGraph.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle\header\ParticleManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

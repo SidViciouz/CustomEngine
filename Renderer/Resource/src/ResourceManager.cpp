@@ -1,7 +1,7 @@
-#include "ResourceManager.h"
+#include "../Resource/header/ResourceManager.h"
 #include "Util.h"
-#include "DDSTextureLoader12.h"
-#include "d3dx12.h"
+#include "../Resource/header/DDSTextureLoader12.h"
+#include "../Common/header/d3dx12.h"
 
 namespace Renderer
 {

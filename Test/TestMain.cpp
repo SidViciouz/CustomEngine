@@ -1,9 +1,9 @@
-#include "Renderer.h"
+#include "../Render/header/Renderer.h"
 #include <iostream>
-#include "Camera.h"
-#include "Mesh.h"
-#include "Object.h"
-#include "AnimationGraph.h"
+#include "../Camera/header/Camera.h"
+#include "../Mesh/header/Mesh.h"
+#include "../Mesh/header/Object.h"
+#include "../Animation/header/AnimationGraph.h"
 
 using namespace Renderer;
 

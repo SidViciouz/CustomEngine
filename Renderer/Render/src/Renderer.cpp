@@ -1,12 +1,12 @@
-#include "Renderer.h"
-#include "ResourceManager.h"
-#include "FrameData.h"
+#include "../Render/header/Renderer.h"
+#include "../Resource/header/ResourceManager.h"
+#include "../Render/header/FrameData.h"
 #include "Util.h"
 #include <Vector3.h>
-#include "Camera.h"
-#include "Mesh.h"
-#include "Object.h"
-#include "d3dx12.h"
+#include "../Camera/header/Camera.h"
+#include "../Mesh/header/Mesh.h"
+#include "../Mesh/header/Object.h"
+#include "../Common/header/d3dx12.h"
 
 namespace Renderer
 {
