@@ -66,14 +66,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		shared_ptr<CObject>	lObject2 = make_shared<CObject>();
 		shared_ptr<CMesh>	lMesh3 = make_shared<CMesh>("../Model/Sphere.fbx");
 		shared_ptr<CObject>	lObject3 = make_shared<CObject>();
-		lObject3->SetTranslation(Math::SVector3(0, 1.5, 5));
-		lObject3->SetScale(Math::SVector3(2, 2, 2));
-		lObject2->SetTranslation(Math::SVector3(0,-1.5,2));
-		lObject2->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
-		lObject2->SetScale(Math::SVector3(0.01f,0.01f,0.01f));
+		shared_ptr<CMesh>	lMesh4 = make_shared<CMesh>("../Model/Simple_Floor_20x20.FBX");
+		shared_ptr<CObject>	lObject4 = make_shared<CObject>();
+
 		lObject1->SetTranslation(Math::SVector3(0, -3, 3));
 		lObject1->SetOrientation(Math::SQuaternion(1*cosf(DirectX::XMConvertToRadians(-45)),0,0, sinf(DirectX::XMConvertToRadians(-45))));
 		lObject1->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
+		lObject2->SetTranslation(Math::SVector3(0,-1.5,2));
+		lObject2->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
+		lObject2->SetScale(Math::SVector3(0.01f,0.01f,0.01f));
+		lObject3->SetTranslation(Math::SVector3(0, 1.5, 5));
+		lObject3->SetScale(Math::SVector3(2, 2, 2));
+		lObject4->SetTranslation(Math::SVector3(0, -3.0f, 0.0f));
+		lObject4->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
+		lObject4->SetScale(Math::SVector3(0.03f, 0.03f, 0.03f));
+
 
 		CAnimationGraph lAnimGraph(lMesh2->GetSkeleton());
 		lAnimGraph.LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
@@ -97,6 +104,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		int lTexture2Handle = r.LoadTexture(L"../Material/rustediron2_metallic.dds");
 		int lTexture3Handle = r.LoadTexture(L"../Material/rustediron2_normal.dds");
 		int lTexture4Handle = r.LoadTexture(L"../Material/rustediron2_roughness.dds");
+		int lTileAOHandle = r.LoadTexture(L"../Material/T_Tiles_M.dds");
+		int lTileNormalHandle = r.LoadTexture(L"../Material/T_Tiles_N.dds");
 		r.LoadEnd();
 
 		float lData1[9] = { 1.0f,0.0f,0.0f,0.0f,0.0f,1.0f,1.0f,0.0f,1.0f };
@@ -104,6 +113,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,2.0f };
 
 		r.SetCamera(lCamera);
+
 		int lMesh1Handle = r.SetMesh(lMesh1);
 		int lObject1Handle = r.SetObject(lObject1);
 
@@ -112,6 +122,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		int lMesh3Handle = r.SetMesh(lMesh3);
 		int lObject3Handle = r.SetObject(lObject3);
+
+		int lMesh4Handle = r.SetMesh(lMesh4);
+		int lObject4Handle = r.SetObject(lObject4);
 
 		SetWindowPos(lWindowHandle, NULL, 0, 0, 2000, 1000, SWP_NOZORDER | SWP_NOACTIVATE);
 		lCamera->Resize(2000, 1000);
@@ -123,15 +136,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			r.DrawBegin();
 
-			//r.DrawLine(lData1);
-			//r.DrawLine(lData2);
-			//r.DrawLine(lData3);
+			r.DrawLine(lData1);
+			r.DrawLine(lData2);
+			r.DrawLine(lData3);
 
 			//r.DrawMesh(lMesh1Handle, lObject1Handle);
 			//r.DrawMesh(lMesh2Handle, lObject2Handle);
 			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1,-1, -1, -1, -1);
 			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+			r.DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
 
 
 			r.DrawEnd();

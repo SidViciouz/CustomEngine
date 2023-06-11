@@ -43,8 +43,6 @@ namespace Renderer
 			mEndTime = lTakeInfo->mLocalTimeSpan.GetStop().GetSecondDouble();
 
 			mSkeleton = make_shared<CSkeleton>(lFbxSkeleton, nullptr, 0);
-
-			printf("%f %f %d\n", mBeginTime, mEndTime, mSkeleton->GetBoneCount());
 		}
 	}
 

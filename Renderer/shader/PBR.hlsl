@@ -99,7 +99,7 @@ float4 PS(VertexOut pin) : SV_TARGET
 	float3 lAlbedo;
 	float lMetallic;
 	float lRoughness;
-
+	float lAo;
 
 	if (hasAlbedoMap == 1)
 		lAlbedo = tAlbedo.Sample(sSampler, pin.texCoord);
@@ -115,6 +115,11 @@ float4 PS(VertexOut pin) : SV_TARGET
 		lRoughness = tRoughness.Sample(sSampler, pin.texCoord);
 	else
 		lRoughness = roughness;
+
+	if (hasAOMap == 1)
+		lAo = tAO.Sample(sSampler, pin.texCoord);
+	else
+		lAo = 1.0f;
 
 
 	float2 lUV = float2(pin.texCoord[0], pin.texCoord[1]);
@@ -159,7 +164,7 @@ float4 PS(VertexOut pin) : SV_TARGET
 
 	lLo += ((lKD * lAlbedo / PI )+ lSpecular) * lRadiance * lCosine;
 
-	float3 lAmbient = lAlbedo * 0.03f;
+	float3 lAmbient = lAlbedo * 0.03f * lAo;
 
 	float3 lFinalColor = lAmbient + lLo;
 
