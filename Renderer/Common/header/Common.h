@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <stack>
 #include <unordered_map>
 #include <DirectXMath.h>
 #include "../../Maths/header/Matrix4.h"
@@ -26,6 +27,10 @@ using namespace std;
 #define MAX_OBJECT_NUM 1000
 #define FRAMEDATA_NUM 3
 #define SWAPCHAIN_BUFFER_NUM 2
+#define MAX_PARTICLE_MEMORY_POOL 8
+#define MAX_PARTICLE_NUM 10000
+#define MAX_PARTICLE_EMITTER_NUM 100
+#define MAX_PARTICLE_SYSTEM_NUM 100
 
 struct SObjectData
 {

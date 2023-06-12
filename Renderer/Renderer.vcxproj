@@ -161,6 +161,12 @@
   <ItemGroup>
     <ClCompile Include="Animation\src\AnimationGraph.cpp" />
     <ClCompile Include="Camera\src\Camera.cpp" />
+    <ClCompile Include="Particle\src\Particle.cpp" />
+    <ClCompile Include="Particle\src\ParticleEmitter.cpp" />
+    <ClCompile Include="Particle\src\ParticleManager.cpp" />
+    <ClCompile Include="Particle\src\ParticleMemoryManager.cpp" />
+    <ClCompile Include="Particle\src\ParticleMemoryPool.cpp" />
+    <ClCompile Include="Particle\src\ParticleSystem.cpp" />
     <ClCompile Include="Resource\src\DDSTextureLoader12.cpp" />
     <ClCompile Include="Render\src\FrameData.cpp" />
     <ClCompile Include="Mesh\src\Mesh.cpp" />
@@ -174,6 +180,11 @@
     <ClInclude Include="Camera\header\Camera.h" />
     <ClInclude Include="Common\header\Common.h" />
     <ClInclude Include="Common\header\d3dx12.h" />
+    <ClInclude Include="Particle\header\Particle.h" />
+    <ClInclude Include="Particle\header\ParticleEmitter.h" />
+    <ClInclude Include="Particle\header\ParticleMemoryManager.h" />
+    <ClInclude Include="Particle\header\ParticleMemoryPool.h" />
+    <ClInclude Include="Particle\header\ParticleSystem.h" />
     <ClInclude Include="Resource\header\DDSTextureLoader12.h" />
     <ClInclude Include="Render\header\FrameData.h" />
     <ClInclude Include="Mesh\header\Mesh.h" />

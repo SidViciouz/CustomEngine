@@ -2,6 +2,7 @@
 
 #include "../Common/header/Common.h"
 #include "../../Maths/header/Vector3.h"
+#include "../../Maths/header/Vector2.h"
 
 namespace Renderer
 {
@@ -10,22 +11,7 @@ namespace Renderer
 	struct SVertex
 	{
 		Math::SVector3 mPosition;
-		struct STextureCoord
-		{
-			union
-			{
-				struct
-				{
-					float mX;
-					float mY;
-				};
-
-				float mElement[2];
-
-				DirectX::XMFLOAT2 mXmElement;
-			};
-
-		} mTextureCoord;
+		Math::SVector2 mTextureCoord;
 		Math::SVector3 mNormal;
 		Math::SVector3 mTangent;
 		Math::SVector3 mBinormal;

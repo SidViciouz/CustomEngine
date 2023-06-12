@@ -4,6 +4,7 @@
 #include "../Mesh/header/Mesh.h"
 #include "../Mesh/header/Object.h"
 #include "../Animation/header/AnimationGraph.h"
+#include "../Particle/header/ParticleManager.h"
 
 using namespace Renderer;
 
@@ -58,6 +59,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		ShowWindow(lWindowHandle, SW_SHOW);
 		UpdateWindow(lWindowHandle);
 
+
+		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
 
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
 		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");

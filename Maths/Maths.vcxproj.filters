@@ -30,6 +30,9 @@
     <ClInclude Include="header\Quaternion.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="header\Vector2.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Vector3.cpp">
@@ -45,6 +48,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="src\Quaternion.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Vector2.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

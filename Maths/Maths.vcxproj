@@ -147,6 +147,7 @@
     <ClInclude Include="header\Quaternion.h" />
     <ClInclude Include="header\Transform.h" />
     <ClInclude Include="header\Util.h" />
+    <ClInclude Include="header\Vector2.h" />
     <ClInclude Include="header\Vector3.h" />
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +155,7 @@
     <ClCompile Include="src\Quaternion.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\Vector2.cpp" />
     <ClCompile Include="src\Vector3.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

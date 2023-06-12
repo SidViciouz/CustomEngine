@@ -1,9 +1,21 @@
 #pragma once
 
-#include "Common.h"
+#include "../Common/header/Common.h"
+#include "../Particle/header/ParticleMemoryManager.h"
 
-//manage resource about particles and render it
-class ParticleManager
+namespace Renderer
 {
+	//manage resource about particles and render it
+	class CParticleManager
+	{
+	public:
+												CParticleManager();
 
-};
+
+	private:
+	
+		shared_ptr<CParticleMemoryManager>		mParticleMemoryManager;
+
+	};
+
+}
