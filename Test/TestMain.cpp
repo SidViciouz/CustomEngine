@@ -63,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
 		shared_ptr<CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
 		shared_ptr<CParticleEmitter> lParticleEmitter =  lParticleManager->AddParticleEmitter(lParticleSystem);
-		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eAngle, Math::SVector2(1, 1));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eAngle, 0.0f);
 
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
 		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");
@@ -132,6 +132,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		int lMesh4Handle = r.SetMesh(lMesh4);
 		int lObject4Handle = r.SetObject(lObject4);
+
+		r.SetParticleManager(lParticleManager);
 
 		SetWindowPos(lWindowHandle, NULL, 0, 0, 2000, 1000, SWP_NOZORDER | SWP_NOACTIVATE);
 		lCamera->Resize(2000, 1000);

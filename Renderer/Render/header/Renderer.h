@@ -9,6 +9,7 @@ namespace Renderer
 	class CCamera;
 	class CMesh;
 	class CObject;
+	class CParticleManager;
 
 	struct SPBRData
 	{
@@ -32,6 +33,7 @@ namespace Renderer
 		void									SetCamera(shared_ptr<CCamera> pCamera);
 		int										SetMesh(shared_ptr<CMesh> pMesh);
 		int										SetObject(shared_ptr<CObject> pObject);
+		void									SetParticleManager(shared_ptr<CParticleManager> pParticleManager);
 
 		void									LoadBegin();
 		void									LoadEnd();

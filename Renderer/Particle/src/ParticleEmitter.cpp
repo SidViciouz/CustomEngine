@@ -1,4 +1,6 @@
 #include "../Particle/header/ParticleEmitter.h"
+#include "../Particle/header/ParticleVertexBuffer.h"
+#include "../Particle/header/ParticleMemoryManager.h"
 
 namespace Renderer
 {
@@ -30,6 +32,19 @@ namespace Renderer
 		printf("you can not set the property with [%s] type.\n", typeid(T).name());
 	}
 	
+
+
+	void CParticleEmitter::Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pCameraDirection, const Math::SVector3& pCameraPosition)
+	{
+		//shared_ptr<CParticle> lParticle = CParticleMemoryManager::Get()->GetParticle(mMemoryPoolIndex);
+
+		//mParticles.push_back(lParticle);
+
+		//for(int i=0; i<6; ++i)
+		//pVertexBuffer->AddParticleVertex();
+	}
+
+
 
 	template<>
 	void CParticleEmitter::SetProperty<Math::SVector3>(EParticleEmitterProperty pProperty, const Math::SVector3& pValue)

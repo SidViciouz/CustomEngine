@@ -4,7 +4,16 @@ namespace Renderer
 {
 	CParticleManager::CParticleManager()
 	{
+		//create memory manager
 		mParticleMemoryManager = CParticleMemoryManager::Get();
+
+		//create vertex buffer as many as memory pool counts
+		int lParticlesPerPool = MAX_PARTICLE_NUM / MAX_PARTICLE_MEMORY_POOL;
+		int lVertexNumPerPool = lParticlesPerPool * 6;
+		for (int lPoolIndex = 0; lPoolIndex < MAX_PARTICLE_MEMORY_POOL; ++lPoolIndex)
+		{
+			mVertexBuffer[lPoolIndex] = make_shared<CParticleVertexBuffer>(lVertexNumPerPool);
+		}
 	}
 
 
@@ -36,7 +45,7 @@ namespace Renderer
 	template<typename T>
 	void CParticleManager::SetParticleEmitterValue(shared_ptr<CParticleEmitter> pParticleEmitter, EParticleEmitterProperty pProperty, const T& pValue)
 	{
-		printf("you can not set the property with [%s] type",typeid(T).name());
+		printf("you can not set the property with [%s] type.\n",typeid(T).name());
 		return;
 	}
 	

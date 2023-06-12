@@ -25,6 +25,8 @@ namespace Renderer
 		eNumTextureColumn
 	};
 
+	class CParticleVertexBuffer;
+
 	class CParticleEmitter
 	{
 	public:
@@ -36,6 +38,8 @@ namespace Renderer
 		
 		template<typename T>
 		void									SetProperty(EParticleEmitterProperty pProperty, const T& pValue);
+
+		void									Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer,const float& pDeltaTime, const Math::SVector3& pCameraDirection, const Math::SVector3& pCameraPosition);
 		
 	private:
 
@@ -45,17 +49,17 @@ namespace Renderer
 
 		Math::SVector3							mPosition;
 		Math::SVector2							mScale;
-		float									mAngle;
+		float									mAngle = 0;
 		Math::SVector3							mVelocity;
 		Math::SVector3							mAcceleration;
-		float									mAngularVelocity;
-		float									mAngularAcceleration;
-		float									mDuration;
-		float									mCurrentTime;
+		float									mAngularVelocity = 0;
+		float									mAngularAcceleration = 0;
+		float									mDuration = 0;
+		float									mCurrentTime = 0;
 		Math::SVector2							mBottomLeft;
 		Math::SVector2							mTopRight;
-		int										mCurrentFrame;
-		int										mNumTextureRow;
-		int										mNumTextureColumn;
+		int										mCurrentFrame = 0;
+		int										mNumTextureRow = 0;
+		int										mNumTextureColumn = 0;
 	};
 }

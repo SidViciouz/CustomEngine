@@ -167,6 +167,7 @@
     <ClCompile Include="Particle\src\ParticleMemoryManager.cpp" />
     <ClCompile Include="Particle\src\ParticleMemoryPool.cpp" />
     <ClCompile Include="Particle\src\ParticleSystem.cpp" />
+    <ClCompile Include="Particle\src\ParticleVertexBuffer.cpp" />
     <ClCompile Include="Resource\src\DDSTextureLoader12.cpp" />
     <ClCompile Include="Render\src\FrameData.cpp" />
     <ClCompile Include="Mesh\src\Mesh.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="Particle\header\ParticleMemoryManager.h" />
     <ClInclude Include="Particle\header\ParticleMemoryPool.h" />
     <ClInclude Include="Particle\header\ParticleSystem.h" />
+    <ClInclude Include="Particle\header\ParticleVertexBuffer.h" />
     <ClInclude Include="Resource\header\DDSTextureLoader12.h" />
     <ClInclude Include="Render\header\FrameData.h" />
     <ClInclude Include="Mesh\header\Mesh.h" />

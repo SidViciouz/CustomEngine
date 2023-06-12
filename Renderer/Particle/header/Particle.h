@@ -31,10 +31,6 @@ namespace Renderer
 
 		int										GetMemoryPoolIndex() const;
 
-	private:
-
-		int										mMemoryPoolIndex;
-
 		Math::SVector3							mPosition;
 		Math::SVector2							mScale;
 		float									mAngle;
@@ -47,5 +43,10 @@ namespace Renderer
 		Math::SVector2							mBottomLeft;
 		Math::SVector2							mTopRight;
 		int										mCurrentFrame;
+
+	private:
+
+		int										mMemoryPoolIndex;
+
 	};
 }

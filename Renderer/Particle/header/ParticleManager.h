@@ -3,6 +3,7 @@
 #include "../Common/header/Common.h"
 #include "../Particle/header/ParticleMemoryManager.h"
 #include "../Particle/header/ParticleSystem.h"
+#include "../Particle/header/ParticleVertexBuffer.h"
 
 namespace Renderer
 {
@@ -24,8 +25,9 @@ namespace Renderer
 	
 		shared_ptr<CParticleMemoryManager>		mParticleMemoryManager;
 		
-
 		vector<shared_ptr<CParticleSystem>>		mParticleSystems[MAX_PARTICLE_MEMORY_POOL];
+
+		shared_ptr<CParticleVertexBuffer>		mVertexBuffer[MAX_PARTICLE_MEMORY_POOL];
 	};
 
 }

@@ -179,6 +179,15 @@ namespace Renderer
 	}
 
 
+
+	void CRenderer::SetParticleManager(shared_ptr<CParticleManager> pParticleManager)
+	{
+		//create vertex and index buffer
+	}
+
+
+
+
 	void CRenderer::LoadBegin()
 	{
 		mCopyCommandAllocator->Reset();
