@@ -45,19 +45,19 @@
     <ClCompile Include="Particle\src\ParticleManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Particle\src\ParticleMemoryManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Particle\src\ParticleMemoryPool.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Particle\src\Particle.cpp">
+    <ClCompile Include="Particle\src\ParticleSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Particle\src\ParticleEmitter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Particle\src\ParticleSystem.cpp">
+    <ClCompile Include="Particle\src\Particle.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle\src\ParticleMemoryManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle\src\ParticleMemoryPool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,9 +98,6 @@
     <ClInclude Include="Particle\header\ParticleManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Particle\header\ParticleMemoryManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Particle\header\ParticleSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -108,6 +105,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Particle\header\Particle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle\header\ParticleMemoryManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Particle\header\ParticleMemoryPool.h">

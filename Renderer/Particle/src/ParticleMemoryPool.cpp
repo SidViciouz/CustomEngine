@@ -2,8 +2,8 @@
 
 namespace Renderer
 {
-	CParticleMemoryPool::CParticleMemoryPool(int pParticleNum, int pParticleEmitterNum, int pParticleSystemNum)
-		: mMaxParticleNum{ pParticleNum }, mMaxParticleEmitterNum{ pParticleEmitterNum }, mMaxParticleSystemNum{ pParticleSystemNum }
+	CParticleMemoryPool::CParticleMemoryPool(int pPoolIndex, int pParticleNum, int pParticleEmitterNum, int pParticleSystemNum)
+		: mPoolIndex{pPoolIndex}, mMaxParticleNum{ pParticleNum }, mMaxParticleEmitterNum{ pParticleEmitterNum }, mMaxParticleSystemNum{ pParticleSystemNum }
 	{
 
 	}
@@ -21,7 +21,7 @@ namespace Renderer
 		}
 		else if(mParticleSystemNum < mMaxParticleSystemNum)
 		{
-			mAllParticleSystems.push_back(make_shared<CParticleSystem>());
+			mAllParticleSystems.push_back(make_shared<CParticleSystem>(mPoolIndex));
 			++mParticleSystemNum;
 
 			return mAllParticleSystems.back();
@@ -53,7 +53,7 @@ namespace Renderer
 		}
 		else if (mParticleEmitterNum < mMaxParticleEmitterNum)
 		{
-			mAllParticleEmitters.push_back(make_shared<CParticleEmitter>());
+			mAllParticleEmitters.push_back(make_shared<CParticleEmitter>(mPoolIndex));
 			++mParticleEmitterNum;
 
 			return mAllParticleEmitters.back();
@@ -85,7 +85,7 @@ namespace Renderer
 		}
 		else if (mParticleNum < mMaxParticleNum)
 		{
-			mAllParticles.push_back(make_shared<CParticle>());
+			mAllParticles.push_back(make_shared<CParticle>(mPoolIndex));
 			++mParticleNum;
 
 			return mAllParticles.back();
@@ -104,4 +104,31 @@ namespace Renderer
 		mReleasedParticles.push(pParticle);
 	}
 
+
+
+	int CParticleMemoryPool::GetParticleSystemNum() const
+	{
+		return mParticleSystemNum;
+	}
+
+
+
+	int CParticleMemoryPool::GetParticleEmitterNum() const
+	{
+		return mParticleEmitterNum;
+	}
+
+
+
+	int	CParticleMemoryPool::GetParticleNum() const
+	{
+		return mParticleNum;
+	}
+
+
+
+	bool CParticleMemoryPool::IsAvailable() const
+	{
+		return (mParticleSystemNum < mMaxParticleSystemNum) && (mParticleEmitterNum < mMaxParticleEmitterNum) && (mParticleNum < mMaxParticleNum);
+	}
 }

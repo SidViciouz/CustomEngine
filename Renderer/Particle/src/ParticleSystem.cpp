@@ -2,7 +2,8 @@
 
 namespace Renderer
 {
-	CParticleSystem::CParticleSystem()
+	CParticleSystem::CParticleSystem(int pMemoryPoolIndex) :
+		mMemoryPoolIndex{pMemoryPoolIndex}
 	{
 
 	}
@@ -12,4 +13,19 @@ namespace Renderer
 	{
 
 	}
+
+
+
+	int CParticleSystem::GetMemoryPoolIndex() const
+	{
+		return mMemoryPoolIndex;
+	}
+
+
+	
+	void CParticleSystem::AddParticleEmitter(shared_ptr<CParticleEmitter> pParticleEmitter)
+	{
+		mParticleEmitters.push_back(pParticleEmitter);
+	}
+	
 }

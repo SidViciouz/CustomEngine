@@ -65,7 +65,7 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 
 	if (lIsByPolygonVertex)
 	{
-		
+		/*
 		printf("%d %d %d %d %d\n",
 			lControlPointCount,
 			lUvElement->GetDirectArray().GetCount(),
@@ -74,7 +74,7 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 			lBinormalElement->GetDirectArray().GetCount());
 		
 		printf("%d\n", pFbxMesh->GetPolygonVertexCount());
-
+		*/
 		int lVertexIndex = 0;
 
 		int lIndexCount = pFbxMesh->GetPolygonVertexCount();

@@ -8,11 +8,18 @@ namespace Renderer
 	class CParticleSystem
 	{
 	public:
-												CParticleSystem();
+												CParticleSystem(int pMemoryPoolIndex);
 
 		void									Reset();
 
+		int										GetMemoryPoolIndex() const;
+
+		void									AddParticleEmitter(shared_ptr<CParticleEmitter> pParticleEmitter);
+
 	private:
+
+		int										mMemoryPoolIndex;
+
 		vector<shared_ptr<CParticleEmitter>>	mParticleEmitters;
 	};
 }

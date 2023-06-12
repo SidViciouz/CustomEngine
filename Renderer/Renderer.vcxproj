@@ -182,6 +182,7 @@
     <ClInclude Include="Common\header\d3dx12.h" />
     <ClInclude Include="Particle\header\Particle.h" />
     <ClInclude Include="Particle\header\ParticleEmitter.h" />
+    <ClInclude Include="Particle\header\ParticleManager.h" />
     <ClInclude Include="Particle\header\ParticleMemoryManager.h" />
     <ClInclude Include="Particle\header\ParticleMemoryPool.h" />
     <ClInclude Include="Particle\header\ParticleSystem.h" />
@@ -189,7 +190,6 @@
     <ClInclude Include="Render\header\FrameData.h" />
     <ClInclude Include="Mesh\header\Mesh.h" />
     <ClInclude Include="Mesh\header\Object.h" />
-    <ClInclude Include="Particle\header\ParticleManager.h" />
     <ClInclude Include="Render\header\Renderer.h" />
     <ClInclude Include="Resource\header\ResourceManager.h" />
     <ClInclude Include="Mesh\header\Skeleton.h" />

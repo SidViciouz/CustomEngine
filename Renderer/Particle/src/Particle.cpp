@@ -2,7 +2,8 @@
 
 namespace Renderer
 {
-	CParticle::CParticle()
+	CParticle::CParticle(int pMemoryPoolIndex) :
+		mMemoryPoolIndex{pMemoryPoolIndex}
 	{
 
 	}
@@ -12,5 +13,12 @@ namespace Renderer
 	void CParticle::Reset()
 	{
 
+	}
+
+
+
+	int	CParticle::GetMemoryPoolIndex() const
+	{
+		return mMemoryPoolIndex;
 	}
 }

@@ -16,10 +16,18 @@ namespace Renderer
 
 		static shared_ptr<CParticleMemoryManager>	Get();
 
-		//										GetNewParticle(int pPoolIndex);
-		//										ReleaseParticle(Particle* pParticle);
+		shared_ptr<CParticleSystem>				GetParticleSystem();
+		void									ReleaseParticleSystem(shared_ptr<CParticleSystem> pParticleSystem);
+
+		shared_ptr<CParticleEmitter>			GetParticleEmitter(int pMemoryPoolIndex);
+		void									ReleaseParticleEmitter(shared_ptr<CParticleEmitter> pParticleEmitter);
+
+		shared_ptr<CParticle>					GetParticle(int pMemoryPoolIndex);
+		void									ReleaseParticle(shared_ptr<CParticle> pParticle);
 
 	private:
+
+		int										GetNextMemoryPoolIndex();
 
 		shared_ptr<CParticleMemoryPool>			mParticleMemoryPools[MAX_PARTICLE_MEMORY_POOL];
 

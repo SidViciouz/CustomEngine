@@ -61,6 +61,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 
 		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
+		shared_ptr<CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
+		shared_ptr<CParticleEmitter> lParticleEmitter =  lParticleManager->AddParticleEmitter(lParticleSystem);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eAngle, Math::SVector2(1, 1));
 
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
 		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");
@@ -93,6 +96,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lAnimGraph.LoadAnimation("clf_getup_back", "../Model/ALS_CLF_GetUp_Back.FBX");
 		lAnimGraph.LoadAnimation("n_pose", "../Model/ALS_N_Pose.FBX");
 		lAnimGraph.LoadAnimation("n_jumpwalk_lf", "../Model/ALS_N_JumpWalk_LF.FBX");
+		lAnimGraph.LoadAnimation("kicking", "../Model/Kicking.fbx");
 		lAnimGraph.Reset("n_walk_f");
 		lAnimGraph.AddTransition("n_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
 		lAnimGraph.AddTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 1.0f);

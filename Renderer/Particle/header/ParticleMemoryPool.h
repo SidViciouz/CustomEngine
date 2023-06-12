@@ -10,7 +10,7 @@ namespace Renderer
 	class CParticleMemoryPool
 	{
 	public:
-												CParticleMemoryPool(int pParticleNum, int pParticleEmitterNum, int pParticleSystemNum);
+												CParticleMemoryPool(int pPoolIndex, int pParticleNum, int pParticleEmitterNum, int pParticleSystemNum);
 
 		shared_ptr<CParticleSystem>				GetParticleSystem();
 		void									ReleaseParticleSystem(shared_ptr<CParticleSystem> pParticleSystem);
@@ -21,7 +21,16 @@ namespace Renderer
 		shared_ptr<CParticle>					GetParticle();
 		void									ReleaseParticle(shared_ptr<CParticle> pParticle);
 
+		int										GetParticleSystemNum() const;
+		int										GetParticleEmitterNum() const;
+		int										GetParticleNum() const;
+
+		bool									IsAvailable() const;
+
 	private:
+
+		int										mPoolIndex;
+
 		vector<shared_ptr<CParticleSystem>>		mAllParticleSystems;
 		vector<shared_ptr<CParticleEmitter>>	mAllParticleEmitters;
 		vector<shared_ptr<CParticle>>			mAllParticles;
