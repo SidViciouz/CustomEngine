@@ -15,15 +15,26 @@ namespace Renderer
 		eVelocity,
 		eAcceleration,
 		eAngularVelocity,
-		eAngularAccelration,
+		eAngularAcceleration,
 		eDuration,
+		eParticleDuration,
 		eCurrentTime,
-		eBottomLeft,
-		eTopRight,
 		eCurrentFrame,
+		eFrameRate,
 		eNumTextureRow,
 		eNumTextureColumn,
-		eEmissionRate
+		eInitialRow,
+		eInitialColumn,
+		eEmissionRate,
+		ePositionVariance,
+		eScaleVariance,
+		eAngleVariance,
+		eVelocityVariance,
+		eAccelerationVariance,
+		eAngularVelocityVariance,
+		eAngularAccelerationVariance,
+		eParticleDurationVariance,
+		eFrameVariance
 	};
 
 	class CParticleVertexBuffer;
@@ -56,13 +67,28 @@ namespace Renderer
 		float									mAngularVelocity = 0;
 		float									mAngularAcceleration = 0;
 		float									mDuration = 0;
+		float									mParticleDuration = 0;
 		float									mCurrentTime = 0;
-		Math::SVector2							mBottomLeft;
-		Math::SVector2							mTopRight;
-		int										mCurrentFrame = 0;
+		float									mCurrentFrame = 0;
+		float									mFrameRate = 0;
 		int										mNumTextureRow = 0;
 		int										mNumTextureColumn = 0;
+		int										mInitialRow = 0;
+		int										mInitialColumn = 0;
 		float									mEmissionRate = 0;
+		
+		Math::SVector3							mPositionVariance;
+		Math::SVector2							mScaleVariance;
+		float									mAngleVariance = 0;
+		Math::SVector3							mVelocityVariance;
+		Math::SVector3							mAccelerationVariance;
+		float									mAngularVelocityVariance = 0;
+		float									mAngularAccelerationVariance = 0;
+		float									mParticleDurationVariance = 0;
+		float									mFrameVariance = 0;
+
+
+
 
 		float									mEmissionUnderZero = 0;
 		bool									mActivated = true;

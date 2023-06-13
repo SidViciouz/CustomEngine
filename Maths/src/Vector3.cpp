@@ -1,4 +1,5 @@
 #include "Vector3.h"
+#include "Matrix3.h"
 
 namespace Math
 {
@@ -33,4 +34,47 @@ namespace Math
 	{
 		return SVector3(mX + pOther.mX, mY + pOther.mY, mZ + pOther.mZ);
 	}
+
+	SVector3 SVector3::Normalize() const
+	{
+		SVector3 lVector(mX,mY,mZ);
+
+		float lDenom = sqrtf(mX* mX + mY * mY + mZ * mZ);
+
+		for (int i = 0; i < 3; ++i)
+		{
+			lVector.mElement[i] /= lDenom;
+		}
+
+		return lVector;
+	}
+
+	SVector3 SVector3::Cross(const SVector3& pA, const SVector3& pB)
+	{
+		DirectX::XMVECTOR lA = DirectX::XMLoadFloat3(&pA.mXmElement);
+		DirectX::XMVECTOR lB = DirectX::XMLoadFloat3(&pB.mXmElement);
+
+		DirectX::XMVECTOR lC = DirectX::XMVector3Cross(lA, lB);
+
+		SVector3 lResult;
+
+		DirectX::XMStoreFloat3(&lResult.mXmElement, lC);
+
+		return lResult;
+	}
+
+	SVector3 SVector3::Transform(const SMatrix3& pTransformMatrix) const
+	{
+		SVector3 lResult;
+
+		DirectX::XMVECTOR lV = DirectX::XMLoadFloat3(&mXmElement);
+		DirectX::XMMATRIX lM = DirectX::XMLoadFloat3x3(&pTransformMatrix.mXmElement);
+
+		lV = DirectX::XMVector3Transform(lV, lM);
+
+		DirectX::XMStoreFloat3(&lResult.mXmElement, lV);
+
+		return lResult;
+	}
+
 }

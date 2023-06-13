@@ -15,16 +15,20 @@ namespace Renderer
 	class CParticleVertexBuffer
 	{
 	public:
-												CParticleVertexBuffer(int pParticleVertexNum);
+												CParticleVertexBuffer(int pNumPools, int pParticleNum);
 
-		void									AddParticleVertex(const SParticleVertex& pParticleVertex);
+		void									AddParticleVertex(int pPoolIndex, const array<SParticleVertex,4>& pParticleVertex);
 
-		void									ClearBuffer();
+		void									ClearBuffer(int pPoolIndex);
 
 	private:
 
-		int										mVertexCount = 0;
+		int										mNumPools;
 
-		vector<SParticleVertex>					mVertexBuffers;
+		int										mVertexCount[MAX_PARTICLE_MEMORY_POOL];
+		int										mIndexCount[MAX_PARTICLE_MEMORY_POOL];
+
+		vector<SParticleVertex>					mVertexBuffers[MAX_PARTICLE_MEMORY_POOL];
+		vector<uint16_t>						mIndexBuffers[MAX_PARTICLE_MEMORY_POOL];
 	};
 }

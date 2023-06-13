@@ -16,6 +16,8 @@ namespace Renderer
 
 		void									AddParticleEmitter(shared_ptr<CParticleEmitter> pParticleEmitter);
 
+		void									Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pEmitterDirection, const Math::SVector3& pCameraPosition);
+
 	private:
 
 		int										mMemoryPoolIndex;

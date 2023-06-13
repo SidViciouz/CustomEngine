@@ -3,6 +3,8 @@
 
 namespace Math
 {
+	class SMatrix3;
+
 	struct SVector3
 	{
 												SVector3();
@@ -15,6 +17,12 @@ namespace Math
 		SVector3								operator*(const double& pValue) const;
 
 		SVector3								operator+(const SVector3& pOther);
+
+		SVector3								Normalize() const;
+
+		static SVector3							Cross(const SVector3& pA, const SVector3& pB);
+
+		SVector3								Transform(const SMatrix3& pTransformMatrix) const;
 
 	union
 	{

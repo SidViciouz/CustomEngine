@@ -93,6 +93,16 @@ namespace Renderer
 
 
 	template<>
+	int CParticleMemoryManager::GetRandomValue<int>(int pMemoryPoolIndex, const int& pMin, const int& pMax)
+	{
+		uniform_int_distribution<int> lDistribution(pMin, pMax);
+
+		return lDistribution(*mRandomGenerator[pMemoryPoolIndex]);
+	}
+
+
+
+	template<>
 	float CParticleMemoryManager::GetRandomValue<float>(int pMemoryPoolIndex, const float& pMin, const float& pMax)
 	{
 		uniform_real_distribution<float> lDistribution(pMin, pMax);

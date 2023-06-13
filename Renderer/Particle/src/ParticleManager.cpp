@@ -9,11 +9,8 @@ namespace Renderer
 
 		//create vertex buffer as many as memory pool counts
 		int lParticlesPerPool = MAX_PARTICLE_NUM / MAX_PARTICLE_MEMORY_POOL;
-		int lVertexNumPerPool = lParticlesPerPool * 6;
-		for (int lPoolIndex = 0; lPoolIndex < MAX_PARTICLE_MEMORY_POOL; ++lPoolIndex)
-		{
-			mVertexBuffer[lPoolIndex] = make_shared<CParticleVertexBuffer>(lVertexNumPerPool);
-		}
+		
+		mVertexBuffer = make_shared<CParticleVertexBuffer>(MAX_PARTICLE_MEMORY_POOL, lParticlesPerPool);
 	}
 
 
@@ -73,10 +70,20 @@ namespace Renderer
 	}
 
 
+
 	template<>
 	void CParticleManager::SetParticleEmitterValue<int>(shared_ptr<CParticleEmitter> pParticleEmitter, EParticleEmitterProperty pProperty, const int& pValue)
 	{
 		pParticleEmitter->SetProperty(pProperty, pValue);
 	}
 	
+
+
+	void CParticleManager::Update()
+	{
+		//update all particle system by multithread
+
+		//load particles to gpu vertex buffer resource
+	}
+
 }

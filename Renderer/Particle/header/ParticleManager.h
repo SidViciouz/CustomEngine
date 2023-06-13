@@ -21,13 +21,15 @@ namespace Renderer
 		template<typename T>
 		void									SetParticleEmitterValue(shared_ptr<CParticleEmitter> pParticleEmitter, EParticleEmitterProperty pProperty, const T& pValue);
 		
+		void									Update();
+
 	private:
 	
 		shared_ptr<CParticleMemoryManager>		mParticleMemoryManager;
 		
 		vector<shared_ptr<CParticleSystem>>		mParticleSystems[MAX_PARTICLE_MEMORY_POOL];
 
-		shared_ptr<CParticleVertexBuffer>		mVertexBuffer[MAX_PARTICLE_MEMORY_POOL];
+		shared_ptr<CParticleVertexBuffer>		mVertexBuffer;
 	};
 
 }

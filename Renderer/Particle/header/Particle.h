@@ -17,9 +17,12 @@ namespace Renderer
 		eAngularAccelration,
 		eDuration,
 		eCurrentTime,
-		eBottomLeft,
-		eTopRight,
 		eCurrentFrame,
+		eFrameRate,
+		eNumTextureRow,
+		eNumTextureColumn,
+		eInitialRow,
+		eInitialColumn
 	};
 
 	class CParticle
@@ -31,18 +34,23 @@ namespace Renderer
 
 		int										GetMemoryPoolIndex() const;
 
+		void									Update(const float& pDelatTime);
+
 		Math::SVector3							mPosition;
 		Math::SVector2							mScale;
-		float									mAngle;
+		float									mAngle = 0;
 		Math::SVector3							mVelocity;
 		Math::SVector3							mAcceleration;
-		float									mAngularVelocity;
-		float									mAngularAcceleration;
-		float									mDuration;
-		float									mCurrentTime;
-		Math::SVector2							mBottomLeft;
-		Math::SVector2							mTopRight;
-		int										mCurrentFrame;
+		float									mAngularVelocity = 0;
+		float									mAngularAcceleration = 0;
+		float									mDuration = 0;
+		float									mCurrentTime = 0;
+		int										mNumTextureRow = 0;
+		int										mNumTextureColumn = 0;
+		int										mCurrentRow = 0;
+		int										mCurrentColumn = 0;
+		float									mCurrentFrame = 0;
+		float									mFrameRate = 0;
 
 	private:
 
