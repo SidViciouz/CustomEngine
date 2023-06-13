@@ -22,7 +22,8 @@ namespace Renderer
 		eTopRight,
 		eCurrentFrame,
 		eNumTextureRow,
-		eNumTextureColumn
+		eNumTextureColumn,
+		eEmissionRate
 	};
 
 	class CParticleVertexBuffer;
@@ -61,5 +62,9 @@ namespace Renderer
 		int										mCurrentFrame = 0;
 		int										mNumTextureRow = 0;
 		int										mNumTextureColumn = 0;
+		float									mEmissionRate = 0;
+
+		float									mEmissionUnderZero = 0;
+		bool									mActivated = true;
 	};
 }

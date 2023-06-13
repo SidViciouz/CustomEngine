@@ -14,6 +14,7 @@ namespace Renderer
 		for (int lPoolIndex = 0; lPoolIndex < pNumPools; ++lPoolIndex)
 		{
 			mParticleMemoryPools[lPoolIndex] = make_shared<CParticleMemoryPool>(lPoolIndex, lParticlesPerPool, lEmittersPerPool, lParticleSystemsPerPool);
+			mRandomGenerator[lPoolIndex] = make_shared<mt19937>(time(nullptr));
 		}
 	}
 
@@ -77,6 +78,58 @@ namespace Renderer
 		int lMemoryPoolIndex = pParticle->GetMemoryPoolIndex();
 
 		mParticleMemoryPools[lMemoryPoolIndex]->ReleaseParticle(pParticle);
+	}
+
+
+
+	template<typename T>
+	T CParticleMemoryManager::GetRandomValue(int pMemoryPoolIndex, const T& pMin, const T& pMax)
+	{
+		printf("can not generate randome value of [%s] type.\n", typeid(T).name());
+
+		return T{};
+	}
+
+
+
+	template<>
+	float CParticleMemoryManager::GetRandomValue<float>(int pMemoryPoolIndex, const float& pMin, const float& pMax)
+	{
+		uniform_real_distribution<float> lDistribution(pMin, pMax);
+
+		return lDistribution(*mRandomGenerator[pMemoryPoolIndex]);
+	}
+
+
+
+	template<>
+	Math::SVector2 CParticleMemoryManager::GetRandomValue<Math::SVector2>(int pMemoryPoolIndex, const Math::SVector2& pMin, const Math::SVector2& pMax)
+	{
+		Math::SVector2 lVector;
+
+		for (int i = 0; i < 2; ++i)
+		{
+			uniform_real_distribution<float> lDistribution(pMin.mElement[i], pMax.mElement[i]);
+			lVector.mElement[i] = lDistribution(*mRandomGenerator[pMemoryPoolIndex]);
+		}
+
+		return lVector;
+	}
+
+
+
+	template<>
+	Math::SVector3 CParticleMemoryManager::GetRandomValue<Math::SVector3>(int pMemoryPoolIndex, const Math::SVector3& pMin, const Math::SVector3& pMax)
+	{
+		Math::SVector3 lVector;
+
+		for (int i = 0; i < 3; ++i)
+		{
+			uniform_real_distribution<float> lDistribution(pMin.mElement[i], pMax.mElement[i]);
+			lVector.mElement[i] = lDistribution(*mRandomGenerator[pMemoryPoolIndex]);
+		}
+
+		return lVector;
 	}
 
 

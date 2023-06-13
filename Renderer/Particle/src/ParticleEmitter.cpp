@@ -36,9 +36,49 @@ namespace Renderer
 
 	void CParticleEmitter::Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pCameraDirection, const Math::SVector3& pCameraPosition)
 	{
-		//shared_ptr<CParticle> lParticle = CParticleMemoryManager::Get()->GetParticle(mMemoryPoolIndex);
+		mCurrentTime += pDeltaTime;
 
-		//mParticles.push_back(lParticle);
+		if (mDuration == 0)
+		{
+			mCurrentTime = 0;
+		}
+		else if (mCurrentTime > mDuration)
+		{
+			mActivated = false;
+		}
+
+
+		if (mActivated)
+		{
+			float lEmissionFloat = mEmissionRate* pDeltaTime;
+
+			int lEmissionNum = (int)lEmissionFloat;
+
+			mEmissionUnderZero += lEmissionFloat - (float)lEmissionNum;
+
+			if (mEmissionUnderZero >= 1.0f)
+			{
+				mEmissionUnderZero -= 1.0f;
+				++lEmissionNum;
+			}
+
+
+			for (int lNewParticleIndex = 0; lNewParticleIndex < lEmissionNum; ++lNewParticleIndex)
+			{
+				shared_ptr<CParticle> lParticle = CParticleMemoryManager::Get()->GetParticle(mMemoryPoolIndex);
+
+				if (lParticle == nullptr)
+					break;
+
+				CParticleMemoryManager::Get()->GetRandomValue(mMemoryPoolIndex, -3.0f, 10.0f);
+
+				mParticles.push_back(lParticle);
+
+			}
+
+		}
+
+
 
 		//for(int i=0; i<6; ++i)
 		//pVertexBuffer->AddParticleVertex();
@@ -123,6 +163,10 @@ namespace Renderer
 
 		case EParticleEmitterProperty::eDuration:
 			mDuration = pValue;
+			break;
+
+		case EParticleEmitterProperty::eEmissionRate:
+			mEmissionRate = pValue;
 			break;
 
 		default:
