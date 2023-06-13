@@ -7,6 +7,7 @@
 #include "../Mesh/header/Mesh.h"
 #include "../Mesh/header/Object.h"
 #include "../Common/header/d3dx12.h"
+#include "../Particle/header/ParticleManager.h"
 
 namespace Renderer
 {
@@ -183,6 +184,16 @@ namespace Renderer
 	void CRenderer::SetParticleManager(shared_ptr<CParticleManager> pParticleManager)
 	{
 		//create vertex and index buffer
+		mParticleManager = pParticleManager;
+
+		int lMaxVertexNum = mParticleManager->GetMaxParticleNum() * 4;
+		int lMaxIndexNum = mParticleManager->GetMaxParticleNum() * 6;
+
+		int lVertexBufferHandle = mResourceManager->CreateBuffer(lMaxVertexNum * sizeof(SParticleVertex), EResourceHeapType::eUpload);
+		int lIndexBufferHandle = mResourceManager->CreateBuffer(lMaxIndexNum * sizeof(uint16_t), EResourceHeapType::eUpload);
+
+		mParticleManager->SetVertexBufferHandle(lVertexBufferHandle);
+		mParticleManager->SetIndexBufferHandle(lIndexBufferHandle);
 	}
 
 
@@ -243,6 +254,7 @@ namespace Renderer
 		UploadWorldConstantBuffer();
 		UploadObjectConstantBuffer();
 		UploadSkeletonConstantBuffer();
+		UploadParticleVertexBuffer();
 
 		//reset command list
 		mFrameData->GetCommandAllocator(mCurrentFrame)->Reset();
@@ -1030,5 +1042,40 @@ namespace Renderer
 
 			mResourceManager->Upload(mFrameData->GetSkeletonConstantBufferHandle(mCurrentFrame,lMeshIndex), lBoneTransformMatrices.data(), sizeof(Math::SMatrix4) * mMeshes[lMeshIndex]->GetBoneCount(), 1, 0, 0);
 		}
+	}
+
+	void CRenderer::UploadParticleVertexBuffer()
+	{
+		//load particles to gpu vertex buffer resource
+
+		if (mParticleManager == nullptr)
+			return;
+
+		int lPoolNum = mParticleManager->GetMaxPoolNum();
+
+		int lVertexOffset = 0;
+		int lIndexOffset = 0;
+		for (int lPoolIndex = 0; lPoolIndex < lPoolNum; ++lPoolIndex)
+		{
+			//upload vertex
+			int lVertexBufferHandle = mParticleManager->GetVertexBufferHandle();
+			int lVertexCount = mParticleManager->GetVertexCount(lPoolIndex);
+			const vector<SParticleVertex>& lVertexBuffer = mParticleManager->GetVertexBuffer(lPoolIndex);
+
+			mResourceManager->Upload(lVertexBufferHandle, lVertexBuffer.data(), lVertexCount * sizeof(SParticleVertex), 1, lVertexOffset, 0);
+			lVertexOffset += lVertexCount;
+
+			//upload index
+			int lIndexBufferHandle = mParticleManager->GetIndexBufferHandle();
+			int lIndexCount = mParticleManager->GetIndexCount(lPoolIndex);
+			const vector<uint16_t>& lIndexBuffer = mParticleManager->GetIndexBuffer(lPoolIndex);
+
+			mResourceManager->Upload(lIndexBufferHandle, lIndexBuffer.data(), lIndexCount * sizeof(uint16_t), 1, lIndexOffset, 0);
+			lIndexOffset += lIndexCount;
+		}
+
+		mParticleVertexCount = lVertexOffset;
+		mParticleIndexCount = lIndexOffset;
+
 	}
 }

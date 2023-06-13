@@ -180,5 +180,15 @@ namespace Renderer
 		*/
 		unordered_map<int, int>					mUploadBufferHandleMap; // textureHandle -> uploadBufferHandle
 		unordered_map<int, int>					mDescriptorHandleMap; // textureHandle -> DescriptorHandle
+
+		/*
+		* particle manager
+		*/
+		void									UploadParticleVertexBuffer();
+		shared_ptr<CParticleManager>			mParticleManager;
+		int										mParticleVertexCount;
+		int										mParticleIndexCount;
+
+
 	};
 }

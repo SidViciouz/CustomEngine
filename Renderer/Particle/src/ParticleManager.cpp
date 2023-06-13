@@ -4,15 +4,16 @@
 
 namespace Renderer
 {
-	CParticleManager::CParticleManager()
+	CParticleManager::CParticleManager() :
+		mMaxParticleNum{ MAX_PARTICLE_NUM }, mMaxPoolNum{MAX_PARTICLE_MEMORY_POOL}
 	{
 		//create memory manager
 		mParticleMemoryManager = CParticleMemoryManager::Get();
 
 		//create vertex buffer as many as memory pool counts
-		int lParticlesPerPool = MAX_PARTICLE_NUM / MAX_PARTICLE_MEMORY_POOL;
+		int lParticlesPerPool = mMaxParticleNum / mMaxPoolNum;
 		
-		mVertexBuffer = make_shared<CParticleVertexBuffer>(MAX_PARTICLE_MEMORY_POOL, lParticlesPerPool);
+		mVertexBuffer = make_shared<CParticleVertexBuffer>(mMaxPoolNum, lParticlesPerPool);
 	}
 
 
@@ -105,10 +106,76 @@ namespace Renderer
 			lFirstTask->Execute();
 
 		lTaskBatch.Wait();
-
-		
-		//load particles to gpu vertex buffer resource
-
 	}
 
+
+
+	int CParticleManager::GetMaxParticleNum() const
+	{
+		return mMaxParticleNum;
+	}
+
+
+
+	int CParticleManager::GetMaxPoolNum() const
+	{
+		return mMaxPoolNum;
+	}
+
+
+
+
+	void CParticleManager::SetVertexBufferHandle(int pHandle)
+	{
+		mVertexBufferHandle = pHandle;
+	}
+
+
+
+	void CParticleManager::SetIndexBufferHandle(int pHandle)
+	{
+		mIndexBufferHandle = pHandle;
+	}
+
+
+
+	int CParticleManager::GetVertexBufferHandle() const
+	{
+		return mVertexBufferHandle;
+	}
+
+
+
+	int	CParticleManager::GetIndexBufferHandle() const
+	{
+		return mIndexBufferHandle;
+	}
+
+
+
+	int CParticleManager::GetVertexCount(int pPoolIndex)
+	{
+		return mVertexBuffer->GetVertexCount(pPoolIndex);
+	}
+
+
+
+	int	CParticleManager::GetIndexCount(int pPoolIndex)
+	{
+		return mVertexBuffer->GetIndexCount(pPoolIndex);
+	}
+
+
+
+	const vector<SParticleVertex>& CParticleManager::GetVertexBuffer(int pPoolIndex)
+	{
+		return mVertexBuffer->GetVertexBuffer(pPoolIndex);
+	}
+
+
+
+	const vector<uint16_t>& CParticleManager::GetIndexBuffer(int pPoolIndex)
+	{
+		return mVertexBuffer->GetIndexBuffer(pPoolIndex);
+	}
 }

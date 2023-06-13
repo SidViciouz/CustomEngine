@@ -12,7 +12,29 @@ namespace Renderer
 
 	void CParticle::Reset()
 	{
+		for (int i = 0; i < 3; ++i)
+		{
+			mPosition.mElement[i] = 0;
+			mVelocity.mElement[i] = 0;
+			mAcceleration.mElement[i] = 0;
+		}
 
+		for (int i = 0; i < 2; ++i)
+		{
+			mScale.mElement[i] = 0;
+		}
+
+		mAngle = 0;
+		mAngularVelocity = 0;
+		mAngularAcceleration = 0;
+		mDuration = 0;
+		mCurrentTime = 0;
+		mCurrentFrame = 0;
+		mFrameRate = 0;
+		mNumTextureRow = 1;
+		mNumTextureColumn = 1;
+		mCurrentRow = 0;
+		mCurrentColumn = 0;
 	}
 
 

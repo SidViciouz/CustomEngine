@@ -23,6 +23,21 @@ namespace Renderer
 		
 		void									Update(float pDeltaTime, Math::SVector3 pCameraPosition);
 
+		int										GetMaxParticleNum() const;
+		int										GetMaxPoolNum() const;
+
+		void									SetVertexBufferHandle(int pHandle);
+		void									SetIndexBufferHandle(int pHandle);
+
+		int										GetVertexBufferHandle() const;
+		int										GetIndexBufferHandle() const;
+
+		int										GetVertexCount(int pPoolIndex);
+		int										GetIndexCount(int pPoolIndex);
+
+		const vector<SParticleVertex>&			GetVertexBuffer(int pPoolIndex);
+		const vector<uint16_t>&					GetIndexBuffer(int pPoolIndex);
+
 	private:
 	
 		shared_ptr<CParticleMemoryManager>		mParticleMemoryManager;
@@ -30,6 +45,17 @@ namespace Renderer
 		vector<shared_ptr<CParticleSystem>>		mParticleSystems[MAX_PARTICLE_MEMORY_POOL];
 
 		shared_ptr<CParticleVertexBuffer>		mVertexBuffer;
+
+		int										mMaxParticleNum;
+		int										mMaxPoolNum;
+		/*
+		* gpu vertex buffer handle
+		*/
+		int										mVertexBufferHandle;
+		/*
+		* gpu index buffer handle
+		*/
+		int										mIndexBufferHandle;
 	};
 
 }

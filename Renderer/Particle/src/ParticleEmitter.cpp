@@ -15,7 +15,45 @@ namespace Renderer
 
 	void CParticleEmitter::Reset()
 	{
+		for (int i = 0; i < 3; ++i)
+		{
+			mPosition.mElement[i] = 0;
+			mVelocity.mElement[i] = 0;
+			mAcceleration.mElement[i] = 0;
 
+			mPositionVariance.mElement[i] = 0;
+			mVelocityVariance.mElement[i] = 0;
+			mAccelerationVariance.mElement[i] = 0;
+		}
+
+		for (int i = 0; i < 2; ++i)
+		{
+			mScale.mElement[i] = 0;
+			mScaleVariance.mElement[i] = 0;
+		}
+
+		mAngle = 0;
+		mAngularVelocity = 0;
+		mAngularAcceleration = 0;
+		mDuration = 0;
+		mParticleDuration = 0;
+		mCurrentTime = 0;
+		mCurrentFrame = 0;
+		mFrameRate = 0;
+		mNumTextureRow = 1;
+		mNumTextureColumn = 1;
+		mInitialRow = 0;
+		mInitialColumn = 0;
+		mEmissionRate = 0;
+
+		mAngleVariance = 0;
+		mAngularVelocityVariance = 0;
+		mAngularAccelerationVariance = 0;
+		mParticleDurationVariance = 0;
+		mFrameVariance = 0;
+
+		mEmissionUnderZero = 0;
+		mActivated = true;
 	}
 
 
@@ -156,7 +194,6 @@ namespace Renderer
 			}
 			
 		}
-
 	}
 
 
