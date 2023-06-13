@@ -45,8 +45,8 @@ namespace Renderer
 		float									mAngularAcceleration = 0;
 		float									mDuration = 0;
 		float									mCurrentTime = 0;
-		int										mNumTextureRow = 0;
-		int										mNumTextureColumn = 0;
+		int										mNumTextureRow = 1;
+		int										mNumTextureColumn = 1;
 		int										mCurrentRow = 0;
 		int										mCurrentColumn = 0;
 		float									mCurrentFrame = 0;

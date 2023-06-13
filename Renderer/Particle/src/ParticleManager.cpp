@@ -1,4 +1,6 @@
 #include "../Particle/header/ParticleManager.h"
+#include "../Particle/header/ParticleUpdateTask.h"
+#include "../Multithreading/header/TaskBatch.h"
 
 namespace Renderer
 {
@@ -79,11 +81,34 @@ namespace Renderer
 	
 
 
-	void CParticleManager::Update()
+	void CParticleManager::Update(float pDeltaTime, Math::SVector3 pCameraPosition)
 	{
 		//update all particle system by multithread
+		shared_ptr<CParticleUpdateTask> lParticleUpdateTasks[MAX_PARTICLE_MEMORY_POOL];
+		shared_ptr<CParticleUpdateTask> lFirstTask;
 
+		Multithreading::CTaskBatch lTaskBatch;
+
+		for (int lPoolIndex = 0; lPoolIndex < MAX_PARTICLE_MEMORY_POOL; ++lPoolIndex)
+		{
+			mVertexBuffer->ClearBuffer(lPoolIndex);
+
+			lParticleUpdateTasks[lPoolIndex] = make_shared<CParticleUpdateTask>(mParticleSystems[lPoolIndex], pDeltaTime, pCameraPosition, mVertexBuffer);
+
+			if (lFirstTask == nullptr)
+				lFirstTask = lParticleUpdateTasks[lPoolIndex];
+			else
+				lTaskBatch.AddTask(lParticleUpdateTasks[lPoolIndex]);
+		}
+
+		if(lFirstTask != nullptr)
+			lFirstTask->Execute();
+
+		lTaskBatch.Wait();
+
+		
 		//load particles to gpu vertex buffer resource
+
 	}
 
 }

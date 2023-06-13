@@ -30,11 +30,11 @@ namespace Renderer
 	
 
 
-	void CParticleSystem::Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pEmitterDirection, const Math::SVector3& pCameraPosition)
+	void CParticleSystem::Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pCameraPosition)
 	{
 		for (auto& lEmitter : mParticleEmitters)
 		{
-			lEmitter->Update(pVertexBuffer,pDeltaTime,pEmitterDirection,pCameraPosition);
+			lEmitter->Update(pVertexBuffer,pDeltaTime,pCameraPosition);
 		}
 	}
 

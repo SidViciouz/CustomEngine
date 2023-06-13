@@ -21,7 +21,7 @@ namespace Renderer
 		template<typename T>
 		void									SetParticleEmitterValue(shared_ptr<CParticleEmitter> pParticleEmitter, EParticleEmitterProperty pProperty, const T& pValue);
 		
-		void									Update();
+		void									Update(float pDeltaTime, Math::SVector3 pCameraPosition);
 
 	private:
 	

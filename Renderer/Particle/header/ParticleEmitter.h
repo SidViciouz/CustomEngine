@@ -51,7 +51,7 @@ namespace Renderer
 		template<typename T>
 		void									SetProperty(EParticleEmitterProperty pProperty, const T& pValue);
 
-		void									Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer,const float& pDeltaTime, const Math::SVector3& pCameraDirection, const Math::SVector3& pCameraPosition);
+		void									Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer,const float& pDeltaTime, const Math::SVector3& pCameraPosition);
 		
 	private:
 
@@ -71,8 +71,8 @@ namespace Renderer
 		float									mCurrentTime = 0;
 		float									mCurrentFrame = 0;
 		float									mFrameRate = 0;
-		int										mNumTextureRow = 0;
-		int										mNumTextureColumn = 0;
+		int										mNumTextureRow = 1;
+		int										mNumTextureColumn = 1;
 		int										mInitialRow = 0;
 		int										mInitialColumn = 0;
 		float									mEmissionRate = 0;

@@ -63,6 +63,15 @@
     <ClCompile Include="Particle\src\ParticleVertexBuffer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Particle\src\ParticleUpdateTask.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Multithreading\src\Task.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Multithreading\src\TaskBatch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Render\header\Renderer.h">
@@ -117,6 +126,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Particle\header\ParticleVertexBuffer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle\header\ParticleUpdateTask.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Multithreading\header\Task.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Multithreading\header\TaskBatch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

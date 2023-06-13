@@ -30,7 +30,7 @@ namespace Renderer
 	
 
 
-	void CParticleEmitter::Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pEmitterDirection, const Math::SVector3& pCameraPosition)
+	void CParticleEmitter::Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pCameraPosition)
 	{
 		mCurrentTime += pDeltaTime;
 
@@ -88,7 +88,7 @@ namespace Renderer
 
 			//remove particle that exceed its duration 
 			//else update and add it to vertex buffer
-			Math::SVector3 lFront = pEmitterDirection.Normalize();
+			Math::SVector3 lFront = (mPosition - pCameraPosition).Normalize();
 			Math::SVector3 lUp(0, 1, 0);
 			Math::SVector3 lRight = Math::SVector3::Cross(lUp, lFront).Normalize();
 			lUp = Math::SVector3::Cross(lFront, lRight).Normalize();
@@ -156,8 +156,6 @@ namespace Renderer
 			}
 			
 		}
-
-
 
 	}
 

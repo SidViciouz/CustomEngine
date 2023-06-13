@@ -35,6 +35,11 @@ namespace Math
 		return SVector3(mX + pOther.mX, mY + pOther.mY, mZ + pOther.mZ);
 	}
 
+	SVector3 SVector3::operator-(const SVector3& pOther)
+	{
+		return SVector3(mX - pOther.mX, mY - pOther.mY, mZ - pOther.mZ);
+	}
+
 	SVector3 SVector3::Normalize() const
 	{
 		SVector3 lVector(mX,mY,mZ);
