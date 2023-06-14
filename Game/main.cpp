@@ -5,8 +5,10 @@
 #include "../Mesh/header/Object.h"
 #include "../Animation/header/AnimationGraph.h"
 #include "../Particle/header/ParticleManager.h"
+#include "../Input/header/InputManager.h"
 
 using namespace Renderer;
+using namespace Input;
 
 #ifdef _DEBUG
 #ifdef UNICODE                                                                                      
@@ -16,15 +18,12 @@ using namespace Renderer;
 #endif                                                                                                   
 #endif   
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	return DefWindowProc(hwnd, msg, wParam, lParam);
-}
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
 	try
 	{	
+		shared_ptr<CInputManager> lInputManager = CInputManager::Create();
+
 		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
 		shared_ptr<CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
 		shared_ptr<CParticleEmitter> lParticleEmitter = lParticleManager->AddParticleEmitter(lParticleSystem);
@@ -117,7 +116,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		r.Resize(2000,1000);
 
-		while (1)
+		while (r.Loop())
 		{
 			lParticleManager->Update(1 / 60.0f, lCamera->GetPosition());
 			lAnimGraph.Update(1 / 60.0f);
@@ -143,8 +142,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	{
 		std::cout << errorMessage << std::endl;
 	}
-
-	while (1);
 
 	return 0;
 }

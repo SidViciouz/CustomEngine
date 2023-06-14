@@ -14,7 +14,7 @@ namespace Renderer
 {
 	CRenderer::CRenderer(HINSTANCE pHInstance)
 	{
-		mWindowManager = make_shared<CWindowManager>(pHInstance);
+		mWindowManager = CWindowManager::Create(pHInstance);
 
 		RECT lRect;
 		GetWindowRect(mWindowManager->GetHandle(), &lRect);
@@ -52,6 +52,24 @@ namespace Renderer
 			throw string("commandlist closing fails.");
 		ID3D12CommandList* lists[] = { mCommandList.Get() };
 		mCommandQueue->ExecuteCommandLists(1, lists);
+	}
+
+
+
+	bool CRenderer::Loop()
+	{
+		MSG lMsg = { 0 };
+
+		while (PeekMessage(&lMsg, mWindowManager->GetHandle(), 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&lMsg);
+			DispatchMessage(&lMsg);
+
+			if (lMsg.message == WM_QUIT)
+				return false;
+		}
+
+		return true;
 	}
 
 

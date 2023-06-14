@@ -1,11 +1,32 @@
 #include "../Window/header/WindowManager.h"
+#include "../Input/header/InputManager.h"
 #include <iostream>
 
 namespace Renderer
 {
-	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	shared_ptr<CWindowManager> CWindowManager::mThis = nullptr;
+
+	LRESULT CALLBACK WndProc(HWND pHwnd, UINT pMsg, WPARAM pWParam, LPARAM pLParam)
 	{
-		return DefWindowProc(hwnd, msg, wParam, lParam);
+		shared_ptr<CWindowManager> lWindowManager = CWindowManager::Get();
+
+		if (lWindowManager == nullptr)
+			return DefWindowProc(pHwnd, pMsg, pWParam, pLParam);
+
+		Input::CInputManager* lInputManager = reinterpret_cast<Input::CInputManager*>(GetWindowLongPtr(lWindowManager->GetHandle(), GWLP_USERDATA));
+
+		if (lInputManager == nullptr)
+			return DefWindowProc(pHwnd, pMsg, pWParam, pLParam);
+
+
+		switch (pMsg)
+		{
+
+
+		default : 
+			return DefWindowProc(pHwnd, pMsg, pWParam, pLParam);
+		}
+
 	}
 
 	CWindowManager::CWindowManager(HINSTANCE pHInstance)
@@ -40,12 +61,29 @@ namespace Renderer
 			MessageBox(0, L"CreateWindow Failed.", 0, 0);
 		}
 
+		SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(Input::CInputManager::Create().get()));
+
 		ShowWindow(mWindowHandle, SW_SHOW);
 		UpdateWindow(mWindowHandle);
+
+	}
+
+	shared_ptr<CWindowManager> CWindowManager::Create(HINSTANCE pHInstance)
+	{
+		if(mThis == nullptr)
+			mThis = make_shared<CWindowManager>(pHInstance);
+
+		return mThis;
+	}
+
+	shared_ptr<CWindowManager> CWindowManager::Get()
+	{
+		return mThis;
 	}
 
 	HWND CWindowManager::GetHandle() const
 	{
 		return mWindowHandle;
 	}
+
 }

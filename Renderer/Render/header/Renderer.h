@@ -30,6 +30,7 @@ namespace Renderer
 												CRenderer(HINSTANCE pHInstance);
 												~CRenderer();
 		void									Initialize();
+		bool									Loop();
 		void									Resize(int pWidth, int pHeight);
 		void									SetCamera(shared_ptr<CCamera> pCamera);
 		int										SetMesh(shared_ptr<CMesh> pMesh);
