@@ -20,9 +20,7 @@ namespace Renderer
 		eCurrentFrame,
 		eFrameRate,
 		eNumTextureRow,
-		eNumTextureColumn,
-		eInitialRow,
-		eInitialColumn
+		eNumTextureColumn
 	};
 
 	class CParticle
@@ -51,6 +49,8 @@ namespace Renderer
 		int										mCurrentColumn = 0;
 		float									mCurrentFrame = 0;
 		float									mFrameRate = 0;
+
+		float									mCameraDistance = 0.0f;
 
 	private:
 

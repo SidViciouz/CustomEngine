@@ -16,7 +16,7 @@ namespace Renderer
 	private:
 		vector<shared_ptr<CParticleSystem>>&	mParticleSystems;
 		float									mDeltaTime;
-		const Math::SVector3&					mCameraPosition;
+		Math::SVector3							mCameraPosition;
 		shared_ptr<CParticleVertexBuffer>		mVertexBuffer;
 	};
 }

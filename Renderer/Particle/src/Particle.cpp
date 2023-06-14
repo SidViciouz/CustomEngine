@@ -55,12 +55,12 @@ namespace Renderer
 		mAngle = mAngle + mAngularVelocity * pDeltaTime;
 
 		mCurrentFrame += mFrameRate* pDeltaTime;
-
+	
 		int lFrameIndex = (int)mCurrentFrame;
 
 		if (lFrameIndex >= mNumTextureRow * mNumTextureColumn)
 		{
-			mCurrentFrame = 0;
+			mCurrentFrame = 0.0f;
 			lFrameIndex = 0;
 		}
 

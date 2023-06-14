@@ -63,8 +63,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
 		shared_ptr<CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
 		shared_ptr<CParticleEmitter> lParticleEmitter =  lParticleManager->AddParticleEmitter(lParticleSystem);
-		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eEmissionRate, 1.0f);
-		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eParticleDuration, 1.5f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eEmissionRate, 1.5f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::ePosition, Math::SVector3(1, 0, 3));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::ePositionVariance, Math::SVector3(1.0, 0.2, 1.0));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eVelocity, Math::SVector3(0.2, 0.2, 0.2));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eVelocityVariance, Math::SVector3(0.1, 0.1, 0.1));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eAcceleration, Math::SVector3(0.2, 0.2, 0.2));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eAccelerationVariance, Math::SVector3(0.1, 0.1, 0.1));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eScale, Math::SVector2(0.5, 0.5));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eCurrentFrame, 0.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eDuration, 0.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eNumTextureRow, 8);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eNumTextureColumn, 8);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eFrameRate, 30.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eParticleDuration, 3.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eParticleDurationVariance, 1.0f);
 
 		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
 		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");
@@ -114,6 +127,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		int lTexture4Handle = r.LoadTexture(L"../Material/rustediron2_roughness.dds");
 		int lTileAOHandle = r.LoadTexture(L"../Material/T_Tiles_M.dds");
 		int lTileNormalHandle = r.LoadTexture(L"../Material/T_Tiles_N.dds");
+		int lParticleSpriteHandle = r.LoadTexture(L"../Material/T_Smoke_A.dds");
 		r.LoadEnd();
 
 		float lData1[9] = { 1.0f,0.0f,0.0f,0.0f,0.0f,1.0f,1.0f,0.0f,1.0f };
@@ -153,11 +167,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 			//r.DrawMesh(lMesh1Handle, lObject1Handle);
 			//r.DrawMesh(lMesh2Handle, lObject2Handle);
-			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1,-1, -1, -1, -1);
-			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 			r.DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
-
+			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+			r.DrawParticles(lParticleSpriteHandle);
+			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1,-1, -1, -1, -1);
 
 			r.DrawEnd();
 		}

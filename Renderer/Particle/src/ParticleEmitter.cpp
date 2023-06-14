@@ -42,8 +42,6 @@ namespace Renderer
 		mFrameRate = 0;
 		mNumTextureRow = 1;
 		mNumTextureColumn = 1;
-		mInitialRow = 0;
-		mInitialColumn = 0;
 		mEmissionRate = 0;
 
 		mAngleVariance = 0;
@@ -65,9 +63,6 @@ namespace Renderer
 
 	
 	
-	
-
-
 	void CParticleEmitter::Update(shared_ptr<CParticleVertexBuffer> pVertexBuffer, const float& pDeltaTime, const Math::SVector3& pCameraPosition)
 	{
 		mCurrentTime += pDeltaTime;
@@ -114,11 +109,9 @@ namespace Renderer
 				lParticle->mAngularVelocity = lMemoryManager->GetRandomValue(mMemoryPoolIndex, mAngularVelocityVariance * -1.0f, mAngularVelocityVariance) + mAngularVelocity;
 				lParticle->mAngularAcceleration = lMemoryManager->GetRandomValue(mMemoryPoolIndex, mAngularAccelerationVariance * -1.0f, mAngularAccelerationVariance) + mAngularAcceleration;
 				lParticle->mDuration = lMemoryManager->GetRandomValue(mMemoryPoolIndex, mParticleDurationVariance * -1.0f, mParticleDurationVariance) + mParticleDuration;
-				lParticle->mCurrentFrame = lMemoryManager->GetRandomValue(mMemoryPoolIndex, mFrameVariance * -1.0f, mFrameVariance) + mCurrentFrame;
+				lParticle->mCurrentFrame = lMemoryManager->GetRandomValue(mMemoryPoolIndex, 0.0f, mFrameVariance) + mCurrentFrame;
 				lParticle->mNumTextureRow = mNumTextureRow;
 				lParticle->mNumTextureColumn = mNumTextureColumn;
-				lParticle->mCurrentRow = mInitialRow;
-				lParticle->mCurrentColumn = mInitialColumn;
 				lParticle->mFrameRate = mFrameRate;
 
 				mParticles.push_back(lParticle);
@@ -126,6 +119,7 @@ namespace Renderer
 
 			//remove particle that exceed its duration 
 			//else update and add it to vertex buffer
+
 			Math::SVector3 lFront = (mPosition - pCameraPosition).Normalize();
 			Math::SVector3 lUp(0, 1, 0);
 			Math::SVector3 lRight = Math::SVector3::Cross(lUp, lFront).Normalize();
@@ -147,52 +141,58 @@ namespace Renderer
 				else
 				{
 					mParticles[lParticleIndex]->Update(pDeltaTime);
-
-					array<SParticleVertex,4> lParticleVertices;
-
-					SParticleVertex& lTopRight = lParticleVertices[0];
-					SParticleVertex& lTopLeft = lParticleVertices[1];
-					SParticleVertex& lBottomLeft = lParticleVertices[2];
-					SParticleVertex& lBottomRight = lParticleVertices[3];
-
-					float lWidth = 1.0f / mParticles[lParticleIndex]->mNumTextureColumn;
-					float lHeight = 1.0f / mParticles[lParticleIndex]->mNumTextureRow;
-
-					//bottom-right
-					lBottomRight.mPosition.mX += mParticles[lParticleIndex]->mScale.mX;
-					lBottomRight.mPosition.mY -= mParticles[lParticleIndex]->mScale.mY;
-					lBottomRight.mTextureCoord.mX = lWidth * (mParticles[lParticleIndex]->mCurrentColumn+1);
-					lBottomRight.mTextureCoord.mY = lHeight * (mParticles[lParticleIndex]->mCurrentRow+1);
-
-					//top-right
-					lTopRight.mPosition.mX += mParticles[lParticleIndex]->mScale.mX;
-					lTopRight.mPosition.mY += mParticles[lParticleIndex]->mScale.mY;
-					lTopRight.mTextureCoord.mX = lBottomRight.mTextureCoord.mX;
-					lTopRight.mTextureCoord.mY = lBottomRight.mTextureCoord.mY - lHeight;
-
-					//top-left
-					lTopLeft.mPosition.mX -= mParticles[lParticleIndex]->mScale.mX;
-					lTopLeft.mPosition.mY += mParticles[lParticleIndex]->mScale.mY;
-					lTopLeft.mTextureCoord.mX = lBottomRight.mTextureCoord.mX - lWidth;
-					lTopLeft.mTextureCoord.mY = lBottomRight.mTextureCoord.mY - lHeight;
-
-					//bottom-left
-					lBottomLeft.mPosition.mX -= mParticles[lParticleIndex]->mScale.mX;
-					lBottomLeft.mPosition.mY -= mParticles[lParticleIndex]->mScale.mY;
-					lBottomLeft.mTextureCoord.mX = lBottomRight.mTextureCoord.mX - lWidth;
-					lBottomLeft.mTextureCoord.mY = lBottomRight.mTextureCoord.mY;
-
-
-					//facing camera and translation
-					for (int i = 0; i < 4; ++i)
-					{
-						lParticleVertices[0].mPosition = lParticleVertices[0].mPosition.Transform(lRotationMatrix) + mParticles[lParticleIndex]->mPosition;
-					}
-
-					pVertexBuffer->AddParticleVertex(mMemoryPoolIndex, lParticleVertices);
+					//mParticles[lParticleIndex]->mCameraDistance = Math::SVector3::Dot(mParticles[lParticleIndex]->mPosition - pCameraPosition,lFront);
 				}
 			}
-			
+			/*
+			sort(mParticles.begin(), mParticles.end(), [](shared_ptr<CParticle> pA, shared_ptr<CParticle> pB) {
+				return pA->mCameraDistance > pB->mCameraDistance;
+			});
+			*/
+			for (int lParticleIndex = 0; lParticleIndex < mParticles.size(); ++lParticleIndex)
+			{
+				array<SParticleVertex,4> lParticleVertices;
+
+				SParticleVertex& lTopRight = lParticleVertices[0];
+				SParticleVertex& lTopLeft = lParticleVertices[1];
+				SParticleVertex& lBottomLeft = lParticleVertices[2];
+				SParticleVertex& lBottomRight = lParticleVertices[3];
+
+				float lWidth = 1.0f / mParticles[lParticleIndex]->mNumTextureColumn;
+				float lHeight = 1.0f / mParticles[lParticleIndex]->mNumTextureRow;
+
+				//bottom-right
+				lBottomRight.mPosition.mX += mParticles[lParticleIndex]->mScale.mX;
+				lBottomRight.mPosition.mY -= mParticles[lParticleIndex]->mScale.mY;
+				lBottomRight.mTextureCoord.mX = lWidth * (mParticles[lParticleIndex]->mCurrentColumn+1);
+				lBottomRight.mTextureCoord.mY = lHeight * (mParticles[lParticleIndex]->mCurrentRow+1);
+
+				//top-right
+				lTopRight.mPosition.mX += mParticles[lParticleIndex]->mScale.mX;
+				lTopRight.mPosition.mY += mParticles[lParticleIndex]->mScale.mY;
+				lTopRight.mTextureCoord.mX = lBottomRight.mTextureCoord.mX;
+				lTopRight.mTextureCoord.mY = lBottomRight.mTextureCoord.mY - lHeight;
+
+				//top-left
+				lTopLeft.mPosition.mX -= mParticles[lParticleIndex]->mScale.mX;
+				lTopLeft.mPosition.mY += mParticles[lParticleIndex]->mScale.mY;
+				lTopLeft.mTextureCoord.mX = lBottomRight.mTextureCoord.mX - lWidth;
+				lTopLeft.mTextureCoord.mY = lBottomRight.mTextureCoord.mY - lHeight;
+
+				//bottom-left
+				lBottomLeft.mPosition.mX -= mParticles[lParticleIndex]->mScale.mX;
+				lBottomLeft.mPosition.mY -= mParticles[lParticleIndex]->mScale.mY;
+				lBottomLeft.mTextureCoord.mX = lBottomRight.mTextureCoord.mX - lWidth;
+				lBottomLeft.mTextureCoord.mY = lBottomRight.mTextureCoord.mY;
+
+
+				//facing camera and translation
+				for (int i = 0; i < 4; ++i)
+				{
+					lParticleVertices[i].mPosition = lParticleVertices[i].mPosition.Transform(lRotationMatrix) +mParticles[lParticleIndex]->mPosition;
+				}
+				pVertexBuffer->AddParticleVertex(mMemoryPoolIndex, lParticleVertices);
+			}
 		}
 	}
 
@@ -345,14 +345,6 @@ namespace Renderer
 
 		case EParticleEmitterProperty::eNumTextureRow:
 			mNumTextureRow = pValue;
-			break;
-
-		case EParticleEmitterProperty::eInitialColumn:
-			mInitialColumn = pValue;
-			break;
-
-		case EParticleEmitterProperty::eInitialRow:
-			mInitialRow = pValue;
 			break;
 
 		default:

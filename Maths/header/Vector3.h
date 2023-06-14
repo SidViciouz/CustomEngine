@@ -24,7 +24,11 @@ namespace Math
 
 		static SVector3							Cross(const SVector3& pA, const SVector3& pB);
 
+		static float							Dot(const SVector3& pA, const SVector3& pB);
+
 		SVector3								Transform(const SMatrix3& pTransformMatrix) const;
+
+		float									Length() const;
 
 	union
 	{

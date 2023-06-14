@@ -68,6 +68,16 @@ namespace Math
 		return lResult;
 	}
 
+	float SVector3::Dot(const SVector3& pA, const SVector3& pB)
+	{
+		DirectX::XMVECTOR lA = DirectX::XMLoadFloat3(&pA.mXmElement);
+		DirectX::XMVECTOR lB = DirectX::XMLoadFloat3(&pB.mXmElement);
+
+		DirectX::XMVECTOR lC = DirectX::XMVector3Dot(lA, lB);
+
+		return DirectX::XMVectorGetX(lC);
+	}
+
 	SVector3 SVector3::Transform(const SMatrix3& pTransformMatrix) const
 	{
 		SVector3 lResult;
@@ -81,5 +91,11 @@ namespace Math
 
 		return lResult;
 	}
+
+	float SVector3::Length() const
+	{
+		return sqrtf(mX * mX + mY * mY + mZ * mZ);
+	}
+
 
 }

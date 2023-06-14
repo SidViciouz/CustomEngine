@@ -23,8 +23,6 @@ namespace Renderer
 		eFrameRate,
 		eNumTextureRow,
 		eNumTextureColumn,
-		eInitialRow,
-		eInitialColumn,
 		eEmissionRate,
 		ePositionVariance,
 		eScaleVariance,
@@ -73,8 +71,6 @@ namespace Renderer
 		float									mFrameRate = 0;
 		int										mNumTextureRow = 1;
 		int										mNumTextureColumn = 1;
-		int										mInitialRow = 0;
-		int										mInitialColumn = 0;
 		float									mEmissionRate = 0;
 		
 		Math::SVector3							mPositionVariance;

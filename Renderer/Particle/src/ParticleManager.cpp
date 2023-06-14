@@ -89,7 +89,6 @@ namespace Renderer
 		shared_ptr<CParticleUpdateTask> lFirstTask;
 
 		Multithreading::CTaskBatch lTaskBatch;
-
 		for (int lPoolIndex = 0; lPoolIndex < MAX_PARTICLE_MEMORY_POOL; ++lPoolIndex)
 		{
 			mVertexBuffer->ClearBuffer(lPoolIndex);

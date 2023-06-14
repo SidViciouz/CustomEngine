@@ -437,6 +437,34 @@ namespace Renderer
 
 
 
+	void CRenderer::DrawParticles(int pTextureHandle)
+	{
+		D3D12_VERTEX_BUFFER_VIEW lVertexBufferView;
+		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mParticleManager->GetVertexBufferHandle());
+		lVertexBufferView.SizeInBytes = sizeof(SParticleVertex) * mParticleVertexCount;
+		lVertexBufferView.StrideInBytes = sizeof(SParticleVertex);
+
+		D3D12_INDEX_BUFFER_VIEW lIndexBufferView;
+		lIndexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mParticleManager->GetIndexBufferHandle());
+		lIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+		lIndexBufferView.SizeInBytes = sizeof(uint16_t) * mParticleIndexCount;
+
+		ID3D12DescriptorHeap* lDescriptorHeap = mResourceManager->GetDescriptorHeap(EDescriptorType::eSRV);
+		mCommandList->SetDescriptorHeaps(1, &lDescriptorHeap);
+		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mCommandList->SetGraphicsRootSignature(mRootSignatures["Particle"].Get());
+		mCommandList->SetPipelineState(mPSOs["Particle"].Get());
+		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
+		mCommandList->SetGraphicsRootDescriptorTable(1, mResourceManager->GetGpuHandle(mDescriptorHandleMap[pTextureHandle]));
+
+		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
+		mCommandList->IASetIndexBuffer(&lIndexBufferView);
+		mCommandList->DrawIndexedInstanced(mParticleIndexCount, 1, 0, 0, 0);
+	}
+
+
+
+
 	void CRenderer::WaitUntilAllCommandDone()
 	{
 		++mFenceValue;
@@ -634,6 +662,12 @@ namespace Renderer
 
 		if (!SUCCEEDED(D3DReadFileToBlob(L"../Renderer/shader/PBRPS.cso", mShaders["PBRPS"].GetAddressOf())))
 			throw string("read shader fails.");
+
+		if (!SUCCEEDED(D3DReadFileToBlob(L"../Renderer/shader/ParticleVS.cso", mShaders["ParticleVS"].GetAddressOf())))
+			throw string("read shader fails.");
+
+		if (!SUCCEEDED(D3DReadFileToBlob(L"../Renderer/shader/ParticlePS.cso", mShaders["ParticlePS"].GetAddressOf())))
+			throw string("read shader fails.");
 	}
 
 
@@ -776,6 +810,43 @@ namespace Renderer
 		lPBRDesc.pStaticSamplers = &lPBRSamplerDesc;
 
 		AddRootSignature("PBR", lPBRDesc);
+
+
+
+		/*
+		*  particle root signature
+		*/
+		D3D12_DESCRIPTOR_RANGE lParticleDescriptorRange[1];
+		lParticleDescriptorRange[0].BaseShaderRegister = 0;
+		lParticleDescriptorRange[0].NumDescriptors = 1;
+		lParticleDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+		lParticleDescriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		lParticleDescriptorRange[0].RegisterSpace = 0;
+
+		D3D12_ROOT_PARAMETER lParticleParameter[2];
+		lParticleParameter[0].Descriptor.RegisterSpace = 0;
+		lParticleParameter[0].Descriptor.ShaderRegister = 0;
+		lParticleParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lParticleParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		lParticleParameter[1].DescriptorTable.NumDescriptorRanges = 1;
+		lParticleParameter[1].DescriptorTable.pDescriptorRanges = &lPBRDescriptorRange[0];
+		lParticleParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		lParticleParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+
+		CD3DX12_STATIC_SAMPLER_DESC lParticleSamplerDesc(0,
+			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+
+		D3D12_ROOT_SIGNATURE_DESC lParticleDesc = {};
+		lParticleDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		lParticleDesc.NumParameters = 2;
+		lParticleDesc.pParameters = lParticleParameter;
+		lParticleDesc.NumStaticSamplers = 1;
+		lParticleDesc.pStaticSamplers = &lParticleSamplerDesc;
+
+		AddRootSignature("Particle", lParticleDesc);
 	}
 
 
@@ -988,6 +1059,77 @@ namespace Renderer
 			throw string("creating graphics pipeline state fails.");
 
 		mPSOs["PBR"] = move(lPSO);
+
+
+
+		/*
+		* Particle pipeline
+		*/
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC lParticlePsoDesc = {};
+
+		D3D12_INPUT_ELEMENT_DESC lParticleInputElements[2];
+		lParticleInputElements[0] = { "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lParticleInputElements[1] = { "TEX",0,DXGI_FORMAT_R32G32_FLOAT,0,12,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA ,0 };
+		lParticlePsoDesc.InputLayout.NumElements = 2;
+		lParticlePsoDesc.InputLayout.pInputElementDescs = lParticleInputElements;
+		lParticlePsoDesc.pRootSignature = mRootSignatures["Particle"].Get();
+		lParticlePsoDesc.VS.pShaderBytecode = mShaders["ParticleVS"]->GetBufferPointer();
+		lParticlePsoDesc.VS.BytecodeLength = mShaders["ParticleVS"]->GetBufferSize();
+		lParticlePsoDesc.PS.pShaderBytecode = mShaders["ParticlePS"]->GetBufferPointer();
+		lParticlePsoDesc.PS.BytecodeLength = mShaders["ParticlePS"]->GetBufferSize();
+		lParticlePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+		lParticlePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+		lParticlePsoDesc.RasterizerState.FrontCounterClockwise = TRUE;
+		lParticlePsoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		lParticlePsoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		lParticlePsoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		lParticlePsoDesc.RasterizerState.DepthClipEnable = TRUE;
+		lParticlePsoDesc.RasterizerState.MultisampleEnable = FALSE;
+		lParticlePsoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+		lParticlePsoDesc.RasterizerState.ForcedSampleCount = 0;
+		lParticlePsoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		lParticlePsoDesc.BlendState.AlphaToCoverageEnable = FALSE;
+		lParticlePsoDesc.BlendState.IndependentBlendEnable = FALSE;
+		const D3D12_RENDER_TARGET_BLEND_DESC lParticleRenderTargetBlendDesc =
+		{
+			FALSE,FALSE,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+			D3D12_LOGIC_OP_NOOP,
+			D3D12_COLOR_WRITE_ENABLE_ALL,
+		};
+		for (int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
+			lParticlePsoDesc.BlendState.RenderTarget[i] = lParticleRenderTargetBlendDesc;
+		lParticlePsoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+		lParticlePsoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		lParticlePsoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		lParticlePsoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		lParticlePsoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ZERO;
+		lParticlePsoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+		lParticlePsoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+		lParticlePsoDesc.DepthStencilState.DepthEnable = FALSE;
+		lParticlePsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		lParticlePsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		lParticlePsoDesc.DepthStencilState.StencilEnable = FALSE;
+		lParticlePsoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+		lParticlePsoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+		const D3D12_DEPTH_STENCILOP_DESC lParticleStencilOp =
+		{ D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS };
+		lParticlePsoDesc.DepthStencilState.FrontFace = lParticleStencilOp;
+		lParticlePsoDesc.DepthStencilState.BackFace = lParticleStencilOp;
+		lParticlePsoDesc.SampleMask = UINT_MAX;
+		lParticlePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		lParticlePsoDesc.NumRenderTargets = 1;
+		lParticlePsoDesc.RTVFormats[0] = mBackBufferFormat;
+		lParticlePsoDesc.SampleDesc.Count = 1;
+		lParticlePsoDesc.SampleDesc.Quality = 0;
+		lParticlePsoDesc.DSVFormat = mDepthBufferFormat;
+
+		if (!SUCCEEDED(mDevice->CreateGraphicsPipelineState(&lParticlePsoDesc, IID_PPV_ARGS(lPSO.GetAddressOf()))))
+			throw string("creating graphics pipeline state fails.");
+
+		mPSOs["Particle"] = move(lPSO);
 	}
 
 
