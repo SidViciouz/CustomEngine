@@ -22,6 +22,8 @@ namespace Renderer
 		void									SetOrientation(const Math::SQuaternion& pOrientation);
 		void									SetScale(const Math::SVector3& pScale);
 
+		void									AddTranslation(Math::SVector3 pTranslation);
+
 		void									SetBaseColorResourceHandle(int pResourceHandle);
 		void									SetMetallicResourceHandle(int pResourceHandle);
 		void									SetNormalResourceHandle(int pResourceHandle);

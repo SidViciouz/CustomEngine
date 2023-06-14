@@ -75,9 +75,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lAnimGraph.LoadAnimation("n_pose", "../Model/ALS_N_Pose.FBX");
 		lAnimGraph.LoadAnimation("n_jumpwalk_lf", "../Model/ALS_N_JumpWalk_LF.FBX");
 		lAnimGraph.LoadAnimation("kicking", "../Model/Kicking.fbx");
-		lAnimGraph.Reset("n_walk_f");
-		lAnimGraph.AddTransition("n_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
-		lAnimGraph.AddTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 1.0f);
+		lAnimGraph.Reset("n_run_f");
+		lAnimGraph.AddTransition("cls_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
+		lAnimGraph.AddTransition("n_run_f", "cls_walk_f", []()->bool {return true; }, 1.0f);
 
 
 
@@ -114,10 +114,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		r.SetParticleManager(lParticleManager);
 
-		r.Resize(2000,1000);
+		r.Resize(1800,1000);
 
 		while (r.Loop())
 		{
+			if (lInputManager->GetKeyPressed(0x41))
+			{
+				lObject2->AddTranslation(Math::SVector3(-0.01f,0,0));
+			}
+			if (lInputManager->GetKeyPressed(0x44))
+			{
+				lObject2->AddTranslation(Math::SVector3(0.01f,0,0));
+			}
+			if (lInputManager->GetKeyPressed(0x57))
+			{
+				lObject2->AddTranslation(Math::SVector3(0, 0, 0.01f));
+			}
+			if (lInputManager->GetKeyPressed(0x53))
+			{
+				lObject2->AddTranslation(Math::SVector3(0, 0, -0.01f));
+			}
+
 			lParticleManager->Update(1 / 60.0f, lCamera->GetPosition());
 			lAnimGraph.Update(1 / 60.0f);
 
@@ -136,6 +153,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
 
 			r.DrawEnd();
+
+			lInputManager->Reset();
 		}
 	}
 	catch (std::string errorMessage)

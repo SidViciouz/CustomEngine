@@ -39,6 +39,11 @@ namespace Renderer
 		mTransform.SetScale(pScale);
 	}
 
+	void CObject::AddTranslation(Math::SVector3 pTranslation)
+	{
+		mTransform.SetTranslation(pTranslation + mTransform.GetTranslation());
+	}
+
 	void CObject::SetBaseColorResourceHandle(int pResourceHandle)
 	{
 		mBaseColorResourceHandle = pResourceHandle;

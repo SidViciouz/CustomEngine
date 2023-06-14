@@ -21,7 +21,13 @@ namespace Renderer
 
 		switch (pMsg)
 		{
+		case WM_KEYDOWN : 
+			lInputManager->SetKeyDown(pWParam);
+			break;
 
+		case WM_KEYUP :
+			lInputManager->SetKeyUp(pWParam);
+			break;
 
 		default : 
 			return DefWindowProc(pHwnd, pMsg, pWParam, pLParam);
