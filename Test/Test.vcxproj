@@ -143,9 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TestMain.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Renderer\Renderer.vcxproj">
       <Project>{56b5078d-e533-438e-b2d5-00dec9e16085}</Project>
     </ProjectReference>

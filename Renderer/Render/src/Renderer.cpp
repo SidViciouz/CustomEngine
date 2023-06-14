@@ -1,3 +1,4 @@
+#include "../Window/header/WindowManager.h"
 #include "../Render/header/Renderer.h"
 #include "../Resource/header/ResourceManager.h"
 #include "../Render/header/FrameData.h"
@@ -11,12 +12,12 @@
 
 namespace Renderer
 {
-	CRenderer::CRenderer(HWND pWindowHandle)
-		: mWindowHandle{ pWindowHandle }
+	CRenderer::CRenderer(HINSTANCE pHInstance)
 	{
+		mWindowManager = make_shared<CWindowManager>(pHInstance);
 
 		RECT lRect;
-		GetWindowRect(pWindowHandle, &lRect);
+		GetWindowRect(mWindowManager->GetHandle(), &lRect);
 
 		mWidth = lRect.right - lRect.left;
 		mHeight = lRect.bottom - lRect.top;
@@ -55,15 +56,18 @@ namespace Renderer
 
 
 
-	void CRenderer::Resize()
+	void CRenderer::Resize(int pWidth, int pHeight)
 	{
+		SetWindowPos(mWindowManager->GetHandle(), NULL, 0, 0, pWidth, pHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+		
+		mCamera->Resize(pWidth, pHeight);
+
 		//resize window
 		RECT lRect;
-		GetWindowRect(mWindowHandle, &lRect);
+		GetWindowRect(mWindowManager->GetHandle(), &lRect);
 
 		mWidth = lRect.right - lRect.left;
 		mHeight = lRect.bottom - lRect.top;
-
 
 
 		WaitUntilAllCommandDone();
@@ -613,7 +617,7 @@ namespace Renderer
 		lSwapchainDesc.SampleDesc.Quality = 0;
 		lSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		lSwapchainDesc.Windowed = true;
-		lSwapchainDesc.OutputWindow = mWindowHandle;
+		lSwapchainDesc.OutputWindow = mWindowManager->GetHandle();
 		lSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 		lSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 

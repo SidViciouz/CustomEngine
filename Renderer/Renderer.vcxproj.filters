@@ -72,6 +72,9 @@
     <ClCompile Include="Multithreading\src\TaskBatch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Window\src\WindowManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Render\header\Renderer.h">
@@ -135,6 +138,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Multithreading\header\TaskBatch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\header\WindowManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

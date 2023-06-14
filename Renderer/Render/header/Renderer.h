@@ -10,6 +10,7 @@ namespace Renderer
 	class CMesh;
 	class CObject;
 	class CParticleManager;
+	class CWindowManager;
 
 	struct SPBRData
 	{
@@ -26,10 +27,10 @@ namespace Renderer
 	class CRenderer
 	{
 	public:
-												CRenderer(HWND pWindowHandle);
+												CRenderer(HINSTANCE pHInstance);
 												~CRenderer();
 		void									Initialize();
-		void									Resize();
+		void									Resize(int pWidth, int pHeight);
 		void									SetCamera(shared_ptr<CCamera> pCamera);
 		int										SetMesh(shared_ptr<CMesh> pMesh);
 		int										SetObject(shared_ptr<CObject> pObject);
@@ -54,7 +55,7 @@ namespace Renderer
 		/*
 		* window data
 		*/
-		HWND									mWindowHandle;
+		shared_ptr<CWindowManager>				mWindowManager;
 		int										mWidth;
 		int										mHeight;
 
