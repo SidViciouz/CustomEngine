@@ -41,7 +41,7 @@ AnimGraph.Reset("n_walk_f");
 <br>
 <br>
 
-![애니메이션 트랜지션](https://github.com/SidViciouz/Untitled/assets/70373435/41df6c6c-9f1b-4a56-a263-15ce6bcbef12)
+![애니메이션 트랜지션](https://github.com/SidViciouz/Untitled/assets/70373435/40177f62-b100-497e-8df8-3b82d8756deb)
 
 <br>
 <br>
