@@ -6,7 +6,7 @@
 
 * DrawMeshPBR()로 물리 기반 렌더링 가능
 
-```
+```C
  r.DrawMeshPBR(MeshHandle, ObjectHandle, AlbedoTextureHandle, MetallicTextureHandle, NormalTexture3Handle, RoughnessTexture4Handle, AOTextureHandle);
 ```
 
