@@ -15,7 +15,7 @@
 
 
 ```cpp
- r.DrawMeshPBR(MeshHandle, ObjectHandle, AlbedoTextureHandle, MetallicTextureHandle, NormalTexture3Handle, RoughnessTexture4Handle, AOTextureHandle);
+ Renderer.DrawMeshPBR(MeshHandle, ObjectHandle, AlbedoTextureHandle, MetallicTextureHandle, NormalTexture3Handle, RoughnessTexture4Handle, AOTextureHandle);
 ```
 <br>
 <br>
@@ -29,7 +29,7 @@
 
 
 ```cpp
-CAnimationGraph AnimGraph(lMesh2->GetSkeleton());
+CAnimationGraph AnimGraph(Mesh->GetSkeleton());
 AnimGraph.LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
 AnimGraph.LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
 AnimGraph.LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
