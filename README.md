@@ -61,7 +61,7 @@ CParticleSystem ParticleSystem = ParticleManager->AddParticleSystem();
 
 CParticleEmitter ParticleEmitter = ParticleManager->AddParticleEmitter(ParticleSystem);
 
-lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eEmissionRate, 1.5f);
+lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eEmissionRate, 10.0f);
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::ePosition, Math::SVector3(1, 0, 3));
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::ePositionVariance, Math::SVector3(1.0, 0.2, 1.0));
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eVelocity, Math::SVector3(0.2, 0.2, 0.2));
@@ -71,14 +71,17 @@ lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterPrope
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eScale, Math::SVector2(0.5, 0.5));
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eCurrentFrame, 0.0f);
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eDuration, 0.0f);
-lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eNumTextureRow, 8);
-lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eNumTextureColumn, 8);
+lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eNumTextureRow, 6);
+lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eNumTextureColumn, 6);
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eFrameRate, 30.0f);
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eParticleDuration, 3.0f);
 lParticleManager->SetParticleEmitterValue(ParticleEmitter, EParticleEmitterProperty::eParticleDurationVariance, 1.0f);
 ```
 <br>
 <br>
+
+![파티클 예시](https://github.com/SidViciouz/Untitled/assets/70373435/cc32d3e7-900d-4ab1-8203-b51f9f7f6820)
+
 <br>
 <br>
 <br>
