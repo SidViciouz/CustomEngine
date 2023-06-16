@@ -185,43 +185,43 @@ r.Resize(1800, 1000);
 // 렌더링 루프
 while (r.Loop())
 {
- // input manager에서 간단하게 캐릭터 이동
- if (lInputManager->GetKeyPressed(0x41))
- {
-  lObject2->AddTranslation(Math::SVector3(-0.01f, 0, 0));
- }
- if (lInputManager->GetKeyPressed(0x44))
- {
-  lObject2->AddTranslation(Math::SVector3(0.01f, 0, 0));
- }
- if (lInputManager->GetKeyPressed(0x57))
- {
-  lObject2->AddTranslation(Math::SVector3(0, 0, 0.01f));
- }
- if (lInputManager->GetKeyPressed(0x53))
- {
-  lObject2->AddTranslation(Math::SVector3(0, 0, -0.01f));
- }
+	// input manager에서 간단하게 캐릭터 이동
+	if (lInputManager->GetKeyPressed(0x41))
+	{
+	lObject2->AddTranslation(Math::SVector3(-0.01f, 0, 0));
+	}
+	if (lInputManager->GetKeyPressed(0x44))
+	{
+	lObject2->AddTranslation(Math::SVector3(0.01f, 0, 0));
+	}
+	if (lInputManager->GetKeyPressed(0x57))
+	{
+	lObject2->AddTranslation(Math::SVector3(0, 0, 0.01f));
+	}
+	if (lInputManager->GetKeyPressed(0x53))
+	{
+	lObject2->AddTranslation(Math::SVector3(0, 0, -0.01f));
+	}
 
- // 파티클과 애니메이션 업데이트
- lParticleManager->Update(1 / 60.0f, lCamera->GetPosition());
- lAnimGraph.Update(1 / 60.0f);
+	// 파티클과 애니메이션 업데이트
+	lParticleManager->Update(1 / 60.0f, lCamera->GetPosition());
+	lAnimGraph.Update(1 / 60.0f);
 
- // 렌더링
- r.DrawBegin();
+	// 렌더링
+	r.DrawBegin();
 
- r.DrawLine(lData1);
- r.DrawLine(lData2);
- r.DrawLine(lData3);
+	r.DrawLine(lData1);
+	r.DrawLine(lData2);
+	r.DrawLine(lData3);
 
- r.DrawMesh(lMesh1Handle, lObject1Handle);
- r.DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
- r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
- r.DrawParticles(lParticleSpriteHandle);
- r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
+	r.DrawMesh(lMesh1Handle, lObject1Handle);
+	r.DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
+	r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+	r.DrawParticles(lParticleSpriteHandle);
+	r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
 
- r.DrawEnd();
-		}
+	r.DrawEnd();
+}
 
 ```
 
