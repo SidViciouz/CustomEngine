@@ -40,6 +40,7 @@ AnimGraph.Reset("n_walk_f");
 ```
 <br>
 <br>
+![애니메이션 트랜지션](https://github.com/SidViciouz/Untitled/assets/70373435/eda83a68-3840-44ff-9a96-12e0b96f95ee)
 <br>
 <br>
 <br>
