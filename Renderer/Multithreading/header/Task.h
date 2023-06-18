@@ -2,6 +2,8 @@
 
 namespace Multithreading
 {
+	class CTaskBatch;
+
 	class CTask
 	{
 	public:

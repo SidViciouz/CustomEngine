@@ -5,8 +5,10 @@
 #include "../Mesh/header/Object.h"
 #include "../Animation/header/AnimationGraph.h"
 #include "../Particle/header/ParticleManager.h"
+#include "../Input/header/InputManager.h"
 
 using namespace Renderer;
+using namespace Input;
 
 #ifdef _DEBUG
 #ifdef UNICODE                                                                                      
@@ -16,53 +18,15 @@ using namespace Renderer;
 #endif                                                                                                   
 #endif   
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	return DefWindowProc(hwnd, msg, wParam, lParam);
-}
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-    try
-    {
-		HWND lWindowHandle;
-		WNDCLASS wc;
-		wc.style = CS_HREDRAW | CS_VREDRAW;
-		wc.lpfnWndProc = WndProc;
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = 0;
-		wc.hInstance = hInstance;
-		wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-		wc.hCursor = LoadCursor(0, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-		wc.lpszMenuName = 0;
-		wc.lpszClassName = L"MainWindow";
-
-		if (!RegisterClass(&wc))
-		{
-			MessageBox(0, L"RegisterClass Failed.", 0, 0);
-		}
-		// Compute window rectangle dimensions based on requested client area dimensions.
-		RECT R = { 0, 0, 800, 600 };
-		AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
-		int width = R.right - R.left;
-		int height = R.bottom - R.top;
-
-		lWindowHandle = CreateWindow(L"MainWindow", L"Untitled",
-			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, hInstance, 0);
-
-		if (!lWindowHandle)
-		{
-			MessageBox(0, L"CreateWindow Failed.", 0, 0);
-		}
-
-		ShowWindow(lWindowHandle, SW_SHOW);
-		UpdateWindow(lWindowHandle);
-
+	try
+	{
+		shared_ptr<CInputManager> lInputManager = CInputManager::Create();
 
 		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
 		shared_ptr<CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
-		shared_ptr<CParticleEmitter> lParticleEmitter =  lParticleManager->AddParticleEmitter(lParticleSystem);
+		shared_ptr<CParticleEmitter> lParticleEmitter = lParticleManager->AddParticleEmitter(lParticleSystem);
 		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eEmissionRate, 1.5f);
 		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::ePosition, Math::SVector3(1, 0, 3));
 		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::ePositionVariance, Math::SVector3(1.0, 0.2, 1.0));
@@ -79,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eParticleDuration, 3.0f);
 		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eParticleDurationVariance, 1.0f);
 
-		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800,600);
+		shared_ptr<CCamera> lCamera = make_shared<CCamera>(800, 600);
 		shared_ptr<CMesh>	lMesh1 = make_shared<CMesh>("../Model/Complex_Arch_01.fbx");
 		shared_ptr<CObject>	lObject1 = make_shared<CObject>();
 		shared_ptr<CMesh>	lMesh2 = make_shared<CMesh>("../Model/AnimMan2.FBX");
@@ -90,11 +54,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		shared_ptr<CObject>	lObject4 = make_shared<CObject>();
 
 		lObject1->SetTranslation(Math::SVector3(0, -3, 3));
-		lObject1->SetOrientation(Math::SQuaternion(1*cosf(DirectX::XMConvertToRadians(-45)),0,0, sinf(DirectX::XMConvertToRadians(-45))));
+		lObject1->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lObject1->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
-		lObject2->SetTranslation(Math::SVector3(0,-1.5,2));
+		lObject2->SetTranslation(Math::SVector3(0, -1.5, 2));
 		lObject2->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
-		lObject2->SetScale(Math::SVector3(0.01f,0.01f,0.01f));
+		lObject2->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
 		lObject3->SetTranslation(Math::SVector3(0, 1.5, 5));
 		lObject3->SetScale(Math::SVector3(2, 2, 2));
 		lObject4->SetTranslation(Math::SVector3(0, -3.0f, 0.0f));
@@ -112,12 +76,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lAnimGraph.LoadAnimation("n_jumpwalk_lf", "../Model/ALS_N_JumpWalk_LF.FBX");
 		lAnimGraph.LoadAnimation("kicking", "../Model/Kicking.fbx");
 		lAnimGraph.Reset("n_walk_f");
-		lAnimGraph.AddTransition("n_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
+		lAnimGraph.AddTransition("cls_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
 		lAnimGraph.AddTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 1.0f);
+		lAnimGraph.AddTransition("n_walk_f", "cls_walk_f", []()->bool {return true; }, 1.0f);
 
 
 
-		CRenderer r(lWindowHandle);
+		CRenderer r(hInstance);
 		r.Initialize();
 
 		r.LoadBegin();
@@ -150,12 +115,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		r.SetParticleManager(lParticleManager);
 
-		SetWindowPos(lWindowHandle, NULL, 0, 0, 2000, 1000, SWP_NOZORDER | SWP_NOACTIVATE);
-		lCamera->Resize(2000, 1000);
-		r.Resize();
+		r.Resize(1800, 1000);
 
-		while (1)
+		while (r.Loop())
 		{
+			if (lInputManager->GetKeyPressed(0x41))
+			{
+				lObject2->AddTranslation(Math::SVector3(-0.01f, 0, 0));
+			}
+			if (lInputManager->GetKeyPressed(0x44))
+			{
+				lObject2->AddTranslation(Math::SVector3(0.01f, 0, 0));
+			}
+			if (lInputManager->GetKeyPressed(0x57))
+			{
+				lObject2->AddTranslation(Math::SVector3(0, 0, 0.01f));
+			}
+			if (lInputManager->GetKeyPressed(0x53))
+			{
+				lObject2->AddTranslation(Math::SVector3(0, 0, -0.01f));
+			}
+
 			lParticleManager->Update(1 / 60.0f, lCamera->GetPosition());
 			lAnimGraph.Update(1 / 60.0f);
 
@@ -166,22 +146,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			r.DrawLine(lData3);
 
 			//r.DrawMesh(lMesh1Handle, lObject1Handle);
-			//r.DrawMesh(lMesh2Handle, lObject2Handle);
 			r.DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
 			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 			r.DrawParticles(lParticleSpriteHandle);
-			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1,-1, -1, -1, -1);
+			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
 
 			r.DrawEnd();
 		}
-    }
-    catch (std::string errorMessage)
-    {
+	}
+	catch (std::string errorMessage)
+	{
 		std::cout << errorMessage << std::endl;
-    }
-
-	while (1);
+	}
 
 	return 0;
 }

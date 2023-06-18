@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../Common/header/Common.h"
+#include <mutex>
+#include <condition_variable>
+#include <queue>
 
 namespace Multithreading
 {
@@ -14,7 +17,9 @@ namespace Multithreading
 		void									AddTask(shared_ptr<CTask> pTask);
 		void									Wait();
 
-	private:
-		vector<shared_ptr<CTask>>				mTasks;
+		int										mWorkingTask;
+		queue<shared_ptr<CTask>>				mTasks;
+		mutex									mMutex;
+		condition_variable						mCV;
 	};
 }

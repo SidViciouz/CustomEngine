@@ -9,6 +9,7 @@
 #include "../Mesh/header/Object.h"
 #include "../Common/header/d3dx12.h"
 #include "../Particle/header/ParticleManager.h"
+#include "../Input/header/InputManager.h"
 
 namespace Renderer
 {
@@ -59,6 +60,8 @@ namespace Renderer
 	bool CRenderer::Loop()
 	{
 		MSG lMsg = { 0 };
+
+		Input::CInputManager::Get()->Reset();
 
 		while (PeekMessage(&lMsg, mWindowManager->GetHandle(), 0, 0, PM_REMOVE))
 		{

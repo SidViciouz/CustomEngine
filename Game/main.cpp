@@ -144,17 +144,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			r.DrawLine(lData2);
 			r.DrawLine(lData3);
 
-			//r.DrawMesh(lMesh1Handle, lObject1Handle);
-			//r.DrawMesh(lMesh2Handle, lObject2Handle);
+			r.DrawMesh(lMesh1Handle, lObject1Handle);
 			r.DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
 			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+			//r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
 			r.DrawParticles(lParticleSpriteHandle);
 			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
 
 			r.DrawEnd();
 
-			lInputManager->Reset();
+			//lInputManager->Reset();
 		}
 	}
 	catch (std::string errorMessage)

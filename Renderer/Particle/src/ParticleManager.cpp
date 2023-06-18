@@ -1,6 +1,7 @@
 #include "../Particle/header/ParticleManager.h"
 #include "../Particle/header/ParticleUpdateTask.h"
 #include "../Multithreading/header/TaskBatch.h"
+#include "../Multithreading/header/ThreadPool.h"
 
 namespace Renderer
 {
@@ -88,23 +89,26 @@ namespace Renderer
 		shared_ptr<CParticleUpdateTask> lParticleUpdateTasks[MAX_PARTICLE_MEMORY_POOL];
 		shared_ptr<CParticleUpdateTask> lFirstTask;
 
-		Multithreading::CTaskBatch lTaskBatch;
+		shared_ptr<Multithreading::CTaskBatch> lTaskBatch = make_shared<Multithreading::CTaskBatch>();
 		for (int lPoolIndex = 0; lPoolIndex < MAX_PARTICLE_MEMORY_POOL; ++lPoolIndex)
 		{
 			mVertexBuffer->ClearBuffer(lPoolIndex);
 
 			lParticleUpdateTasks[lPoolIndex] = make_shared<CParticleUpdateTask>(mParticleSystems[lPoolIndex], pDeltaTime, pCameraPosition, mVertexBuffer);
 
+			
 			if (lFirstTask == nullptr)
 				lFirstTask = lParticleUpdateTasks[lPoolIndex];
 			else
-				lTaskBatch.AddTask(lParticleUpdateTasks[lPoolIndex]);
+				lTaskBatch->AddTask(lParticleUpdateTasks[lPoolIndex]);
 		}
+
+		Multithreading::CThreadPool::Singleton()->AddTaskBatch(lTaskBatch);
 
 		if(lFirstTask != nullptr)
 			lFirstTask->Execute();
 
-		lTaskBatch.Wait();
+		lTaskBatch->Wait();	
 	}
 
 

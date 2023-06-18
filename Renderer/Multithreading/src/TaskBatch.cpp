@@ -2,7 +2,8 @@
 
 namespace Multithreading
 {
-	CTaskBatch::CTaskBatch()
+	CTaskBatch::CTaskBatch() :
+		mWorkingTask{0}
 	{
 
 	}
@@ -18,13 +19,21 @@ namespace Multithreading
 
 	void CTaskBatch::AddTask(shared_ptr<CTask> pTask)
 	{
-		mTasks.push_back(pTask);
+		mTasks.push(pTask);
 	}
 
 
 
 	void CTaskBatch::Wait()
 	{
+		unique_lock<mutex> lLock(mMutex);
+		if (mWorkingTask != 0)
+		{
+			mCV.wait(lLock, [this]() {
+				return this->mWorkingTask == 0;
+			});
+		}
 
+		lLock.unlock();
 	}
 }
