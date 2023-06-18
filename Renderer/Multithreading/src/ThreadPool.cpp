@@ -18,7 +18,14 @@ namespace Multithreading
 
 	CThreadPool::~CThreadPool()
 	{
+		mStop = true;
 
+		mCV.notify_all();
+
+		for (auto& lThread : mThreads)
+		{
+			lThread.join();
+		}
 	}
 
 	shared_ptr<CThreadPool> CThreadPool::Singleton()
@@ -34,10 +41,11 @@ namespace Multithreading
 		{
 			{
 				unique_lock<mutex> lLock(mMutex);
+				unique_lock<mutex> lTaskBatchLock(pTaskBatch->mMutex);
 				mTasks.push({ pTaskBatch->mTasks.front(), pTaskBatch});
-				pTaskBatch->mTasks.pop();
 				++pTaskBatch->mWorkingTask;
 			}
+			pTaskBatch->mTasks.pop();
 			mCV.notify_one();
 		}
 	}

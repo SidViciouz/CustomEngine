@@ -238,7 +238,7 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 				int lMaterialIndex = lMaterialIndexArray.GetAt(lPolygonIndex);
 
 				int lPolygonSize = pFbxMesh->GetPolygonSize(lPolygonIndex);
-
+				
 				if (lPolygonSize == 3)
 				{
 					for (int lPolygonPosition = 0; lPolygonPosition < 3; ++lPolygonPosition)
@@ -247,7 +247,6 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 						pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
 					}
 
-					//pSubMeshes[lMaterialIndex]->AddTriangle();
 				}
 				else if (lPolygonSize == 4)
 				{
@@ -257,7 +256,6 @@ void StoreVertex(FbxMesh* pFbxMesh, vector<Renderer::SVertex>& pVertices, vector
 						pSubMeshes[lMaterialIndex].AddIndex(static_cast<uint16_t>(lIndex));
 					}
 
-					//pSubMeshes[lMaterialIndex]->AddTriangle(2);
 				}
 				else
 				{

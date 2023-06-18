@@ -99,16 +99,19 @@ namespace Renderer
 			
 			if (lFirstTask == nullptr)
 				lFirstTask = lParticleUpdateTasks[lPoolIndex];
+			
 			else
 				lTaskBatch->AddTask(lParticleUpdateTasks[lPoolIndex]);
+				
 		}
 
 		Multithreading::CThreadPool::Singleton()->AddTaskBatch(lTaskBatch);
 
 		if(lFirstTask != nullptr)
 			lFirstTask->Execute();
-
+		
 		lTaskBatch->Wait();	
+		
 	}
 
 

@@ -165,6 +165,7 @@ namespace Renderer
 		for (int lSubMeshIndex = 0; lSubMeshIndex < pMesh->GetSubMeshCount(); ++lSubMeshIndex)
 		{
 			int lIndexCount = pMesh->GetIndexCount(lSubMeshIndex);
+
 			const uint16_t* lIndexDatas = pMesh->GetIndexDatas(lSubMeshIndex);
 			
 			//create Index buffer
