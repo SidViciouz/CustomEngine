@@ -13,9 +13,7 @@ namespace Input
 	public:
 												CInputManager();
 
-		static shared_ptr<CInputManager>		Create();
-
-		static shared_ptr<CInputManager>		Get();
+		static shared_ptr<CInputManager>		Singleton();
 
 		void									Reset();
 
@@ -27,8 +25,6 @@ namespace Input
 		bool									GetKeyPressed(int pHandle);
 
 	private:
-
-		static shared_ptr<CInputManager>		mThis;
 
 		bool									mKeyDown[MAX_KEY_SIZE] = { false, };
 		bool									mKeyUp[MAX_KEY_SIZE] = { false, };

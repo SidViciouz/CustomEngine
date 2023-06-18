@@ -67,7 +67,7 @@ namespace Renderer
 			MessageBox(0, L"CreateWindow Failed.", 0, 0);
 		}
 
-		SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(Input::CInputManager::Create().get()));
+		SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(Input::CInputManager::Singleton().get()));
 
 		ShowWindow(mWindowHandle, SW_SHOW);
 		UpdateWindow(mWindowHandle);

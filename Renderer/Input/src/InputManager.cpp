@@ -3,24 +3,16 @@
 
 namespace Input
 {
-	shared_ptr<CInputManager> CInputManager::mThis;
-
 	CInputManager::CInputManager()
 	{
 
 	}
 
-	shared_ptr<CInputManager> CInputManager::Create()
+	shared_ptr<CInputManager> CInputManager::Singleton()
 	{
-		if (mThis == nullptr)
-			mThis = make_shared<CInputManager>();
+		static shared_ptr<CInputManager> lInputManagerSingleton = make_shared<CInputManager>();
 
-		return mThis;
-	}
-
-	shared_ptr<CInputManager> CInputManager::Get()
-	{
-		return mThis;
+		return lInputManagerSingleton;
 	}
 
 	void CInputManager::Reset()

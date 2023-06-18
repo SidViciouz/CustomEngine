@@ -6,7 +6,8 @@
 #include "../Animation/header/AnimationGraph.h"
 #include "../Particle/header/ParticleManager.h"
 #include "../Input/header/InputManager.h"
-#include "Actor.h"
+#include "Actor/header/Actor.h"
+#include "Actor/header/Player.h"
 
 using namespace Renderer;
 using namespace Input;
@@ -23,9 +24,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
 	try
 	{
-		shared_ptr<CInputManager> lInputManager = CInputManager::Create();
+		shared_ptr<CInputManager> lInputManager = CInputManager::Singleton();
 
-		shared_ptr<Game::CActor> lActor = Game::CActor::Create("../Model/AnimMan2.FBX");
+		shared_ptr<Game::CPlayer> lActor = Game::CPlayer::Create("../Model/AnimMan2.FBX");
 
 		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
 		shared_ptr<CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();

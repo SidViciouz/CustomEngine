@@ -1,4 +1,4 @@
-#include "Actor.h"
+#include "Actor/header/Actor.h"
 
 namespace Game
 {
@@ -19,4 +19,8 @@ namespace Game
 
 	}
 
+	void CActor::Update()
+	{
+
+	}
 }

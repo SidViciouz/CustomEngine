@@ -61,7 +61,7 @@ namespace Renderer
 	{
 		MSG lMsg = { 0 };
 
-		Input::CInputManager::Get()->Reset();
+		Input::CInputManager::Singleton()->Reset();
 
 		while (PeekMessage(&lMsg, mWindowManager->GetHandle(), 0, 0, PM_REMOVE))
 		{
