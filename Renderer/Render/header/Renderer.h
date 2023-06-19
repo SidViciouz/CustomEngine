@@ -27,8 +27,10 @@ namespace Renderer
 	class CRenderer
 	{
 	public:
-												CRenderer(HINSTANCE pHInstance);
+		static shared_ptr<CRenderer>			Singleton(HINSTANCE pHInstance = nullptr);
+
 												~CRenderer();
+
 		void									Initialize();
 		bool									Loop();
 		void									Resize(int pWidth, int pHeight);
@@ -52,6 +54,8 @@ namespace Renderer
 		void									DrawParticles(int pTextureHandle);
 
 	private:
+												CRenderer(HINSTANCE pHInstance);
+
 		void									WaitUntilAllCommandDone();
 		/*
 		* window data
@@ -193,5 +197,9 @@ namespace Renderer
 		int										mParticleIndexCount;
 
 
+		/*
+		* singleton instance of this class
+		*/
+		static shared_ptr<CRenderer>			mSingleton;
 	};
 }

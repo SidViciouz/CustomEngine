@@ -20,6 +20,9 @@ namespace Game
 
 		virtual void							Update();
 
+		shared_ptr<Renderer::CMesh>				GetMesh() const;
+		shared_ptr<Renderer::CObject>			GetObject() const;
+
 	protected:
 												CActor() = delete;
 												CActor(const char* pPath);

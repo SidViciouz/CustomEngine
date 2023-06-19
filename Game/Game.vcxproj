@@ -149,17 +149,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor\src\Actor.cpp" />
+    <ClCompile Include="Actor\src\ActorPool.cpp" />
     <ClCompile Include="Actor\src\Character.cpp" />
     <ClCompile Include="Actor\src\Enemy.cpp" />
     <ClCompile Include="Actor\src\Player.cpp" />
+    <ClCompile Include="Game\src\Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="World\src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor\header\Actor.h" />
+    <ClInclude Include="Actor\header\ActorPool.h" />
     <ClInclude Include="Actor\header\Character.h" />
     <ClInclude Include="Actor\header\Enemy.h" />
     <ClInclude Include="Actor\header\Player.h" />
+    <ClInclude Include="Game\header\Game.h" />
     <ClInclude Include="World\header\World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -23,4 +23,14 @@ namespace Game
 	{
 
 	}
+
+	shared_ptr<Renderer::CMesh> CActor::GetMesh() const
+	{
+		return mMesh;
+	}
+
+	shared_ptr<Renderer::CObject> CActor::GetObject() const
+	{
+		return mObject;
+	}
 }

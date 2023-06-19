@@ -13,6 +13,21 @@
 
 namespace Renderer
 {
+	shared_ptr<CRenderer> CRenderer::mSingleton;
+
+	shared_ptr<CRenderer> CRenderer::Singleton(HINSTANCE pHInstance)
+	{
+		if (mSingleton == nullptr && pHInstance != nullptr)
+		{
+			mSingleton = shared_ptr<CRenderer>(new CRenderer(pHInstance));
+		}
+			
+		assert(mSingleton != nullptr);
+
+		return mSingleton;
+	}
+
+
 	CRenderer::CRenderer(HINSTANCE pHInstance)
 	{
 		mWindowManager = CWindowManager::Create(pHInstance);

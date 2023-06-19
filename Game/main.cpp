@@ -8,6 +8,8 @@
 #include "../Input/header/InputManager.h"
 #include "Actor/header/Actor.h"
 #include "Actor/header/Player.h"
+#include "../Multithreading/header/ThreadPool.h"
+#include <time.h>
 
 using namespace Renderer;
 using namespace Input;
@@ -28,7 +30,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		shared_ptr<Game::CPlayer> lActor = Game::CPlayer::Create("../Model/AnimMan2.FBX");
 
-		shared_ptr<CParticleManager> lParticleManager = make_shared<CParticleManager>();
+		shared_ptr<CParticleManager> lParticleManager = CParticleManager::Singleton();
 		shared_ptr<CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
 		shared_ptr<CParticleEmitter> lParticleEmitter = lParticleManager->AddParticleEmitter(lParticleSystem);
 		lParticleManager->SetParticleEmitterValue(lParticleEmitter, EParticleEmitterProperty::eEmissionRate, 1.5f);
@@ -85,44 +87,44 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		lAnimGraph.AddTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 1.0f);
 		lAnimGraph.AddTransition("n_walk_f", "cls_walk_f", []()->bool {return true; }, 1.0f);
 
-		CRenderer r(hInstance);
+		shared_ptr<CRenderer> r = CRenderer::Singleton(hInstance);
 
 
-		r.Initialize();
+		r->Initialize();
 
-		r.LoadBegin();
-		int lTexture1Handle = r.LoadTexture(L"../Material/rustediron2_basecolor.dds");
-		int lTexture2Handle = r.LoadTexture(L"../Material/rustediron2_metallic.dds");
-		int lTexture3Handle = r.LoadTexture(L"../Material/rustediron2_normal.dds");
-		int lTexture4Handle = r.LoadTexture(L"../Material/rustediron2_roughness.dds");
-		int lTileAOHandle = r.LoadTexture(L"../Material/T_Tiles_M.dds");
-		int lTileNormalHandle = r.LoadTexture(L"../Material/T_Tiles_N.dds");
-		int lParticleSpriteHandle = r.LoadTexture(L"../Material/T_Smoke_A.dds");
-		r.LoadEnd();
+		r->LoadBegin();
+		int lTexture1Handle = r->LoadTexture(L"../Material/rustediron2_basecolor.dds");
+		int lTexture2Handle = r->LoadTexture(L"../Material/rustediron2_metallic.dds");
+		int lTexture3Handle = r->LoadTexture(L"../Material/rustediron2_normal.dds");
+		int lTexture4Handle = r->LoadTexture(L"../Material/rustediron2_roughness.dds");
+		int lTileAOHandle = r->LoadTexture(L"../Material/T_Tiles_M.dds");
+		int lTileNormalHandle = r->LoadTexture(L"../Material/T_Tiles_N.dds");
+		int lParticleSpriteHandle = r->LoadTexture(L"../Material/T_Smoke_A.dds");
+		r->LoadEnd();
 
 		float lData1[9] = { 1.0f,0.0f,0.0f,0.0f,0.0f,1.0f,1.0f,0.0f,1.0f };
 		float lData2[9] = { 0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,1.0f,1.0f };
 		float lData3[9] = { 0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,2.0f };
 
-		r.SetCamera(lCamera);
+		r->SetCamera(lCamera);
 
-		int lMesh1Handle = r.SetMesh(lMesh1);
-		int lObject1Handle = r.SetObject(lObject1);
+		int lMesh1Handle = r->SetMesh(lMesh1);
+		int lObject1Handle = r->SetObject(lObject1);
 
-		int lMesh2Handle = r.SetMesh(lMesh2);
-		int lObject2Handle = r.SetObject(lObject2);
+		int lMesh2Handle = r->SetMesh(lMesh2);
+		int lObject2Handle = r->SetObject(lObject2);
 
-		int lMesh3Handle = r.SetMesh(lMesh3);
-		int lObject3Handle = r.SetObject(lObject3);
+		int lMesh3Handle = r->SetMesh(lMesh3);
+		int lObject3Handle = r->SetObject(lObject3);
 
-		int lMesh4Handle = r.SetMesh(lMesh4);
-		int lObject4Handle = r.SetObject(lObject4);
+		int lMesh4Handle = r->SetMesh(lMesh4);
+		int lObject4Handle = r->SetObject(lObject4);
 
-		r.SetParticleManager(lParticleManager);
+		r->SetParticleManager(lParticleManager);
 
-		r.Resize(1800, 1000);
+		r->Resize(1800, 1000);
 
-		while (r.Loop())
+		while (r->Loop())
 		{
 			if (lInputManager->GetKeyPressed(0x41))
 			{
@@ -142,22 +144,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			}
 
 			lParticleManager->Update(1 / 60.0f, lCamera->GetPosition());
+
+			//animation multithreading으로 최적화해야함.
 			lAnimGraph.Update(1 / 60.0f);
+	
+			r->DrawBegin();
 
-			r.DrawBegin();
-
-			r.DrawLine(lData1);
-			r.DrawLine(lData2);
-			r.DrawLine(lData3);
+			r->DrawLine(lData1);
+			r->DrawLine(lData2);
+			r->DrawLine(lData3);
 
 			//r.DrawMesh(lMesh1Handle, lObject1Handle);
-			r.DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
-			r.DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			r.DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			r.DrawParticles(lParticleSpriteHandle);
-			r.DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
+			r->DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
+			r->DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+			r->DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
+			r->DrawParticles(lParticleSpriteHandle);
+			r->DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
 
-			r.DrawEnd();
+			r->DrawEnd();
 		}
 	}
 	catch (std::string errorMessage)

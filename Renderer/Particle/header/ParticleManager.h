@@ -11,8 +11,7 @@ namespace Renderer
 	class CParticleManager
 	{
 	public:
-												CParticleManager();
-
+		static shared_ptr<CParticleManager>		Singleton();
 		
 		shared_ptr<CParticleSystem>				AddParticleSystem();
 
@@ -38,6 +37,7 @@ namespace Renderer
 		const vector<SParticleVertex>&			GetVertexBuffer(int pPoolIndex);
 		const vector<uint16_t>&					GetIndexBuffer(int pPoolIndex);
 
+												CParticleManager();
 	private:
 	
 		shared_ptr<CParticleMemoryManager>		mParticleMemoryManager;

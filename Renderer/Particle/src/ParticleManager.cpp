@@ -5,6 +5,14 @@
 
 namespace Renderer
 {
+	shared_ptr<CParticleManager> CParticleManager::Singleton()
+	{
+		static shared_ptr<CParticleManager> lParticleManagerSingleton = make_shared<CParticleManager>();
+
+		return lParticleManagerSingleton;
+	}
+
+
 	CParticleManager::CParticleManager() :
 		mMaxParticleNum{ MAX_PARTICLE_NUM }, mMaxPoolNum{MAX_PARTICLE_MEMORY_POOL}
 	{
