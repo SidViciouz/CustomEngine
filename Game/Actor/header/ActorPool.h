@@ -5,19 +5,37 @@
 */
 #pragma once
 
-#include <memory>
+#include "Common/header/Common.h"
 
-using namespace std;
+
+namespace Renderer
+{
+	class CMesh;
+}
 
 namespace Game
 {
+	class CActor;
+
 	class CActorPool
 	{
 	public:
 		static shared_ptr<CActorPool>			Singleton();
 
 												~CActorPool();
+
+		// allocate new actor from pool
+		shared_ptr<CActor>						NewActor(shared_ptr<Renderer::CMesh> pMesh);
+		// release actor into pool
+		void									ReleaseActor(shared_ptr<CActor> pActor);
+
 	protected:
 												CActorPool();
+
+		vector<shared_ptr<CActor>>				mActorPool;
+		stack<shared_ptr<CActor>>				mReleasedActors;
+
+		int										mMaxActorNum;
+		int										mActorNum;
 	};
 }

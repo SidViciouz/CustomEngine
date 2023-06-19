@@ -163,6 +163,7 @@
     <ClInclude Include="Actor\header\Character.h" />
     <ClInclude Include="Actor\header\Enemy.h" />
     <ClInclude Include="Actor\header\Player.h" />
+    <ClInclude Include="Common\header\Common.h" />
     <ClInclude Include="Game\header\Game.h" />
     <ClInclude Include="World\header\World.h" />
   </ItemGroup>

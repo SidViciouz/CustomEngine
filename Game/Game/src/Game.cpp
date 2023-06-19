@@ -3,6 +3,7 @@
 #include "Actor/header/Actor.h"
 #include "Actor/header/Player.h"
 #include "Actor/header/Character.h"
+#include "Actor/header/ActorPool.h"
 
 namespace Game
 {
@@ -36,9 +37,14 @@ namespace Game
 
 	void CGame::Begin()
 	{
+		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/AnimMan2.FBX");
+
+		shared_ptr<CActor> lACtor = CActorPool::Singleton()->NewActor(lMesh);
+
 		shared_ptr<Game::CPlayer> lPlayer = Game::CPlayer::Create("../Model/AnimMan2.FBX");
 
 		RegisterActor(lPlayer);
+		RegisterActor(lACtor);
 	}
 
 	void CGame::RegisterActor(shared_ptr<CActor> pActor)
