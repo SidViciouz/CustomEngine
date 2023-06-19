@@ -20,31 +20,7 @@ namespace Game
 	{
 
 	}
-
-	shared_ptr<CActor> CActorPool::NewActor(shared_ptr<Renderer::CMesh> pMesh)
-	{
-		if (!mReleasedActors.empty())
-		{
-			shared_ptr<CActor> lTop = mReleasedActors.top();
-			mReleasedActors.pop();
-
-			return lTop;
-
-		}
-		else if (mActorNum < mMaxActorNum)
-		{
-			mActorPool.push_back(CActor::Create(pMesh));
-
-			++mActorNum;
-
-			return mActorPool.back();
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
-
+	
 	void CActorPool::ReleaseActor(shared_ptr<CActor> pActor)
 	{
 		pActor->Reset();

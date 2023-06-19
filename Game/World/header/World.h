@@ -24,7 +24,7 @@ namespace Game
 		static shared_ptr<CWorld>				Create();
 												~CWorld();
 		
-		void									Update();
+		void									Update(double pDeltaTime);
 
 		void									Add(shared_ptr<CActor> pActor);
 

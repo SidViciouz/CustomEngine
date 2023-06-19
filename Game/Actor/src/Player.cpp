@@ -8,8 +8,19 @@ namespace Game
 		return shared_ptr<CPlayer>(new CPlayer(pPath));
 	}
 
+	shared_ptr<CPlayer> CPlayer::Create(shared_ptr<Renderer::CMesh> pMesh)
+	{
+		return shared_ptr<CPlayer>(new CPlayer(pMesh));
+	}
+
 	CPlayer::CPlayer(const char* pPath)
 		: ICharacter{pPath}
+	{
+
+	}
+
+	CPlayer::CPlayer(shared_ptr<Renderer::CMesh> pMesh)
+		: ICharacter{ pMesh }
 	{
 
 	}
@@ -19,9 +30,9 @@ namespace Game
 
 	}
 
-	void CPlayer::Update()
+	void CPlayer::Update(double pDeltaTime)
 	{
-		ICharacter::Update();
+		ICharacter::Update(pDeltaTime);
 	}
 
 	void CPlayer::Input()

@@ -35,7 +35,7 @@ namespace Game
 		mMesh.reset();
 	}
 
-	void CActor::Update()
+	void CActor::Update(double pDeltaTime)
 	{
 
 	}

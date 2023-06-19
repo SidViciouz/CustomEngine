@@ -15,11 +15,12 @@ namespace Game
 	public:
 												~ICharacter();
 
-		virtual void							Update() override;
+		virtual void							Update(double pDeltaTime) override;
 
 	protected:
 		
 												ICharacter(const char* pPath);
+												ICharacter(shared_ptr<Renderer::CMesh> pMesh);
 												ICharacter() = delete;
 
 		virtual void							Input() = 0;

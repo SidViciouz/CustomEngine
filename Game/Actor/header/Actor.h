@@ -22,7 +22,7 @@ namespace Game
 
 		void									Reset();
 
-		virtual void							Update();
+		virtual void							Update(double pDeltaTime);
 
 		shared_ptr<Renderer::CMesh>				GetMesh() const;
 		shared_ptr<Renderer::CObject>			GetObject() const;

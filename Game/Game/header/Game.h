@@ -21,6 +21,7 @@ namespace Game
 		void									Initialize(HINSTANCE pHInstance);
 
 		void									Begin();
+		void									Loop();
 
 	protected:
 

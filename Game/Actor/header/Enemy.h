@@ -14,7 +14,7 @@ namespace Game
 
 		static shared_ptr<CEnemy>				Create(const char* pPath);
 
-		virtual void							Update() override;
+		virtual void							Update(double pDeltaTime) override;
 
 												~CEnemy();
 

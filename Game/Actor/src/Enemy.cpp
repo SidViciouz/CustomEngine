@@ -18,9 +18,9 @@ namespace Game
 
 	}
 
-	void CEnemy::Update()
+	void CEnemy::Update(double pDeltaTime)
 	{
-		ICharacter::Update();
+		ICharacter::Update(pDeltaTime);
 	}
 
 	void CEnemy::Input()

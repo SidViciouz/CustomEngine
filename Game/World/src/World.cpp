@@ -21,12 +21,14 @@ namespace Game
 
 	}
 
-	void CWorld::Update()
+	void CWorld::Update(double pDeltaTime)
 	{
 		for (auto& lActor : mActors)
 		{
-			lActor->Update();
+			lActor->Update(pDeltaTime);
 		}
+
+		mParticleManager->Update(pDeltaTime,mCamera->GetPosition());
 	}
 
 	void CWorld::Add(shared_ptr<CActor> pActor)
