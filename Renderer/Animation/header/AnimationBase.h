@@ -4,22 +4,21 @@
 
 namespace Renderer
 {
-	class CSkeleton;
-
 	class IAnimationBase
 	{
 	public:
 												IAnimationBase(string pName);
 
-		virtual shared_ptr<CSkeleton>			GetSkeleton() = 0;
+		virtual Math::CTransform				EvaluateGlobalTransform(const string& pBoneName, double pTime) = 0;
+		virtual Math::CTransform				EvaluateLocalTransform(const string& pBoneName, double pTime) = 0;
+
+		virtual bool							IsBone(const string& pBoneName) const = 0;
 
 		virtual const double&					GetBeginTime() const = 0;
 		virtual const double&					GetEndTime() const = 0;
 
 	protected:
 		string									mName;
-
-		shared_ptr<CSkeleton>					mSkeleton;
 
 		double									mBeginTime;
 		double									mEndTime;

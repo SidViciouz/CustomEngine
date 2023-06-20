@@ -3,6 +3,11 @@
 #include "../Common/header/Common.h"
 #include "../Animation/header/AnimationBase.h"
 
+namespace Math
+{
+	struct SVector2;
+}
+
 namespace Renderer
 {
 	class CSkeleton;
@@ -12,9 +17,15 @@ namespace Renderer
 	public:
 												CAnimation(string pName, const char* pPath);
 
-		virtual shared_ptr<CSkeleton>			GetSkeleton() override;
+		virtual Math::CTransform				EvaluateGlobalTransform(const string& pBoneName, double pTime) override;
+		virtual Math::CTransform				EvaluateLocalTransform(const string& pBoneName, double pTime) override;
+
+		virtual bool							IsBone(const string& pBoneName) const override;
 
 		virtual const double&					GetBeginTime() const override;
 		virtual const double&					GetEndTime() const override;
+
+	protected:
+		shared_ptr<CSkeleton>					mSkeleton;
 	};
 }

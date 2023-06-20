@@ -9,6 +9,12 @@ namespace Math
 		mScale = { 1,1,1 };
 	}
 
+	CTransform::CTransform(const SVector3& pTranslation, const SQuaternion& pOrientation, const SVector3& pScale)
+		: mTranslation{pTranslation}, mOrientation{pOrientation}, mScale{pScale}
+	{
+		
+	}
+
 	const SVector3& CTransform::GetTranslation() const
 	{
 		return mTranslation;
@@ -52,5 +58,14 @@ namespace Math
 	void CTransform::SetScale(const SVector3& pScale)
 	{
 		mScale = pScale;
+	}
+
+	CTransform CTransform::Blend(const CTransform& pA, const CTransform& pB, double pAlpha)
+	{
+		const Math::SVector3 lTranslation = pA.GetTranslation() * (1 - pAlpha) + pB.GetTranslation() * pAlpha;
+		const Math::SQuaternion lOrientation = pA.GetOrientation().Slerp(pB.GetOrientation(), pAlpha);
+		const Math::SVector3 lScale = pA.GetScale() * (1 - pAlpha) + pB.GetScale() * pAlpha;
+
+		return CTransform{ lTranslation ,lOrientation ,lScale };
 	}
 }

@@ -37,6 +37,11 @@ namespace Game
 		mAnimationGraph->LoadAnimation(pName, pPath);
 	}
 
+	void ICharacter::LoadAnimation(const string& pName, shared_ptr<Renderer::IAnimationBase> pAnimation)
+	{
+		mAnimationGraph->LoadAnimation(pName, pAnimation);
+	}
+
 	void ICharacter::AddAnimTransition(const string& pFrom, const string& pTo, const std::function<bool(void)>& pCondition, const double& pDuration)
 	{
 		mAnimationGraph->AddTransition(pFrom, pTo, pCondition, pDuration);

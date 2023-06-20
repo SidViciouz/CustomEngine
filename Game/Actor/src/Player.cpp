@@ -1,6 +1,8 @@
 #include "Actor/header/Player.h"
 #include "../Input/header/InputManager.h"
 #include "Physics/header/PhysicsComponent.h"
+#include "../Animation/header/AnimationBlend2D.h"
+#include "../Animation/header/Animation.h"
 
 namespace Game
 {
@@ -20,7 +22,14 @@ namespace Game
 		LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
 		LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
 		LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
-		ResetAnimation("n_walk_f");
+		
+		shared_ptr<Renderer::CAnimationBlend2D> lBlend = make_shared<Renderer::CAnimationBlend2D>("blend", mPhysicsComponent->GetVelocity());
+		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim1","../Model/ALS_N_Walk_F.FBX"), Math::SVector3(0, 0, 0));
+		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim2", "../Model/ALS_N_Run_F.FBX"), Math::SVector3(1, 1, 0));
+		LoadAnimation("blend", lBlend);
+		
+		ResetAnimation("n_walkpose_f");
+
 		AddAnimTransition("n_walkpose_f", "n_walk_f", [this]()->bool {
 			if (mPhysicsComponent->GetVelocity().Length() > 0.0f)
 				return true;

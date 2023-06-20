@@ -1,6 +1,7 @@
 #include "../Animation/header/AnimationGraph.h"
 #include "../Mesh/header/Mesh.h"
 #include "../Mesh/header/Skeleton.h"
+#include "../Animation/header/AnimationBase.h"
 #include "../Animation/header/Animation.h"
 #include <fbxsdk.h>
 
@@ -14,8 +15,12 @@ namespace Renderer
 
 	void CAnimationGraph::LoadAnimation(const string& pName, const char* pPath)
 	{
-		shared_ptr<CAnimation> lAnim = make_shared<CAnimation>(pName, pPath);
-		mAnimations[pName] = lAnim;
+		mAnimations[pName] = make_shared<CAnimation>(pName, pPath);
+	}
+
+	void CAnimationGraph::LoadAnimation(const string& pName, shared_ptr<IAnimationBase> pAnimation)
+	{
+		mAnimations[pName] = pAnimation;
 	}
 
 	void CAnimationGraph::AddTransition(const string& pFrom,const string& pTo,const std::function<bool(void)>& pCondition,const double& pDuration)
@@ -94,8 +99,6 @@ namespace Renderer
 
 
 			// link to output
-			shared_ptr<CSkeleton> lSkeleton = mAnimations[mCurrentState.Node.mNode]->GetSkeleton();
-
 			Bones::iterator lBegin, lEnd;
 			mOutputSkeleton->GetBonesIterator(lBegin, lEnd);
 
@@ -103,12 +106,11 @@ namespace Renderer
 			{
 				string lBoneName = it->first;
 				shared_ptr<CBone> lOutputBone = it->second;
-				shared_ptr<CBone> lAnimBone = lSkeleton->GetBone(lBoneName);
 
-				if (lOutputBone == nullptr || lAnimBone == nullptr)
+				if (lOutputBone == nullptr || !mAnimations[mCurrentState.Node.mNode]->IsBone(lBoneName))
 					continue;
 
-				lOutputBone->SetGlobalTransform(lAnimBone->EvaluateGlobalTransform(lCurrentTime));
+				lOutputBone->SetGlobalTransform(mAnimations[mCurrentState.Node.mNode]->EvaluateGlobalTransform(lBoneName,lCurrentTime));
 			}
 		}
 		else // in case of transition
@@ -133,7 +135,7 @@ namespace Renderer
 
 			lCurrentTime = mAnimPhase * lTimeSpan + pDeltaTime;
 
-			while (lCurrentTime > lTimeSpan)
+			if (lCurrentTime > lTimeSpan)
 				lCurrentTime -= lTimeSpan;
 
 			double lFromCurrentTime = lCurrentTime / lTimeSpan * lFromTimeSpan;
@@ -144,8 +146,6 @@ namespace Renderer
 
 
 			//blend animation and link it to output
-			shared_ptr<CSkeleton> lSkeletonA = mAnimations[mCurrentState.Transition.mFrom]->GetSkeleton();
-			shared_ptr<CSkeleton> lSkeletonB = mAnimations[mCurrentState.Transition.mTo]->GetSkeleton();
 
 			//ToAllBones(lambda)
 			Bones::iterator lBegin, lEnd;
@@ -156,25 +156,14 @@ namespace Renderer
 			{
 				string lBoneName = it->first;
 				shared_ptr<CBone> lOutputBone = it->second;
-				shared_ptr<CBone> lAnimBoneA = lSkeletonA->GetBone(lBoneName);
-				shared_ptr<CBone> lAnimBoneB = lSkeletonB->GetBone(lBoneName);
 
-				if (lOutputBone == nullptr || lAnimBoneA == nullptr || lAnimBoneB == nullptr)
+				if (lOutputBone == nullptr || !mAnimations[mCurrentState.Transition.mFrom]->IsBone(lBoneName) || !mAnimations[mCurrentState.Transition.mTo]->IsBone(lBoneName))
 					continue;
 
-				const Math::CTransform lTransformA = lAnimBoneA->EvaluateLocalTransform(lFromCurrentTime);
-				const Math::CTransform lTransformB = lAnimBoneB->EvaluateLocalTransform(lToCurrentTime);
-
+				const Math::CTransform lTransformA = mAnimations[mCurrentState.Transition.mFrom]->EvaluateLocalTransform(lBoneName,lFromCurrentTime);
+				const Math::CTransform lTransformB = mAnimations[mCurrentState.Transition.mTo]->EvaluateLocalTransform(lBoneName,lToCurrentTime);
 				
-				Math::SVector3 lTranslation = lTransformA.GetTranslation() * (1 - lAlpha) + lTransformB.GetTranslation() * lAlpha;
-				Math::SQuaternion lOrientation = lTransformA.GetOrientation().Slerp(lTransformB.GetOrientation(), lAlpha);
-				Math::SVector3 lScale = lTransformA.GetScale()* (1 - lAlpha) + lTransformB.GetScale() * lAlpha;
-				Math::CTransform lLocalTransform;
-				lLocalTransform.SetTranslation(lTranslation);
-				lLocalTransform.SetOrientation(lOrientation);
-				lLocalTransform.SetScale(lScale);
-				
-				lOutputBone->SetLocalTransform(lLocalTransform);
+				lOutputBone->SetLocalTransform(Math::CTransform::Blend(lTransformA, lTransformB,lAlpha));
 			}
 
 			// stack local transforms up to make global transform

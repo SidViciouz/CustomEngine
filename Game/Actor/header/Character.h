@@ -8,6 +8,11 @@
 #include "Actor.h"
 #include "../Animation/header/AnimationGraph.h"
 
+namespace Renderer
+{
+	class IAnimationBase;
+}
+
 namespace Game
 {
 	class ICharacter : public CActor
@@ -18,6 +23,8 @@ namespace Game
 		virtual void							Update(double pDeltaTime) override;
 
 		void									LoadAnimation(const string& pName, const char* pPath);
+
+		void									LoadAnimation(const string& pName, shared_ptr<Renderer::IAnimationBase> pAnimation);
 
 		void									AddAnimTransition(const string& pFrom, const string& pTo, const std::function<bool(void)>& pCondition, const double& pDuration);
 

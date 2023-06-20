@@ -1,5 +1,6 @@
 #include "../Animation/header/Animation.h"
 #include "../Mesh/header/Skeleton.h"
+#include "../../Maths/header/Vector2.h"
 #include <fbxsdk.h>
 
 namespace Renderer
@@ -46,9 +47,32 @@ namespace Renderer
 	}
 
 
-	shared_ptr<CSkeleton> CAnimation::GetSkeleton()
+	Math::CTransform CAnimation::EvaluateGlobalTransform(const string& pBoneName, double pTime)
 	{
-		return mSkeleton;
+		shared_ptr<CBone> pBone = mSkeleton->GetBone(pBoneName);
+
+		if (pBone == nullptr)
+			throw string("bone is null.");
+
+		return pBone->EvaluateGlobalTransform(pTime);
+	}
+
+	Math::CTransform CAnimation::EvaluateLocalTransform(const string& pBoneName, double pTime)
+	{
+		shared_ptr<CBone> pBone = mSkeleton->GetBone(pBoneName);
+
+		if (pBone == nullptr)
+			throw string("bone is null.");
+
+		return pBone->EvaluateLocalTransform(pTime);
+	}
+
+	bool CAnimation::IsBone(const string& pBoneName) const
+	{
+		if (mSkeleton->GetBone(pBoneName) == nullptr)
+			return false;
+
+		return true;
 	}
 
 	const double& CAnimation::GetBeginTime() const

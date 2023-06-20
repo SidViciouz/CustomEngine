@@ -6,7 +6,7 @@ namespace Renderer
 {
 	class CSkeleton;
 
-	class CAnimation;
+	class IAnimationBase;
 
 	enum class EAnimState
 	{
@@ -48,7 +48,7 @@ namespace Renderer
 		double mDuration;
 	};
 
-	using Animations = unordered_map<string, shared_ptr<CAnimation>>;
+	using Animations = unordered_map<string, shared_ptr<IAnimationBase>>;
 
 	using Transitions = unordered_map<string, vector<STransition>>;
 
@@ -58,6 +58,8 @@ namespace Renderer
 												CAnimationGraph(shared_ptr<CSkeleton> pOutputSkeleton);
 
 		void									LoadAnimation(const string& pName,const char* pPath);
+
+		void									LoadAnimation(const string& pName, shared_ptr<IAnimationBase> pAnimation);
 
 		void									AddTransition(const string& pFrom,const string& pTo,const std::function<bool(void)>& pCondition,const double& pDuration);
 
