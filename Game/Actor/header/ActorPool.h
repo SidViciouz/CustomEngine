@@ -33,6 +33,8 @@ namespace Game
 				shared_ptr<T> lTop = dynamic_pointer_cast<T>(mReleasedActors.top());
 				mReleasedActors.pop();
 
+				lTop->Reset(pMesh);
+
 				return lTop;
 
 			}

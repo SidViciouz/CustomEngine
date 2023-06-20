@@ -209,6 +209,16 @@ namespace Renderer
 
 	int CRenderer::SetObject(shared_ptr<CObject> pObject)
 	{
+		//if there is released object handle, reuse it.
+		if (!mReleasedObjectHandles.empty())
+		{
+			int lObjectHandle = mReleasedObjectHandles.top();
+			mReleasedObjectHandles.pop();
+
+			return lObjectHandle;
+		}
+
+		//when there is no reusable object handle, create it.
 		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
 		{
 			//create object constant buffer 
@@ -217,9 +227,14 @@ namespace Renderer
 				lFrameIndex, mObjectCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData), 256), EResourceHeapType::eUpload));
 		}
 
-		mObjects.push_back(pObject);
-
 		return mObjectCount++;
+	}
+
+
+
+	void CRenderer::ReleaseObject(int pObjectHandle)
+	{
+		mReleasedObjectHandles.push(pObjectHandle);
 	}
 
 
@@ -277,7 +292,7 @@ namespace Renderer
 
 
 
-	void CRenderer::DrawBegin()
+	void CRenderer::UploadBegin()
 	{
 		//wait until current frame is done with rendering.
 		mCurrentFrame = (mCurrentFrame + 1) % mFrameNum;
@@ -292,13 +307,29 @@ namespace Renderer
 			CloseHandle(event);
 		}
 
+	}
 
+
+
+
+	void CRenderer::UploadEnd()
+	{
 		//upload world data
 		UploadWorldConstantBuffer();
-		UploadObjectConstantBuffer();
 		UploadSkeletonConstantBuffer();
 		UploadParticleVertexBuffer();
+	}
 
+
+	void CRenderer::UploadObject(shared_ptr<CObject> pObject)
+	{
+		UploadObjectConstantBuffer(pObject);
+	}
+
+
+
+	void CRenderer::DrawBegin()
+	{
 		//reset command list
 		mFrameData->GetCommandAllocator(mCurrentFrame)->Reset();
 		mCommandList->Reset(mFrameData->GetCommandAllocator(mCurrentFrame), nullptr);
@@ -351,38 +382,38 @@ namespace Renderer
 
 
 
-	void CRenderer::DrawMesh(int pMeshHandle, int pObjectHandle)
+	void CRenderer::DrawMesh(shared_ptr<CMesh> pMesh, shared_ptr<CObject> pObject)
 	{
 		D3D12_VERTEX_BUFFER_VIEW lVertexBufferView;
-		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetVertexBufferHandle());
-		lVertexBufferView.SizeInBytes = sizeof(SVertex) * mMeshes[pMeshHandle]->GetVertexCount();
+		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(pMesh->GetVertexBufferHandle());
+		lVertexBufferView.SizeInBytes = sizeof(SVertex) * pMesh->GetVertexCount();
 		lVertexBufferView.StrideInBytes = sizeof(SVertex);
 
 		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		mCommandList->SetGraphicsRootSignature(mRootSignatures["Default"].Get());
 		mCommandList->SetPipelineState(mPSOs["Default"].Get());
-		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObjectHandle)));
+		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObject->GetObjectHandle())));
 		mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
 		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
 
-		for (int lSubMeshIndex = 0; lSubMeshIndex < mMeshes[pMeshHandle]->GetSubMeshCount(); ++lSubMeshIndex)
+		for (int lSubMeshIndex = 0; lSubMeshIndex < pMesh->GetSubMeshCount(); ++lSubMeshIndex)
 		{
 			D3D12_INDEX_BUFFER_VIEW lIndexBufferView;
-			lIndexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetIndexBufferHandle(lSubMeshIndex));
+			lIndexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(pMesh->GetIndexBufferHandle(lSubMeshIndex));
 			lIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
-			lIndexBufferView.SizeInBytes = sizeof(uint16_t) * mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex);
+			lIndexBufferView.SizeInBytes = sizeof(uint16_t) * pMesh->GetIndexCount(lSubMeshIndex);
 
 			mCommandList->IASetIndexBuffer(&lIndexBufferView);
-			mCommandList->DrawIndexedInstanced(mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex), 1, 0, 0,0);
+			mCommandList->DrawIndexedInstanced(pMesh->GetIndexCount(lSubMeshIndex), 1, 0, 0,0);
 		}
 
 	}
 
-	void CRenderer::DrawMeshPBR(int pMeshHandle, int pObjectHandle,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle)
+	void CRenderer::DrawMeshPBR(shared_ptr<CMesh> pMesh, shared_ptr<CObject> pObject,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle)
 	{
 		D3D12_VERTEX_BUFFER_VIEW lVertexBufferView;
-		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetVertexBufferHandle());
-		lVertexBufferView.SizeInBytes = sizeof(SVertex) * mMeshes[pMeshHandle]->GetVertexCount();
+		lVertexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(pMesh->GetVertexBufferHandle());
+		lVertexBufferView.SizeInBytes = sizeof(SVertex) * pMesh->GetVertexCount();
 		lVertexBufferView.StrideInBytes = sizeof(SVertex);
 
 		SPBRData lPBRData = {};
@@ -392,7 +423,7 @@ namespace Renderer
 		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		mCommandList->SetGraphicsRootSignature(mRootSignatures["PBR"].Get());
 		mCommandList->SetPipelineState(mPSOs["PBR"].Get());
-		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObjectHandle)));
+		mCommandList->SetGraphicsRootConstantBufferView(0, mResourceManager->GetGpuVirtualAddress(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObject->GetObjectHandle())));
 
 		mCommandList->SetGraphicsRootConstantBufferView(1, mResourceManager->GetGpuVirtualAddress(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame)));
 
@@ -451,9 +482,9 @@ namespace Renderer
 			lPBRData.mHasAOMap = 0;
 		}
 
-		if (mMeshes[pMeshHandle]->HasSkeleton())
+		if (pMesh->HasSkeleton())
 		{
-			mCommandList->SetGraphicsRootConstantBufferView(8, mResourceManager->GetGpuVirtualAddress(mFrameData->GetSkeletonConstantBufferHandle(mCurrentFrame,pMeshHandle)));
+			mCommandList->SetGraphicsRootConstantBufferView(8, mResourceManager->GetGpuVirtualAddress(mFrameData->GetSkeletonConstantBufferHandle(mCurrentFrame,pMesh->GetMeshHandle())));
 			//mCommandList->SetGraphicsRootDescriptorTable(7, mResourceManager->GetGpuHandle(mDescriptorHandleMap[mMeshes[pMeshHandle]->GetSkeletonBufferHandle()]));
 			mCommandList->SetGraphicsRoot32BitConstant(9, 1, 0);
 		}
@@ -466,15 +497,15 @@ namespace Renderer
 
 		mCommandList->IASetVertexBuffers(0, 1, &lVertexBufferView);
 
-		for (int lSubMeshIndex = 0; lSubMeshIndex < mMeshes[pMeshHandle]->GetSubMeshCount(); ++lSubMeshIndex)
+		for (int lSubMeshIndex = 0; lSubMeshIndex < pMesh->GetSubMeshCount(); ++lSubMeshIndex)
 		{
 			D3D12_INDEX_BUFFER_VIEW lIndexBufferView;
-			lIndexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(mMeshes[pMeshHandle]->GetIndexBufferHandle(lSubMeshIndex));
+			lIndexBufferView.BufferLocation = mResourceManager->GetGpuVirtualAddress(pMesh->GetIndexBufferHandle(lSubMeshIndex));
 			lIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
-			lIndexBufferView.SizeInBytes = sizeof(uint16_t) * mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex);
+			lIndexBufferView.SizeInBytes = sizeof(uint16_t) * pMesh->GetIndexCount(lSubMeshIndex);
 
 			mCommandList->IASetIndexBuffer(&lIndexBufferView);
-			mCommandList->DrawIndexedInstanced(mMeshes[pMeshHandle]->GetIndexCount(lSubMeshIndex), 1, 0, 0, 0);
+			mCommandList->DrawIndexedInstanced(pMesh->GetIndexCount(lSubMeshIndex), 1, 0, 0, 0);
 		}
 	}
 
@@ -1202,16 +1233,13 @@ namespace Renderer
 		mResourceManager->Upload(mFrameData->GetWorldConstantBufferHandle(mCurrentFrame), &lWorldData, sizeof(SWorldData), 1, 0, 0);
 	}
 
-	void CRenderer::UploadObjectConstantBuffer()
+	void CRenderer::UploadObjectConstantBuffer(shared_ptr<CObject> pObject)
 	{
-		for (int lObjectIndex = 0; lObjectIndex < mObjectCount; ++lObjectIndex)
-		{
-			SObjectData lObjectData;
+		SObjectData lObjectData;
 
-			lObjectData.mWorldMatrix = mObjects[lObjectIndex]->GetWorldMatrix();
+		lObjectData.mWorldMatrix = pObject->GetWorldMatrix();
 
-			mResourceManager->Upload(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, lObjectIndex), &lObjectData, sizeof(SObjectData), 1, 0, 0);
-		}
+		mResourceManager->Upload(mFrameData->GetObjectConstantBufferHandle(mCurrentFrame, pObject->GetObjectHandle()), &lObjectData, sizeof(SObjectData), 1, 0, 0);
 	}
 
 	void CRenderer::UploadSkeletonConstantBuffer()

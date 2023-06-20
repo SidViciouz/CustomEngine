@@ -21,6 +21,7 @@ namespace Game
 												~CActor();
 
 		void									Reset();
+		void									Reset(shared_ptr<Renderer::CMesh> pMesh);
 
 		virtual void							Update(double pDeltaTime);
 
@@ -50,10 +51,7 @@ namespace Game
 												CActor(shared_ptr<Renderer::CMesh> pMesh);
 		
 		shared_ptr<Renderer::CMesh>				mMesh;
-		int										mMeshHandle;
-
 
 		shared_ptr<Renderer::CObject>			mObject;
-		int										mObjectHandle;
 	};
 }

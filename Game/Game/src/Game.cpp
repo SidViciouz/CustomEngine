@@ -72,6 +72,8 @@ namespace Game
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/Sphere.FBX");
 		float lX = 0;
 
+		shared_ptr<CActor> lRecentCreatedActor;
+
 		while (mRenderer->Loop())
 		{
 			if (lInputManager->GetKeyDown(VK_UP))
@@ -80,30 +82,36 @@ namespace Game
 				RegisterActor(lActor);
 				lActor->SetTranslation(Math::SVector3(lX, 0, 5));
 				lX += 0.2f;
+				lRecentCreatedActor = lActor;
+			}
+
+			if (lInputManager->GetKeyDown(VK_DOWN))
+			{
+				if (lRecentCreatedActor != nullptr)
+				{
+					UnregisterActor(lRecentCreatedActor);
+					CActorPool::Singleton()->ReleaseActor(lRecentCreatedActor);
+				}
 			}
 
 			mWorld->Update(1 / 60.0f);
 
+			mRenderer->UploadBegin();
+
+			mWorld->ToAllActors([this](shared_ptr<CActor> pActor)
+			{
+				mRenderer->UploadObject(pActor->GetObject());
+			});
+
+			mRenderer->UploadEnd();
 
 			mRenderer->DrawBegin();
 
 			mWorld->ToAllActors([this](shared_ptr<CActor> pActor)
 			{
-				mRenderer->DrawMeshPBR(pActor->GetMeshHandle(), pActor->GetObjectHandle(), -1, -1, -1, -1,-1);
+				mRenderer->DrawMeshPBR(pActor->GetMesh(), pActor->GetObject(), -1, -1, -1, -1,-1);
 			});
 
-			
-			/*
-			mRenderer->DrawLine(lData1);
-			mRenderer->DrawLine(lData2);
-			mRenderer->DrawLine(lData3);
-
-			mRenderer->DrawMeshPBR(lMesh4Handle, lObject4Handle, -1, -1, lTileNormalHandle, -1, lTileAOHandle);
-			mRenderer->DrawMeshPBR(lMesh3Handle, lObject3Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			mRenderer->DrawMeshPBR(lMesh1Handle, lObject1Handle, lTexture1Handle, lTexture2Handle, lTexture3Handle, lTexture4Handle, -1);
-			mRenderer->DrawParticles(lParticleSpriteHandle);
-			mRenderer->DrawMeshPBR(lMesh2Handle, lObject2Handle, -1, -1, -1, -1, -1);
-			*/
 			mRenderer->DrawEnd();
 		}
 	}
@@ -115,12 +123,16 @@ namespace Game
 
 		//register actor to renderer
 		pActor->SetMeshHandle(mRenderer->SetMesh(pActor->GetMesh()));
-		pActor->SetObjectHandle(mRenderer->SetObject(pActor->GetObject()));
+		pActor->SetObjectHandle(mRenderer->SetObject(pActor->GetObjectW()));
 
 	}
 
 	void CGame::UnregisterActor(shared_ptr<CActor> pActor)
 	{
+		//release object from renderer
+		mRenderer->ReleaseObject(pActor->GetObjectW()->GetObjectHandle());
 
+		//remove actor from world
+		mWorld->Remove(pActor);
 	}
 }

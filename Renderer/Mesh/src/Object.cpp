@@ -79,4 +79,14 @@ namespace Renderer
 	{
 		mRoughnessResourceHandle = pResourceHandle;
 	}
+
+	void CObject::SetObjectHandle(int pObjectHandle)
+	{
+		mObjectHandle = pObjectHandle;
+	}
+
+	int CObject::GetObjectHandle() const
+	{
+		return mObjectHandle;
+	}
 }

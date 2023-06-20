@@ -31,9 +31,18 @@ namespace Game
 
 	void CActor::Reset()
 	{
-		mObject.reset();
+		mObject->SetTranslation(Math::SVector3(0, 0, 0));
+		mObject->SetOrientation(Math::SQuaternion(0, 0, 0, 1));
+		mObject->SetScale(Math::SVector3(1, 1, 1));
+
 		mMesh.reset();
 	}
+
+	void CActor::Reset(shared_ptr<Renderer::CMesh> pMesh)
+	{
+		mMesh = pMesh;
+	}
+
 
 	void CActor::Update(double pDeltaTime)
 	{
@@ -52,22 +61,22 @@ namespace Game
 
 	void CActor::SetMeshHandle(int pMeshHandle)
 	{
-		mMeshHandle = pMeshHandle;
+		mMesh->SetMeshHandle(pMeshHandle);
 	}
 
 	int CActor::GetMeshHandle() const
 	{
-		return mMeshHandle;
+		return mMesh->GetMeshHandle();
 	}
 
 	void CActor::SetObjectHandle(int pObjectHandle)
 	{
-		mObjectHandle = pObjectHandle;
+		mObject->SetObjectHandle(pObjectHandle);
 	}
 
 	int CActor::GetObjectHandle() const
 	{
-		return mObjectHandle;
+		return mObject->GetObjectHandle();
 	}
 
 	void CActor::SetTranslation(const Math::SVector3& pTranslation)

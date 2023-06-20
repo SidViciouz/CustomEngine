@@ -27,6 +27,7 @@ namespace Game
 		void									Update(double pDeltaTime);
 
 		void									Add(shared_ptr<CActor> pActor);
+		void									Remove(shared_ptr<CActor> pActor);
 
 		shared_ptr<Renderer::CCamera>			GetCamera() const;
 

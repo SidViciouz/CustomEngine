@@ -412,4 +412,14 @@ namespace Renderer
 	{
 		return mSkeleton;
 	}
+
+	void CMesh::SetMeshHandle(int pMeshHandle)
+	{
+		mMeshHandle = pMeshHandle;
+	}
+
+	int CMesh::GetMeshHandle() const
+	{
+		return mMeshHandle;
+	}
 }

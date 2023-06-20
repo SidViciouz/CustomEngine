@@ -57,6 +57,9 @@ namespace Renderer
 
 		shared_ptr<CSkeleton>					GetSkeleton() const;
 
+		void									SetMeshHandle(int pMeshHandle);
+		int										GetMeshHandle() const;
+
 		// mesh, bone weight, ...
 	protected:
 		void									Load(const char* pPath);
@@ -72,6 +75,9 @@ namespace Renderer
 
 		bool									mHasSkeleton = false;
 		shared_ptr<CSkeleton>					mSkeleton;
+
+		//handle used by renderer
+		int										mMeshHandle = 0;
 	};
 
 }

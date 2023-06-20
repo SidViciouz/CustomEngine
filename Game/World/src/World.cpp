@@ -36,6 +36,19 @@ namespace Game
 		mActors.push_back(pActor);
 	}
 
+	void CWorld::Remove(shared_ptr<CActor> pActor)
+	{
+		// There must be better way to find pActor from mActors
+		for (int i = 0; i < mActors.size(); ++i)
+		{
+			if (mActors[i].get() == pActor.get())
+			{
+				mActors.erase(mActors.begin() + i);
+				return;
+			}
+		}
+	}
+
 	shared_ptr<Renderer::CCamera> CWorld::GetCamera() const
 	{
 		return mCamera;

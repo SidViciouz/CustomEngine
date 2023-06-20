@@ -33,6 +33,9 @@ namespace Renderer
 		void									SetNormalResourceHandle(int pResourceHandle);
 		void									SetRoughnessResourceHandle(int pResourceHandle);
 
+		void									SetObjectHandle(int pObjectHandle);
+		int										GetObjectHandle() const;
+
 	protected:
 		//transform, ...
 		Math::CTransform						mTransform;
@@ -41,5 +44,8 @@ namespace Renderer
 		int										mMetallicResourceHandle = -1;
 		int										mNormalResourceHandle = -1;
 		int										mRoughnessResourceHandle = -1;
+
+		// handle used by renderer
+		int										mObjectHandle;
 	};
 }

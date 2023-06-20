@@ -37,11 +37,16 @@ namespace Renderer
 		void									SetCamera(shared_ptr<CCamera> pCamera);
 		int										SetMesh(shared_ptr<CMesh> pMesh);
 		int										SetObject(shared_ptr<CObject> pObject);
+		void									ReleaseObject(int pObjectHandle);
 		void									SetParticleManager(shared_ptr<CParticleManager> pParticleManager);
 
 		void									LoadBegin();
 		void									LoadEnd();
 		int										LoadTexture(const wchar_t* pFilePath);
+
+		void									UploadBegin();
+		void									UploadObject(shared_ptr<CObject> pObject);
+		void									UploadEnd();
 
 		void									DrawBegin();
 		void									DrawEnd();
@@ -49,8 +54,8 @@ namespace Renderer
 		void									DrawAxis();
 		void									DrawSquare();
 		void									DrawCube();
-		void									DrawMesh(int pMeshHandle, int pObjectHandle);
-		void									DrawMeshPBR(int pMeshHandle, int pObjectHandle,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle);
+		void									DrawMesh(shared_ptr<CMesh> pMesh, shared_ptr<CObject> pObject);
+		void									DrawMeshPBR(shared_ptr<CMesh> pMesh, shared_ptr<CObject> pObject,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle);
 		void									DrawParticles(int pTextureHandle);
 
 	private:
@@ -177,10 +182,9 @@ namespace Renderer
 		vector<shared_ptr<CMesh>>				mMeshes;
 		int										mMeshCount = 0;
 
-		void									UploadObjectConstantBuffer();
+		void									UploadObjectConstantBuffer(shared_ptr<CObject> pObject);
 		int										mObjectCount = 0;
-		vector<shared_ptr<CObject>>				mObjects;
-
+		stack<int>								mReleasedObjectHandles;
 		
 		/*
 		* texture data
