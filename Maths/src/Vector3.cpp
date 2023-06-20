@@ -47,7 +47,6 @@ namespace Math
 		mZ += pOther.mZ;
 	}
 
-
 	SVector3 SVector3::Normalize() const
 	{
 		SVector3 lVector(mX,mY,mZ);
@@ -60,6 +59,16 @@ namespace Math
 		}
 
 		return lVector;
+	}
+
+	void SVector3::Normalized()
+	{
+		float lDenom = sqrtf(mX * mX + mY * mY + mZ * mZ);
+
+		for (int i = 0; i < 3; ++i)
+		{
+			mElement[i] /= lDenom;
+		}
 	}
 
 	SVector3 SVector3::Cross(const SVector3& pA, const SVector3& pB)

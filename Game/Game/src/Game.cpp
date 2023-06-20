@@ -58,15 +58,6 @@ namespace Game
 		lPlayer->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lPlayer->SetTranslation(Math::SVector3(0, 0, 3));
 
-		//set animation
-		lPlayer->LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
-		lPlayer->LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
-		lPlayer->LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
-		lPlayer->ResetAnimation("n_walk_f");
-		lPlayer->AddAnimTransition("cls_walk_f", "n_run_f", [&lPlayer]()->bool {return true; }, 1.0f);
-		lPlayer->AddAnimTransition("n_run_f", "n_walk_f", [&lPlayer]()->bool {return true; }, 1.0f);
-		lPlayer->AddAnimTransition("n_walk_f", "cls_walk_f", [&lPlayer]()->bool {return true; }, 1.0f);
-
 		shared_ptr<Renderer::CParticleManager> lParticleManager =  mWorld->GetParticleManager();
 		shared_ptr<Renderer::CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
 		shared_ptr<Renderer::CParticleEmitter> lParticleEmitter = lParticleManager->AddParticleEmitter(lParticleSystem);

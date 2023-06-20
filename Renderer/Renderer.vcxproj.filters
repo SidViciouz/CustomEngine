@@ -81,6 +81,15 @@
     <ClCompile Include="Multithreading\src\ThreadPool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Animation\src\Animation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\src\AnimationBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\src\AnimationBlend2D.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Render\header\Renderer.h">
@@ -153,6 +162,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Multithreading\header\ThreadPool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\header\Animation.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\header\AnimationBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\header\AnimationBlend2D.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

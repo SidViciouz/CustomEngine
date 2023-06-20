@@ -159,6 +159,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation\src\Animation.cpp" />
+    <ClCompile Include="Animation\src\AnimationBase.cpp" />
+    <ClCompile Include="Animation\src\AnimationBlend2D.cpp" />
     <ClCompile Include="Animation\src\AnimationGraph.cpp" />
     <ClCompile Include="Camera\src\Camera.cpp" />
     <ClCompile Include="Input\src\InputManager.cpp" />
@@ -183,6 +186,9 @@
     <ClCompile Include="Window\src\WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation\header\Animation.h" />
+    <ClInclude Include="Animation\header\AnimationBase.h" />
+    <ClInclude Include="Animation\header\AnimationBlend2D.h" />
     <ClInclude Include="Animation\header\AnimationGraph.h" />
     <ClInclude Include="Camera\header\Camera.h" />
     <ClInclude Include="Common\header\Common.h" />

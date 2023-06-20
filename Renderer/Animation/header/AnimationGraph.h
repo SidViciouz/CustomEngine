@@ -6,25 +6,7 @@ namespace Renderer
 {
 	class CSkeleton;
 
-	class CAnimation
-	{
-	public:
-												CAnimation(string pName,const char* pPath);
-
-		shared_ptr<CSkeleton>					GetSkeleton();
-
-		const double&							GetBeginTime() const;
-		const double&							GetEndTime() const;
-
-	protected:
-		string									mName;
-
-		shared_ptr<CSkeleton>					mSkeleton;
-
-		double									mBeginTime;
-		double									mEndTime;
-
-	};
+	class CAnimation;
 
 	enum class EAnimState
 	{

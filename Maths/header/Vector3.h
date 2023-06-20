@@ -24,6 +24,8 @@ namespace Math
 
 		SVector3								Normalize() const;
 
+		void									Normalized();
+
 		static SVector3							Cross(const SVector3& pA, const SVector3& pB);
 
 		static float							Dot(const SVector3& pA, const SVector3& pB);
