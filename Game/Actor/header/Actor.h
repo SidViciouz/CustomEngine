@@ -12,10 +12,11 @@
 
 namespace Game
 {
+	class IBaseComponent;
+
 	class CActor
 	{
 	public:
-		static shared_ptr<CActor>				Create(const char* pPath);
 		static shared_ptr<CActor>				Create(shared_ptr<Renderer::CMesh> pMesh);
 		//when ~Actor is protected, shared_ptr<CActor>(new CActor(pPath)) doesn't work.
 												~CActor();
@@ -41,17 +42,24 @@ namespace Game
 		void									SetOrientation(const Math::SQuaternion& pOrientation);
 		void									SetScale(const Math::SVector3& pScale);
 
-		const Math::SVector3					GetTranslation() const;
-		const Math::SQuaternion					GetOrientation() const;
-		const Math::SVector3					GetScale() const;
+		const Math::SVector3&					GetTranslation() const;
+		const Math::SQuaternion&				GetOrientation() const;
+		const Math::SVector3&					GetScale() const;
+
+		Math::SVector3&							GetTranslation();
+		Math::SQuaternion&						GetOrientation();
+		Math::SVector3&							GetScale();
+
+		void									AddComponent(shared_ptr<IBaseComponent> pComponent);
 
 	protected:
 												CActor() = delete;
-												CActor(const char* pPath);
 												CActor(shared_ptr<Renderer::CMesh> pMesh);
 		
 		shared_ptr<Renderer::CMesh>				mMesh;
 
 		shared_ptr<Renderer::CObject>			mObject;
+
+		vector<shared_ptr<IBaseComponent>>		mComponents;
 	};
 }

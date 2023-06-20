@@ -344,7 +344,6 @@ namespace Renderer
 			return lResourceIndex;
 		}
 
-
 		//heap description
 		D3D12_HEAP_PROPERTIES lHeapProperties = {};
 		lHeapProperties.VisibleNodeMask = 0;
@@ -402,6 +401,9 @@ namespace Renderer
 		lResourceDesc.Layout = pDescrption.mLayout;
 		lResourceDesc.Flags = pDescrption.mFlags;
 
+
+		if (mResourceCount >= MAX_RESOURCE_NUM)
+			throw string("exceed max resource num!\n");
 
 		SResourceInfo& lResourceInfo = mResources[mResourceCount];
 

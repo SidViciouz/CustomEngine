@@ -39,25 +39,39 @@ namespace Renderer
 		mTransform.SetScale(pScale);
 	}
 
-	const Math::SVector3 CObject::GetTranslation() const
+	const Math::SVector3& CObject::GetTranslation() const
 	{
 		return mTransform.GetTranslation();
 	}
 
-	const Math::SQuaternion CObject::GetOrientation() const
+	const Math::SQuaternion& CObject::GetOrientation() const
 	{
 		return mTransform.GetOrientation();
 	}
 
-	const Math::SVector3 CObject::GetScale() const
+	const Math::SVector3& CObject::GetScale() const
 	{
 		return mTransform.GetScale();
 	}
 
+	Math::SVector3& CObject::GetTranslation()
+	{
+		return mTransform.GetTranslation();
+	}
+
+	Math::SQuaternion& CObject::GetOrientation()
+	{
+		return mTransform.GetOrientation();
+	}
+
+	Math::SVector3& CObject::GetScale()
+	{
+		return mTransform.GetScale();
+	}
 
 	void CObject::AddTranslation(Math::SVector3 pTranslation)
 	{
-		mTransform.SetTranslation(pTranslation + mTransform.GetTranslation());
+		mTransform.GetTranslation() += pTranslation;
 	}
 
 	void CObject::SetBaseColorResourceHandle(int pResourceHandle)

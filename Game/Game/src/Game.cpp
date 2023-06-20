@@ -6,6 +6,8 @@
 #include "Actor/header/ActorPool.h"
 #include "../Input/header/InputManager.h"
 #include "World/header/World.h"
+#include "../Particle/header/ParticleManager.h"
+#include "Physics/header/PhysicsComponent.h"
 
 namespace Game
 {
@@ -40,6 +42,7 @@ namespace Game
 	void CGame::Begin()
 	{
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/AnimMan2.FBX");
+		mRenderer->SetMesh(lMesh);
 
 		shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CActor>(lMesh);
 		RegisterActor(lActor);
@@ -60,9 +63,28 @@ namespace Game
 		lPlayer->LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
 		lPlayer->LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
 		lPlayer->ResetAnimation("n_walk_f");
-		lPlayer->AddAnimTransition("cls_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
-		lPlayer->AddAnimTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 1.0f);
-		lPlayer->AddAnimTransition("n_walk_f", "cls_walk_f", []()->bool {return true; }, 1.0f);
+		lPlayer->AddAnimTransition("cls_walk_f", "n_run_f", [&lPlayer]()->bool {return true; }, 1.0f);
+		lPlayer->AddAnimTransition("n_run_f", "n_walk_f", [&lPlayer]()->bool {return true; }, 1.0f);
+		lPlayer->AddAnimTransition("n_walk_f", "cls_walk_f", [&lPlayer]()->bool {return true; }, 1.0f);
+
+		shared_ptr<Renderer::CParticleManager> lParticleManager =  mWorld->GetParticleManager();
+		shared_ptr<Renderer::CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
+		shared_ptr<Renderer::CParticleEmitter> lParticleEmitter = lParticleManager->AddParticleEmitter(lParticleSystem);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eEmissionRate, 1.5f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::ePosition, Math::SVector3(1, 0, 3));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::ePositionVariance, Math::SVector3(1.0, 0.2, 1.0));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eVelocity, Math::SVector3(0.2, 0.2, 0.2));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eVelocityVariance, Math::SVector3(0.1, 0.1, 0.1));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eAcceleration, Math::SVector3(0.2, 0.2, 0.2));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eAccelerationVariance, Math::SVector3(0.1, 0.1, 0.1));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eScale, Math::SVector2(0.5, 0.5));
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eCurrentFrame, 0.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eDuration, 0.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eNumTextureRow, 8);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eNumTextureColumn, 8);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eFrameRate, 30.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eParticleDuration, 3.0f);
+		lParticleManager->SetParticleEmitterValue(lParticleEmitter, Renderer::EParticleEmitterProperty::eParticleDurationVariance, 1.0f);
 	}
 
 	void CGame::Loop()
@@ -70,6 +92,7 @@ namespace Game
 		shared_ptr<Input::CInputManager> lInputManager = Input::CInputManager::Singleton();
 		
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/Sphere.FBX");
+		mRenderer->SetMesh(lMesh);
 		float lX = 0;
 
 		shared_ptr<CActor> lRecentCreatedActor;
@@ -91,11 +114,14 @@ namespace Game
 				{
 					UnregisterActor(lRecentCreatedActor);
 					CActorPool::Singleton()->ReleaseActor(lRecentCreatedActor);
+					lRecentCreatedActor = nullptr;
 				}
 			}
 
+			//update world objects
 			mWorld->Update(1 / 60.0f);
 
+			//upload data to renderer
 			mRenderer->UploadBegin();
 
 			mWorld->ToAllActors([this](shared_ptr<CActor> pActor)
@@ -105,6 +131,7 @@ namespace Game
 
 			mRenderer->UploadEnd();
 
+			//draw
 			mRenderer->DrawBegin();
 
 			mWorld->ToAllActors([this](shared_ptr<CActor> pActor)
@@ -122,15 +149,14 @@ namespace Game
 		mWorld->Add(pActor);
 
 		//register actor to renderer
-		pActor->SetMeshHandle(mRenderer->SetMesh(pActor->GetMesh()));
-		pActor->SetObjectHandle(mRenderer->SetObject(pActor->GetObjectW()));
+		mRenderer->SetObject(pActor->GetObjectW());
 
 	}
 
 	void CGame::UnregisterActor(shared_ptr<CActor> pActor)
 	{
 		//release object from renderer
-		mRenderer->ReleaseObject(pActor->GetObjectW()->GetObjectHandle());
+		mRenderer->ReleaseObject(pActor->GetObjectW());
 
 		//remove actor from world
 		mWorld->Remove(pActor);

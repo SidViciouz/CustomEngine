@@ -22,9 +22,13 @@ namespace Renderer
 		void									SetOrientation(const Math::SQuaternion& pOrientation);
 		void									SetScale(const Math::SVector3& pScale);
 
-		const Math::SVector3					GetTranslation() const;
-		const Math::SQuaternion					GetOrientation() const;
-		const Math::SVector3					GetScale() const;
+		const Math::SVector3&					GetTranslation() const;
+		const Math::SQuaternion&				GetOrientation() const;
+		const Math::SVector3&					GetScale() const;
+
+		Math::SVector3&							GetTranslation();
+		Math::SQuaternion&						GetOrientation();
+		Math::SVector3&							GetScale();
 
 		void									AddTranslation(Math::SVector3 pTranslation);
 

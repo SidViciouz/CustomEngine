@@ -25,7 +25,6 @@ namespace Game
 
 	protected:
 		
-												ICharacter(const char* pPath);
 												ICharacter(shared_ptr<Renderer::CMesh> pMesh);
 												ICharacter() = delete;
 

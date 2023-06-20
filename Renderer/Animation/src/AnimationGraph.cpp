@@ -217,8 +217,8 @@ namespace Renderer
 				if (lOutputBone == nullptr || lAnimBoneA == nullptr || lAnimBoneB == nullptr)
 					continue;
 
-				Math::CTransform lTransformA = lAnimBoneA->EvaluateLocalTransform(lFromCurrentTime);
-				Math::CTransform lTransformB = lAnimBoneB->EvaluateLocalTransform(lToCurrentTime);
+				const Math::CTransform lTransformA = lAnimBoneA->EvaluateLocalTransform(lFromCurrentTime);
+				const Math::CTransform lTransformB = lAnimBoneB->EvaluateLocalTransform(lToCurrentTime);
 
 				
 				Math::SVector3 lTranslation = lTransformA.GetTranslation() * (1 - lAlpha) + lTransformB.GetTranslation() * lAlpha;

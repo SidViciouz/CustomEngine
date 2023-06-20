@@ -167,7 +167,6 @@ namespace Renderer
 
 	int	CRenderer::SetMesh(shared_ptr<CMesh> pMesh)
 	{
-
 		int lVertexCount = pMesh->GetVertexCount();
 		const SVertex* lVertexDatas = pMesh->GetVertexDatas();
 
@@ -199,8 +198,10 @@ namespace Renderer
 					lFrameIndex, mMeshCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(Math::SMatrix4) * pMesh->GetBoneCount(), 256), EResourceHeapType::eUpload));
 			}
 		}
-
+		
 		mMeshes.push_back(pMesh);
+
+		pMesh->SetMeshHandle(mMeshCount);
 
 		return mMeshCount++;
 	}
@@ -215,6 +216,8 @@ namespace Renderer
 			int lObjectHandle = mReleasedObjectHandles.top();
 			mReleasedObjectHandles.pop();
 
+			pObject->SetObjectHandle(lObjectHandle);
+
 			return lObjectHandle;
 		}
 
@@ -227,14 +230,16 @@ namespace Renderer
 				lFrameIndex, mObjectCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData), 256), EResourceHeapType::eUpload));
 		}
 
+		pObject->SetObjectHandle(mObjectCount);
+
 		return mObjectCount++;
 	}
 
 
 
-	void CRenderer::ReleaseObject(int pObjectHandle)
+	void CRenderer::ReleaseObject(shared_ptr<CObject> pObject)
 	{
-		mReleasedObjectHandles.push(pObjectHandle);
+		mReleasedObjectHandles.push(pObject->GetObjectHandle());
 	}
 
 

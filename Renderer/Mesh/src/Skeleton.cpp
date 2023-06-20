@@ -349,10 +349,10 @@ namespace Renderer
 			shared_ptr<CBone> lParent = lTop->GetParent();
 			if (lParent != nullptr)
 			{
-				Math::CTransform lLocalTransform = lTop->GetLocalTransform();
-				const Math::SVector3 lLocalScale = lLocalTransform.GetScale();
-				const Math::SQuaternion lLocalOrientation = lLocalTransform.GetOrientation();
-				const Math::SVector3 lLocalTranslation = lLocalTransform.GetTranslation();
+				const Math::CTransform lLocalTransform = lTop->GetLocalTransform();
+				const Math::SVector3& lLocalScale = lLocalTransform.GetScale();
+				const Math::SQuaternion& lLocalOrientation = lLocalTransform.GetOrientation();
+				const Math::SVector3& lLocalTranslation = lLocalTransform.GetTranslation();
 
 				FbxAMatrix lLocalMatrix;
 				lLocalMatrix.SetS(FbxVector4(lLocalScale.mX, lLocalScale.mY, lLocalScale.mZ));
@@ -360,10 +360,10 @@ namespace Renderer
 				lLocalMatrix.SetT(FbxVector4(lLocalTranslation.mX, lLocalTranslation.mY, lLocalTranslation.mZ));
 
 
-				Math::CTransform lParentTransform = lParent->GetGlobalTransform();
-				const Math::SVector3 lParentScale = lParentTransform.GetScale();
-				const Math::SQuaternion lParentOrientation = lParentTransform.GetOrientation();
-				const Math::SVector3 lParentTranslation = lParentTransform.GetTranslation();
+				const Math::CTransform lParentTransform = lParent->GetGlobalTransform();
+				const Math::SVector3& lParentScale = lParentTransform.GetScale();
+				const Math::SQuaternion& lParentOrientation = lParentTransform.GetOrientation();
+				const Math::SVector3& lParentTranslation = lParentTransform.GetTranslation();
 
 				FbxAMatrix lParentMatrix;
 				lParentMatrix.SetS(FbxVector4(lParentScale.mX, lParentScale.mY, lParentScale.mZ));

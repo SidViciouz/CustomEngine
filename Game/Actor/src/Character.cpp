@@ -2,20 +2,6 @@
 
 namespace Game
 {
-	ICharacter::ICharacter(const char* pPath)
-		: CActor{ pPath }
-	{
-		if (mMesh->HasSkeleton())
-		{
-			mAnimationGraph = make_shared<Renderer::CAnimationGraph>(mMesh->GetSkeleton());
-			mHasAnimationGraph = true;
-		}
-		else
-		{
-			mHasAnimationGraph = false;
-		}
-	}
-
 	ICharacter::ICharacter(shared_ptr<Renderer::CMesh> pMesh)
 		: CActor{ pMesh }
 	{

@@ -20,6 +20,8 @@ namespace Math
 
 		SVector3								operator-(const SVector3& pOther);
 
+		void									operator+=(const SVector3& pOther);
+
 		SVector3								Normalize() const;
 
 		static SVector3							Cross(const SVector3& pA, const SVector3& pB);

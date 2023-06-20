@@ -1,21 +1,11 @@
 #include "Actor/header/Actor.h"
+#include "Component/header/BaseComponent.h"
 
 namespace Game
 {
-	shared_ptr<CActor> CActor::Create(const char* pPath)
-	{
-		return shared_ptr<CActor>(new CActor(pPath));
-	}
-	
 	shared_ptr<CActor> CActor::Create(shared_ptr<Renderer::CMesh> pMesh)
 	{
 		return shared_ptr<CActor>(new CActor(pMesh));
-	}
-
-	CActor::CActor(const char* pPath)
-		: mMesh{ make_shared<Renderer::CMesh>(pPath) }, mObject{ make_shared<Renderer::CObject>() }
-	{
-
 	}
 
 	CActor::CActor(shared_ptr<Renderer::CMesh> pMesh)
@@ -46,7 +36,10 @@ namespace Game
 
 	void CActor::Update(double pDeltaTime)
 	{
-
+		for (auto& lComponent : mComponents)
+		{
+			lComponent->Update(pDeltaTime);
+		}
 	}
 
 	shared_ptr<Renderer::CMesh> CActor::GetMesh() const
@@ -94,18 +87,38 @@ namespace Game
 		mObject->SetScale(pScale);
 	}
 
-	const Math::SVector3 CActor::GetTranslation() const
+	const Math::SVector3& CActor::GetTranslation() const
 	{
 		return mObject->GetTranslation();
 	}
 
-	const Math::SQuaternion CActor::GetOrientation() const
+	const Math::SQuaternion& CActor::GetOrientation() const
 	{
 		return mObject->GetOrientation();
 	}
 
-	const Math::SVector3 CActor::GetScale() const
+	const Math::SVector3& CActor::GetScale() const
 	{
 		return mObject->GetScale();
+	}
+
+	Math::SVector3& CActor::GetTranslation()
+	{
+		return mObject->GetTranslation();
+	}
+
+	Math::SQuaternion& CActor::GetOrientation()
+	{
+		return mObject->GetOrientation();
+	}
+
+	Math::SVector3& CActor::GetScale()
+	{
+		return mObject->GetScale();
+	}
+
+	void CActor::AddComponent(shared_ptr<IBaseComponent> pComponent)
+	{
+		mComponents.push_back(pComponent);
 	}
 }

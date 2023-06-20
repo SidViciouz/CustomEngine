@@ -1,28 +1,19 @@
 #include "Actor/header/Player.h"
 #include "../Input/header/InputManager.h"
+#include "Physics/header/PhysicsComponent.h"
 
 namespace Game
 {
-	shared_ptr<CPlayer> CPlayer::Create(const char* pPath)
-	{
-		return shared_ptr<CPlayer>(new CPlayer(pPath));
-	}
-
 	shared_ptr<CPlayer> CPlayer::Create(shared_ptr<Renderer::CMesh> pMesh)
 	{
 		return shared_ptr<CPlayer>(new CPlayer(pMesh));
 	}
 
-	CPlayer::CPlayer(const char* pPath)
-		: ICharacter{pPath}
-	{
-
-	}
-
 	CPlayer::CPlayer(shared_ptr<Renderer::CMesh> pMesh)
 		: ICharacter{ pMesh }
 	{
-
+		mPhysicsComponent = make_shared<CPhysicsComponent>(shared_ptr<CActor>(this));
+		AddComponent(mPhysicsComponent);
 	}
 
 	CPlayer::~CPlayer()
@@ -41,19 +32,19 @@ namespace Game
 
 		if (lInputManager->GetKeyPressed(0x41))
 		{
-			mObject->AddTranslation(Math::SVector3(-0.01f, 0, 0));
+			mPhysicsComponent->GetAcceleration() += Math::SVector3(-0.01f, 0, 0);
 		}
 		if (lInputManager->GetKeyPressed(0x44))
 		{
-			mObject->AddTranslation(Math::SVector3(0.01f, 0, 0));
+			mPhysicsComponent->GetAcceleration() += Math::SVector3(0.01f, 0, 0);
 		}
 		if (lInputManager->GetKeyPressed(0x57))
 		{
-			mObject->AddTranslation(Math::SVector3(0, 0, 0.01f));
+			mPhysicsComponent->GetAcceleration() += Math::SVector3(0, 0, 0.01f);
 		}
 		if (lInputManager->GetKeyPressed(0x53))
 		{
-			mObject->AddTranslation(Math::SVector3(0, 0, -0.01f));
+			mPhysicsComponent->GetAcceleration() += Math::SVector3(0, 0, -0.01f);
 		}
 	}
 

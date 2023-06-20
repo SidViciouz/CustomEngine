@@ -13,11 +13,12 @@ namespace Renderer
 
 namespace Game
 {
+	class CPhysicsComponent;
+
 	class CPlayer : public ICharacter
 	{
 	public:
 
-		static shared_ptr<CPlayer>				Create(const char* pPath);
 		static shared_ptr<CPlayer>				Create(shared_ptr<Renderer::CMesh> pMesh);
 
 		virtual void							Update(double pDeltaTime) override;
@@ -26,10 +27,11 @@ namespace Game
 
 	protected:
 
-												CPlayer(const char* pPath);
 												CPlayer(shared_ptr<Renderer::CMesh> pMesh);
 												CPlayer() = delete;
 
 		virtual void							Input() override;
+
+		shared_ptr<CPhysicsComponent>			mPhysicsComponent;
 	};
 }
