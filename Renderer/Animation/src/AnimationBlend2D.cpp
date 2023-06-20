@@ -5,13 +5,13 @@
 
 namespace Renderer
 {
-	CAnimationBlend2D::CAnimationBlend2D(string pName,const Math::SVector3& pCondition)
-		: IAnimationBase{pName}, mCondition{pCondition}
+	CAnimationBlend2D::CAnimationBlend2D(string pName, const float& pX, const float& pY)
+		: IAnimationBase{pName}, mConditionX{pX}, mConditionY{pY}
 	{
 
 	}
 
-	void CAnimationBlend2D::SetAnimation(shared_ptr<CAnimation> pAnimation, Math::SVector3 pValue)
+	void CAnimationBlend2D::SetAnimation(shared_ptr<CAnimation> pAnimation, Math::SVector2 pValue)
 	{
 		mAnimCoords.push_back({ pAnimation ,pValue });
 	}

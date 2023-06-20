@@ -92,7 +92,7 @@ namespace Renderer
 
 			lCurrentTime = mAnimPhase * lTimeSpan + pDeltaTime;
 
-			while (lCurrentTime > lTimeSpan)
+			if (lCurrentTime > lTimeSpan)
 				lCurrentTime -= lTimeSpan;
 
 			mAnimPhase = lCurrentTime / lTimeSpan;

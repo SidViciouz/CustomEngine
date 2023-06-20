@@ -41,6 +41,8 @@ namespace Game
 
 	void CGame::Begin()
 	{
+		mRenderer->Resize(1800, 1000);
+
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/AnimMan2.FBX");
 		mRenderer->SetMesh(lMesh);
 
@@ -56,7 +58,7 @@ namespace Game
 
 		lPlayer->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
 		lPlayer->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
-		lPlayer->SetTranslation(Math::SVector3(0, 0, 3));
+		lPlayer->SetTranslation(Math::SVector3(0, -1.5, 3));
 
 		shared_ptr<Renderer::CParticleManager> lParticleManager =  mWorld->GetParticleManager();
 		shared_ptr<Renderer::CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();

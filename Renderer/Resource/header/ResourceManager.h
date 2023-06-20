@@ -83,6 +83,7 @@ namespace Renderer
 		void								ChangeState(int pHandle, D3D12_RESOURCE_STATES pAfterState);
 
 		void								ReleaseResource(int pResourceHandle);
+		void								ResetResource(int pResourceHandle);
 		/*
 		* This method uploads pData to Resource.
 		* if pHeight == 1, upload buffer or texture1D

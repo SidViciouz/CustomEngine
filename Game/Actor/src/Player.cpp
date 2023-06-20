@@ -23,9 +23,9 @@ namespace Game
 		LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
 		LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
 		
-		shared_ptr<Renderer::CAnimationBlend2D> lBlend = make_shared<Renderer::CAnimationBlend2D>("blend", mPhysicsComponent->GetVelocity());
-		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim1","../Model/ALS_N_Walk_F.FBX"), Math::SVector3(0, 0, 0));
-		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim2", "../Model/ALS_N_Run_F.FBX"), Math::SVector3(1, 1, 0));
+		shared_ptr<Renderer::CAnimationBlend2D> lBlend = make_shared<Renderer::CAnimationBlend2D>("blend", mPhysicsComponent->GetVelocity().mX,mPhysicsComponent->GetVelocity().mY);
+		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim1","../Model/ALS_N_Walk_F.FBX"), Math::SVector2(0, 0));
+		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim2", "../Model/ALS_N_Run_F.FBX"), Math::SVector2(1, 1));
 		LoadAnimation("blend", lBlend);
 		
 		ResetAnimation("n_walkpose_f");

@@ -94,11 +94,13 @@ namespace Renderer
 
 	void CRenderer::Resize(int pWidth, int pHeight)
 	{
+		//resize window
 		SetWindowPos(mWindowManager->GetHandle(), NULL, 0, 0, pWidth, pHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 		
+		//resize camera
 		mCamera->Resize(pWidth, pHeight);
 
-		//resize window
+		//resize resources
 		RECT lRect;
 		GetWindowRect(mWindowManager->GetHandle(), &lRect);
 
@@ -115,10 +117,10 @@ namespace Renderer
 		//release back buffer and depth buffer
 		for (int lBackBufferIndex = 0; lBackBufferIndex < mSwapchainBufferNum; ++lBackBufferIndex)
 		{
-			mResourceManager->ReleaseResource(mSwapchainBufferHandle[lBackBufferIndex]);
+			mResourceManager->ResetResource(mSwapchainBufferHandle[lBackBufferIndex]);
 		}
 
-		mResourceManager->ReleaseResource(mDepthBufferHandle);
+		mResourceManager->ResetResource(mDepthBufferHandle);
 
 		//resize swapchain
 		mSwapchain->ResizeBuffers(mSwapchainBufferNum, mWidth, mHeight, mBackBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);

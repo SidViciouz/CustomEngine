@@ -451,9 +451,14 @@ namespace Renderer
 	{
 		mResources[pResourceHandle].mIsUsed = false;
 		mReleasedResources[mResources[pResourceHandle].mResourceKey].push(pResourceHandle);
-		//mResources[pResourceHandle].mResource.Reset();
 	}
 
+
+
+	void CResourceManager::ResetResource(int pResourceHandle)
+	{
+		mResources[pResourceHandle].mResource.Reset();
+	}
 
 
 

@@ -5,7 +5,6 @@
 namespace Math
 {
 	struct SVector2;
-	struct SVector3;
 	class CTransform;
 }
 
@@ -13,15 +12,15 @@ namespace Renderer
 {
 	class CAnimation;
 
-	using AnimCoordinate = vector< pair<shared_ptr<CAnimation>, Math::SVector3>>;
+	using AnimCoordinate = vector< pair<shared_ptr<CAnimation>, Math::SVector2>>;
 
 	class CAnimationBlend2D : public IAnimationBase
 	{
 	public:
-												CAnimationBlend2D(string pName, const Math::SVector3& pCondition);
+												CAnimationBlend2D(string pName, const float& pX, const float& pY);
 
 		// set animation at pValue coordinates
-		void									SetAnimation(shared_ptr<CAnimation> pAnimation, Math::SVector3 pValue);
+		void									SetAnimation(shared_ptr<CAnimation> pAnimation, Math::SVector2 pValue);
 
 		virtual Math::CTransform				EvaluateGlobalTransform(const string& pBoneName, double pTime) override;
 		virtual Math::CTransform				EvaluateLocalTransform(const string& pBoneName, double pTime) override;
@@ -33,6 +32,7 @@ namespace Renderer
 
 		AnimCoordinate							mAnimCoords;
 
-		const Math::SVector3&					mCondition;
+		const float&							mConditionX;
+		const float&							mConditionY;
 	};
 }
