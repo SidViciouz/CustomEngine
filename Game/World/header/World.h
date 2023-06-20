@@ -33,8 +33,13 @@ namespace Game
 		shared_ptr<Renderer::CParticleManager>	GetParticleManager() const;
 
 		template<class F, class... Args>
-		void									ToAllActors(F pFunction,Args... pArgs);
-
+		void									ToAllActors(F pFunction,Args&&... pArgs)
+		{
+			for (auto& lActor : mActors)
+			{
+				pFunction(std::forward<Args>(pArgs)..., lActor);
+			}
+		}
 
 
 	protected:

@@ -17,6 +17,12 @@ namespace Game
 
 		virtual void							Update(double pDeltaTime) override;
 
+		void									LoadAnimation(const string& pName, const char* pPath);
+
+		void									AddAnimTransition(const string& pFrom, const string& pTo, const std::function<bool(void)>& pCondition, const double& pDuration);
+
+		bool									ResetAnimation(const string& pName);
+
 	protected:
 		
 												ICharacter(const char* pPath);

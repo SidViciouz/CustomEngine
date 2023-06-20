@@ -5,6 +5,7 @@
 #include "Actor/header/Character.h"
 #include "Actor/header/ActorPool.h"
 #include "../Input/header/InputManager.h"
+#include "World/header/World.h"
 
 namespace Game
 {
@@ -40,23 +41,58 @@ namespace Game
 	{
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/AnimMan2.FBX");
 
-		shared_ptr<CActor> lACtor = CActorPool::Singleton()->NewActor<CActor>(lMesh);
-		shared_ptr<Game::CPlayer> lPlayer = CActorPool::Singleton()->NewActor<CPlayer>(lMesh);
+		shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CActor>(lMesh);
+		RegisterActor(lActor);
 
+		shared_ptr<Game::CPlayer> lPlayer = CActorPool::Singleton()->NewActor<CPlayer>(lMesh);
 		RegisterActor(lPlayer);
-		RegisterActor(lACtor);
+
+		lActor->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
+		//lActor->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
+		lActor->SetTranslation(Math::SVector3(3, 0, 3));
+
+		lPlayer->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
+		lPlayer->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
+		lPlayer->SetTranslation(Math::SVector3(0, 0, 3));
+
+		//set animation
+		lPlayer->LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
+		lPlayer->LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
+		lPlayer->LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
+		lPlayer->ResetAnimation("n_walk_f");
+		lPlayer->AddAnimTransition("cls_walk_f", "n_run_f", []()->bool {return true; }, 1.0f);
+		lPlayer->AddAnimTransition("n_run_f", "n_walk_f", []()->bool {return true; }, 1.0f);
+		lPlayer->AddAnimTransition("n_walk_f", "cls_walk_f", []()->bool {return true; }, 1.0f);
 	}
 
 	void CGame::Loop()
 	{
 		shared_ptr<Input::CInputManager> lInputManager = Input::CInputManager::Singleton();
+		
+		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/Sphere.FBX");
+		float lX = 0;
 
 		while (mRenderer->Loop())
 		{
+			if (lInputManager->GetKeyDown(VK_UP))
+			{
+				shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CActor>(lMesh);
+				RegisterActor(lActor);
+				lActor->SetTranslation(Math::SVector3(lX, 0, 5));
+				lX += 0.2f;
+			}
+
 			mWorld->Update(1 / 60.0f);
 
 
 			mRenderer->DrawBegin();
+
+			mWorld->ToAllActors([this](shared_ptr<CActor> pActor)
+			{
+				mRenderer->DrawMeshPBR(pActor->GetMeshHandle(), pActor->GetObjectHandle(), -1, -1, -1, -1,-1);
+			});
+
+			
 			/*
 			mRenderer->DrawLine(lData1);
 			mRenderer->DrawLine(lData2);
@@ -78,8 +114,8 @@ namespace Game
 		mWorld->Add(pActor);
 
 		//register actor to renderer
-		mRenderer->SetMesh(pActor->GetMesh());
-		mRenderer->SetObject(pActor->GetObject());
+		pActor->SetMeshHandle(mRenderer->SetMesh(pActor->GetMesh()));
+		pActor->SetObjectHandle(mRenderer->SetObject(pActor->GetObject()));
 
 	}
 

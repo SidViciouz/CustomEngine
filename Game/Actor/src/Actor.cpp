@@ -49,4 +49,54 @@ namespace Game
 	{
 		return mObject;
 	}
+
+	void CActor::SetMeshHandle(int pMeshHandle)
+	{
+		mMeshHandle = pMeshHandle;
+	}
+
+	int CActor::GetMeshHandle() const
+	{
+		return mMeshHandle;
+	}
+
+	void CActor::SetObjectHandle(int pObjectHandle)
+	{
+		mObjectHandle = pObjectHandle;
+	}
+
+	int CActor::GetObjectHandle() const
+	{
+		return mObjectHandle;
+	}
+
+	void CActor::SetTranslation(const Math::SVector3& pTranslation)
+	{
+		mObject->SetTranslation(pTranslation);
+	}
+
+	void CActor::SetOrientation(const Math::SQuaternion& pOrientation)
+	{
+		mObject->SetOrientation(pOrientation);
+	}
+
+	void CActor::SetScale(const Math::SVector3& pScale)
+	{
+		mObject->SetScale(pScale);
+	}
+
+	const Math::SVector3 CActor::GetTranslation() const
+	{
+		return mObject->GetTranslation();
+	}
+
+	const Math::SQuaternion CActor::GetOrientation() const
+	{
+		return mObject->GetOrientation();
+	}
+
+	const Math::SVector3 CActor::GetScale() const
+	{
+		return mObject->GetScale();
+	}
 }

@@ -4,6 +4,8 @@
 
 namespace Renderer
 {
+	using ResourceKey = string;
+
 	enum class EResourceHeapType
 	{
 		eDefault,
@@ -32,6 +34,8 @@ namespace Renderer
 
 	struct SResourceDescription
 	{
+		ResourceKey							GetResourceKey() const;
+
 		EResourceHeapType					mHeapType;
 		EResourceDimension					mDimension;
 		int									mWidth;
@@ -47,16 +51,18 @@ namespace Renderer
 		union
 		{
 		float								mDepthClearValue;
-		float								mColor[4];
+		float								mColor[4] = { 0, };
 		};
-
 	};
 
 	struct SResourceInfo
 	{
 		D3D12_RESOURCE_STATES				mState;
 		ComPtr<ID3D12Resource>				mResource;
+		ResourceKey							mResourceKey;
+		bool								mIsUsed;
 	};
+
 
 	class CResourceManager
 	{
@@ -109,7 +115,7 @@ namespace Renderer
 
 		array<SResourceInfo, MAX_RESOURCE_NUM> mResources;
 		int									mResourceCount = 0;
-
+		unordered_map<ResourceKey,stack<int>> mReleasedResources;
 
 
 		array<ComPtr<ID3D12DescriptorHeap>, 3> mDescriptorHeaps;

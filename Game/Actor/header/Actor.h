@@ -27,12 +27,33 @@ namespace Game
 		shared_ptr<Renderer::CMesh>				GetMesh() const;
 		shared_ptr<Renderer::CObject>			GetObject() const;
 
+		//set mesh handle that represent this mesh in renderer
+		void									SetMeshHandle(int pMeshHandle);
+		int										GetMeshHandle() const;
+
+		//set object handle that represent this mesh in rendere
+		void									SetObjectHandle(int pObjectHandle);
+		int										GetObjectHandle() const;
+
+		//set actor's transforom
+		void									SetTranslation(const Math::SVector3& pTranslation);
+		void									SetOrientation(const Math::SQuaternion& pOrientation);
+		void									SetScale(const Math::SVector3& pScale);
+
+		const Math::SVector3					GetTranslation() const;
+		const Math::SQuaternion					GetOrientation() const;
+		const Math::SVector3					GetScale() const;
+
 	protected:
 												CActor() = delete;
 												CActor(const char* pPath);
 												CActor(shared_ptr<Renderer::CMesh> pMesh);
 		
 		shared_ptr<Renderer::CMesh>				mMesh;
+		int										mMeshHandle;
+
+
 		shared_ptr<Renderer::CObject>			mObject;
+		int										mObjectHandle;
 	};
 }

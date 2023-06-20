@@ -45,13 +45,4 @@ namespace Game
 	{
 		return mParticleManager;
 	}
-
-	template<class F, class... Args>
-	void CWorld::ToAllActors(F pFunction, Args... pArgs)
-	{
-		for (auto& lActor : mActors)
-		{
-			pFunction(pArgs, lActor);
-		}
-	}
 }

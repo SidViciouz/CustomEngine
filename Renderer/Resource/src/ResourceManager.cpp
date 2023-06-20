@@ -5,6 +5,62 @@
 
 namespace Renderer
 {
+
+	ResourceKey	SResourceDescription::GetResourceKey() const
+	{
+		ResourceKey lKey;
+
+		lKey += to_string(static_cast<int>(mHeapType));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mDimension));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mWidth));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mHeight));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mDepth));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mFormat));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mLayout));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mFlags));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mAlignment));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mMipLevel));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mUseClearValue));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mUseDepthClearValue));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mColor[0]));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mColor[1]));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mColor[2]));
+		lKey += '_';
+
+		lKey += to_string(static_cast<int>(mColor[3]));
+
+		return lKey;
+	}
+
+
 	
 	CResourceManager::CResourceManager(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList, ID3D12GraphicsCommandList* pCopyCommandList)
 		:mDevice{ pDevice }, mCommandList{pCommandList}, mCopyCommandList{pCopyCommandList}
@@ -220,18 +276,20 @@ namespace Renderer
 		}
 
 		mResources[pResourceHandle].mResource->Unmap(0, nullptr);
+
+		mResources[pResourceHandle].mIsUsed = true;
 	}
 
-	void CResourceManager::LoadDDS(int pResoureceHandle, int pUploadResourceHandle, const wchar_t* pFilePath)
+	void CResourceManager::LoadDDS(int pResourceHandle, int pUploadResourceHandle, const wchar_t* pFilePath)
 	{
 		unique_ptr<uint8_t[]> lDDSData;
 		vector<D3D12_SUBRESOURCE_DATA> lSubresources;
 
-		if (!SUCCEEDED(DirectX::LoadDDSTextureFromFile(mDevice,  pFilePath, mResources[pResoureceHandle].mResource.ReleaseAndGetAddressOf(), lDDSData, lSubresources)))
+		if (!SUCCEEDED(DirectX::LoadDDSTextureFromFile(mDevice,  pFilePath, mResources[pResourceHandle].mResource.ReleaseAndGetAddressOf(), lDDSData, lSubresources)))
 			throw string("load dds texture fails.");
-		mResources[pResoureceHandle].mState = D3D12_RESOURCE_STATE_COPY_DEST;
+		mResources[pResourceHandle].mState = D3D12_RESOURCE_STATE_COPY_DEST;
 
-		const UINT64 lUploadBufferSize = GetRequiredIntermediateSize(mResources[pResoureceHandle].mResource.Get(), 0,
+		const UINT64 lUploadBufferSize = GetRequiredIntermediateSize(mResources[pResourceHandle].mResource.Get(), 0,
 			static_cast<UINT>(lSubresources.size()));
 
 		// Create the GPU upload buffer.
@@ -248,26 +306,45 @@ namespace Renderer
 			IID_PPV_ARGS(mResources[pUploadResourceHandle].mResource.ReleaseAndGetAddressOf()))))
 			throw string("create uploadRes fails.");
 
-		UpdateSubresources(mCopyCommandList, mResources[pResoureceHandle].mResource.Get(), mResources[pUploadResourceHandle].mResource.Get(),
+		UpdateSubresources(mCopyCommandList, mResources[pResourceHandle].mResource.Get(), mResources[pUploadResourceHandle].mResource.Get(),
 			0, 0, static_cast<UINT>(lSubresources.size()), lSubresources.data());
 	
 
 		D3D12_RESOURCE_BARRIER lBarrier;
 		lBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		lBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		lBarrier.Transition.pResource = mResources[pResoureceHandle].mResource.Get();
-		lBarrier.Transition.StateBefore = mResources[pResoureceHandle].mState;
+		lBarrier.Transition.pResource = mResources[pResourceHandle].mResource.Get();
+		lBarrier.Transition.StateBefore = mResources[pResourceHandle].mState;
 		lBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 		lBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
 		mCopyCommandList->ResourceBarrier(1, &lBarrier);
 
-		mResources[pResoureceHandle].mState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		mResources[pResourceHandle].mState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+
+		mResources[pResourceHandle].mIsUsed = true;
+		mResources[pUploadResourceHandle].mIsUsed = true;
 
 	}
 
 	int	CResourceManager::CreateResource(const SResourceDescription& pDescrption)
 	{
+		//if there is resource which is released and has the same type with required resource,
+		//then reuse it.
+		ResourceKey lResourceKey = pDescrption.GetResourceKey();
+		stack<int>& lResourceStack = mReleasedResources[lResourceKey];
+		if (!lResourceStack.empty())
+		{
+			int lResourceIndex = lResourceStack.top();
+			lResourceStack.pop();
+
+			mResources[lResourceIndex].mIsUsed = false;
+			mResources[lResourceIndex].mResourceKey = lResourceKey;
+
+			return lResourceIndex;
+		}
+
+
 		//heap description
 		D3D12_HEAP_PROPERTIES lHeapProperties = {};
 		lHeapProperties.VisibleNodeMask = 0;
@@ -360,6 +437,8 @@ namespace Renderer
 			lResourceInfo.mState, lClearValue.get(), IID_PPV_ARGS(lResourceInfo.mResource.GetAddressOf()))))
 			return -1;
 		
+		mResources[mResourceCount].mIsUsed = false;
+		mResources[mResourceCount].mResourceKey = lResourceKey;
 
 		return mResourceCount++;
 	}
@@ -368,7 +447,9 @@ namespace Renderer
 
 	void CResourceManager::ReleaseResource(int pResourceHandle)
 	{
-		mResources[pResourceHandle].mResource.Reset();
+		mResources[pResourceHandle].mIsUsed = false;
+		mReleasedResources[mResources[pResourceHandle].mResourceKey].push(pResourceHandle);
+		//mResources[pResourceHandle].mResource.Reset();
 	}
 
 

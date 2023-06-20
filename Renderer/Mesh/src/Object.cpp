@@ -39,6 +39,22 @@ namespace Renderer
 		mTransform.SetScale(pScale);
 	}
 
+	const Math::SVector3 CObject::GetTranslation() const
+	{
+		return mTransform.GetTranslation();
+	}
+
+	const Math::SQuaternion CObject::GetOrientation() const
+	{
+		return mTransform.GetOrientation();
+	}
+
+	const Math::SVector3 CObject::GetScale() const
+	{
+		return mTransform.GetScale();
+	}
+
+
 	void CObject::AddTranslation(Math::SVector3 pTranslation)
 	{
 		mTransform.SetTranslation(pTranslation + mTransform.GetTranslation());

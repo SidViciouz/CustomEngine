@@ -92,6 +92,8 @@ namespace Renderer
 
 	void CAnimationGraph::Update(float pDeltaTime)
 	{
+		if (mAnimations.empty())
+			return;
 
 		double lTimeSpan = 0;
 		double lCurrentTime = 0;

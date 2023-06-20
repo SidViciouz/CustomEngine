@@ -20,7 +20,7 @@ namespace Game
 												~CGame();
 		void									Initialize(HINSTANCE pHInstance);
 
-		void									Begin();
+		virtual void							Begin();
 		void									Loop();
 
 	protected:

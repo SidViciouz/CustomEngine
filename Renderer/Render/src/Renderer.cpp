@@ -211,6 +211,8 @@ namespace Renderer
 	{
 		for (int lFrameIndex = 0; lFrameIndex < mFrameNum; ++lFrameIndex)
 		{
+			//create object constant buffer 
+			//set it to frame data
 			mFrameData->SetObjectConstantBufferHandle(
 				lFrameIndex, mObjectCount, mResourceManager->CreateBuffer(Math::Alignment(sizeof(SObjectData), 256), EResourceHeapType::eUpload));
 		}
