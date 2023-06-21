@@ -11,9 +11,14 @@ namespace Renderer
 												CCamera() = delete;
 												CCamera(const int& pWidth,const int& pHeight);
 		void									Resize(const int& pWidth, const int& pHeight);
+
 		Math::SMatrix4							GetViewMatrix();
 		Math::SMatrix4							GetProjectionMatrix();
-		Math::SVector3							GetPosition() const;
+
+		const Math::SVector3&					GetPosition() const;
+		Math::SVector3&							GetPosition();
+
+		void									SetPosition(Math::SVector3 pPosition);
 
 	protected:
 

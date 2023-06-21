@@ -7,7 +7,8 @@
 #include "../Input/header/InputManager.h"
 #include "World/header/World.h"
 #include "../Particle/header/ParticleManager.h"
-#include "Physics/header/PhysicsComponent.h"
+#include "Component/header/PhysicsComponent.h"
+#include "Component/header/CameraComponent.h"
 
 namespace Game
 {
@@ -43,23 +44,36 @@ namespace Game
 	{
 		mRenderer->Resize(1800, 1000);
 
-		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/AnimMan2.FBX");
+		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/AnimMan2.fbx");
 		mRenderer->SetMesh(lMesh);
+
+		shared_ptr<Renderer::CMesh>	lFloorMesh = make_shared<Renderer::CMesh>("../Model/Simple_Floor_20x20.FBX");
+		mRenderer->SetMesh(lFloorMesh);
 
 		shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CActor>(lMesh);
 		RegisterActor(lActor);
-
+		
 		shared_ptr<Game::CPlayer> lPlayer = CActorPool::Singleton()->NewActor<CPlayer>(lMesh);
 		RegisterActor(lPlayer);
+		shared_ptr<CameraComponent> lCameraComponent = make_shared<CameraComponent>(lPlayer, mWorld->GetCamera());
+		lCameraComponent->SetLocalTranslation(Math::SVector3(0, 2, -2));
+		lPlayer->AddComponent(lCameraComponent);
+
+		shared_ptr<CActor> lFloorActor = CActorPool::Singleton()->NewActor<CActor>(lFloorMesh);
+		RegisterActor(lFloorActor);
 
 		lActor->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
-		//lActor->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
+		lActor->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lActor->SetTranslation(Math::SVector3(3, 0, 3));
-
+		
 		lPlayer->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
 		lPlayer->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lPlayer->SetTranslation(Math::SVector3(0, -1.5, 3));
 
+		lFloorActor->SetTranslation(Math::SVector3(0, -3.0f, 0.0f));
+		lFloorActor->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
+		lFloorActor->SetScale(Math::SVector3(0.03f, 0.03f, 0.03f));
+		
 		shared_ptr<Renderer::CParticleManager> lParticleManager =  mWorld->GetParticleManager();
 		shared_ptr<Renderer::CParticleSystem> lParticleSystem = lParticleManager->AddParticleSystem();
 		shared_ptr<Renderer::CParticleEmitter> lParticleEmitter = lParticleManager->AddParticleEmitter(lParticleSystem);

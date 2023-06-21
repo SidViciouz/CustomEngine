@@ -1,6 +1,6 @@
 #include "Actor/header/Player.h"
 #include "../Input/header/InputManager.h"
-#include "Physics/header/PhysicsComponent.h"
+#include "Component/header/PhysicsComponent.h"
 #include "../Animation/header/AnimationBlend2D.h"
 #include "../Animation/header/Animation.h"
 
@@ -42,7 +42,7 @@ namespace Game
 		lBlendB->SetAnimation(lWalkPoseF, lWalkB, lRunPoseF, lRunB);
 		LoadAnimation("blendB", lBlendB);
 
-		ResetAnimation("blendB");
+		ResetAnimation("blendF");
 
 		/*
 		AddAnimTransition("blendF", "blendB", [this]()->bool {

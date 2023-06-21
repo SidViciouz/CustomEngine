@@ -1,4 +1,4 @@
-#include "Physics/header/PhysicsComponent.h"
+#include "Component/header/PhysicsComponent.h"
 #include "Actor/header/Actor.h"
 
 namespace Game

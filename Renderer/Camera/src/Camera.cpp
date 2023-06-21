@@ -47,8 +47,18 @@ namespace Renderer
 		return lProjection;
 	}
 	
-	Math::SVector3 CCamera::GetPosition() const
+	const Math::SVector3& CCamera::GetPosition() const
 	{
 		return mPosition;
+	}
+
+	Math::SVector3& CCamera::GetPosition()
+	{
+		return mPosition;
+	}
+
+	void CCamera::SetPosition(Math::SVector3 pPosition)
+	{
+		mPosition = pPosition;
 	}
 }

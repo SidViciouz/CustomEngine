@@ -39,7 +39,10 @@
     <ClCompile Include="Component\src\BaseComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\src\PhysicsComponent.cpp">
+    <ClCompile Include="Component\src\PhysicsComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\src\CameraComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,7 +71,10 @@
     <ClInclude Include="Component\header\BaseComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\header\PhysicsComponent.h">
+    <ClInclude Include="Component\header\PhysicsComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\header\CameraComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
