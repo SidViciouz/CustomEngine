@@ -22,8 +22,8 @@ namespace Renderer
 
 		virtual bool							IsBone(const string& pBoneName) const override;
 
-		virtual const double&					GetBeginTime() const override;
-		virtual const double&					GetEndTime() const override;
+		virtual double							GetBeginTime() const override;
+		virtual double							GetEndTime() const override;
 
 	protected:
 		shared_ptr<CSkeleton>					mSkeleton;

@@ -85,8 +85,8 @@ namespace Renderer
 		{
 			// update time
 
-			const double& lBeginTime = mAnimations[mCurrentState.Node.mNode]->GetBeginTime();
-			const double& lEndTime = mAnimations[mCurrentState.Node.mNode]->GetEndTime();
+			double lBeginTime = mAnimations[mCurrentState.Node.mNode]->GetBeginTime();
+			double lEndTime = mAnimations[mCurrentState.Node.mNode]->GetEndTime();
 
 			lTimeSpan = lEndTime - lBeginTime;
 
@@ -118,11 +118,11 @@ namespace Renderer
 			// blend animation
 
 			// update time
-			const double& lFromBegin = mAnimations[mCurrentState.Transition.mFrom]->GetBeginTime();
-			const double& lFromEnd = mAnimations[mCurrentState.Transition.mFrom]->GetEndTime();
+			double lFromBegin = mAnimations[mCurrentState.Transition.mFrom]->GetBeginTime();
+			double lFromEnd = mAnimations[mCurrentState.Transition.mFrom]->GetEndTime();
 
-			const double& lToBegin = mAnimations[mCurrentState.Transition.mTo]->GetBeginTime();
-			const double& lToEnd = mAnimations[mCurrentState.Transition.mTo]->GetEndTime();
+			double lToBegin = mAnimations[mCurrentState.Transition.mTo]->GetBeginTime();
+			double lToEnd = mAnimations[mCurrentState.Transition.mTo]->GetEndTime();
 
 			double lAlpha = mCurrentState.Transition.mProgress;
 			if (lAlpha > 1.0f)

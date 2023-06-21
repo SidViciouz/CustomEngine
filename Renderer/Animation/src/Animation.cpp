@@ -54,7 +54,7 @@ namespace Renderer
 		if (pBone == nullptr)
 			throw string("bone is null.");
 
-		return pBone->EvaluateGlobalTransform(pTime);
+		return pBone->EvaluateGlobalTransform(pTime * mVelocityScale);
 	}
 
 	Math::CTransform CAnimation::EvaluateLocalTransform(const string& pBoneName, double pTime)
@@ -64,7 +64,7 @@ namespace Renderer
 		if (pBone == nullptr)
 			throw string("bone is null.");
 
-		return pBone->EvaluateLocalTransform(pTime);
+		return pBone->EvaluateLocalTransform(pTime * mVelocityScale);
 	}
 
 	bool CAnimation::IsBone(const string& pBoneName) const
@@ -75,13 +75,13 @@ namespace Renderer
 		return true;
 	}
 
-	const double& CAnimation::GetBeginTime() const
+	double CAnimation::GetBeginTime() const
 	{
-		return mBeginTime;
+		return mBeginTime / mVelocityScale;
 	}
 
-	const double& CAnimation::GetEndTime() const
+	double CAnimation::GetEndTime() const
 	{
-		return mEndTime;
+		return mEndTime / mVelocityScale;
 	}
 }

@@ -14,14 +14,18 @@ namespace Renderer
 
 		virtual bool							IsBone(const string& pBoneName) const = 0;
 
-		virtual const double&					GetBeginTime() const = 0;
-		virtual const double&					GetEndTime() const = 0;
+		virtual double							GetBeginTime() const = 0;
+		virtual double							GetEndTime() const = 0;
+
+		void									SetScale(double pVelocityScale);
 
 	protected:
 		string									mName;
 
 		double									mBeginTime;
 		double									mEndTime;
+
+		double									mVelocityScale;
 
 	};
 }

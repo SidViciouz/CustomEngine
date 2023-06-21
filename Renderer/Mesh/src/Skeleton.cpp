@@ -155,11 +155,11 @@ namespace Renderer
 		FbxQuaternion lOrientation = lMatrix.GetQ();
 		FbxVector4 lTranslation = lMatrix.GetT();
 
-		Math::CTransform lTransform;
-
-		lTransform.SetScale(Math::SVector3(lScale[0], lScale[1], lScale[2]));
-		lTransform.SetOrientation(Math::SQuaternion(lOrientation[0], lOrientation[1], lOrientation[2], lOrientation[3]));
-		lTransform.SetTranslation(Math::SVector3(lTranslation[0], lTranslation[1], lTranslation[2]));
+		Math::CTransform lTransform(
+			Math::SVector3(lTranslation[0], lTranslation[1], lTranslation[2]),
+			Math::SQuaternion(lOrientation[0], lOrientation[1], lOrientation[2], lOrientation[3]),
+			Math::SVector3(lScale[0], lScale[1], lScale[2])
+		);
 
 		return lTransform;
 	}
@@ -177,11 +177,11 @@ namespace Renderer
 		FbxQuaternion lOrientation = lMatrix.GetQ();
 		FbxVector4 lTranslation = lMatrix.GetT();
 
-		Math::CTransform lTransform;
-
-		lTransform.SetScale(Math::SVector3(lScale[0], lScale[1], lScale[2]));
-		lTransform.SetOrientation(Math::SQuaternion(lOrientation[0], lOrientation[1], lOrientation[2], lOrientation[3]));
-		lTransform.SetTranslation(Math::SVector3(lTranslation[0], lTranslation[1], lTranslation[2]));
+		Math::CTransform lTransform(
+			Math::SVector3(lTranslation[0], lTranslation[1], lTranslation[2]),
+			Math::SQuaternion(lOrientation[0], lOrientation[1], lOrientation[2], lOrientation[3]),
+			Math::SVector3(lScale[0], lScale[1], lScale[2])
+		);
 
 		return lTransform;
 	}

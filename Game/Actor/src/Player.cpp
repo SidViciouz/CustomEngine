@@ -23,21 +23,36 @@ namespace Game
 		LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
 		LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
 		
-		shared_ptr<Renderer::CAnimationBlend2D> lBlend = make_shared<Renderer::CAnimationBlend2D>("blend", mPhysicsComponent->GetVelocity().mX,mPhysicsComponent->GetVelocity().mY);
-		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim1","../Model/ALS_N_Walk_F.FBX"), Math::SVector2(0, 0));
-		lBlend->SetAnimation(make_shared<Renderer::CAnimation>("anim2", "../Model/ALS_N_Run_F.FBX"), Math::SVector2(1, 1));
-		LoadAnimation("blend", lBlend);
-		
-		ResetAnimation("n_walkpose_f");
+		shared_ptr<Renderer::CAnimation> lWalkF = make_shared<Renderer::CAnimation>("walkB", "../Model/ALS_N_Walk_F.FBX");
+		shared_ptr<Renderer::CAnimation> lRunF = make_shared<Renderer::CAnimation>("runB", "../Model/ALS_N_Run_F.FBX");
+		shared_ptr<Renderer::CAnimation> lWalkB = make_shared<Renderer::CAnimation>("walkB", "../Model/ALS_N_Walk_B.FBX");
+		shared_ptr<Renderer::CAnimation> lRunB = make_shared<Renderer::CAnimation>("runB", "../Model/ALS_N_Run_B.FBX");
+		shared_ptr<Renderer::CAnimation> lWalkPoseF = make_shared<Renderer::CAnimation>("walkposeF", "../Model/ALS_N_WalkPose_F.FBX");
+		shared_ptr<Renderer::CAnimation> lRunPoseF = make_shared<Renderer::CAnimation>("runposeF", "../Model/ALS_N_RunPose_F.FBX");
+		lRunPoseF->SetScale(0.0416f);
 
-		AddAnimTransition("n_walkpose_f", "n_walk_f", [this]()->bool {
+		shared_ptr<Renderer::CAnimationBlend2D> lBlendF = make_shared<Renderer::CAnimationBlend2D>("blendF", mPhysicsComponent->GetVelocity().mX, mPhysicsComponent->GetVelocity().mZ);
+		lBlendF->SetAxis(-1,1,-1,1);
+		lBlendF->SetAnimation(lWalkPoseF,lWalkF, lRunPoseF,lRunF);
+		LoadAnimation("blendF", lBlendF);
+
+
+		shared_ptr<Renderer::CAnimationBlend2D> lBlendB = make_shared<Renderer::CAnimationBlend2D>("blendB", mPhysicsComponent->GetVelocity().mX, mPhysicsComponent->GetVelocity().mZ);
+		lBlendB->SetAxis(-1, 1, -1, 1);
+		lBlendB->SetAnimation(lWalkPoseF, lWalkB, lRunPoseF, lRunB);
+		LoadAnimation("blendB", lBlendB);
+
+		ResetAnimation("blendB");
+
+		/*
+		AddAnimTransition("blendF", "blendB", [this]()->bool {
 			if (mPhysicsComponent->GetVelocity().Length() > 0.0f)
 				return true;
-			}, 0.25f);
-		AddAnimTransition("n_walk_f", "n_walkpose_f", [this]()->bool {
+			}, 0.0f);
+		AddAnimTransition("blendB", "blendF", [this]()->bool {
 			if (mPhysicsComponent->GetVelocity().Length() == 0.0f)
 				return true;
-		}, 0.1f);
+		}, 0.0f);
 		
 		AddAnimTransition("n_walk_f", "n_run_f", [this]()->bool {
 			if (mPhysicsComponent->GetVelocity().Length() > 2.0f)
@@ -47,7 +62,7 @@ namespace Game
 			if (mPhysicsComponent->GetVelocity().Length() == 0.0f)
 				return true;
 		}, 0.1f);
-		
+		*/
 	}
 
 	CPlayer::~CPlayer()
@@ -95,7 +110,7 @@ namespace Game
 
 			if (mPhysicsComponent->GetVelocity().Length() < 2.0f)
 			{
-				mPhysicsComponent->GetAcceleration() = lAcceleration * 2.0f;
+				mPhysicsComponent->GetAcceleration() = lAcceleration * 3.0f;
 			}
 			else
 			{
