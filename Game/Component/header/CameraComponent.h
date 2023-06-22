@@ -19,13 +19,21 @@ namespace Game
 
 		virtual void							Update(double pDeltaTime) override;
 
-		void									SetLocalTranslation(Math::SVector3 pTranslation);
-		void									SetLocalOrientation(Math::SQuaternion pOrientation);
+		virtual void							Input() override;
+
+		void									SetDistance(float pDistance);
+		void									SetYaw(float pYaw);
+		void									SetPitch(float pPitch);
 
 	protected:
 		shared_ptr<Renderer::CCamera>			mCamera;
 		
-		Math::SVector3							mTranslation;
-		Math::SQuaternion						mOrientation;
+		float									mYaw;
+		float									mPitch;
+		float									mDistance;
+
+		bool									mMouseActivated;
+		int										mPrevX;
+		int										mPrevY;
 	};
 }

@@ -42,7 +42,7 @@ namespace Game
 		lBlendB->SetAnimation(lWalkPoseF, lWalkB, lRunPoseF, lRunB);
 		LoadAnimation("blendB", lBlendB);
 
-		ResetAnimation("blendF");
+		ResetAnimation("blendB");
 
 		/*
 		AddAnimTransition("blendF", "blendB", [this]()->bool {

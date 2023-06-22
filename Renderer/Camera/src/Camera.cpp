@@ -13,7 +13,7 @@ namespace Renderer
 		mWidth = pWidth;
 		mHeight = pHeight;
 
-		mFov = DirectX::XMConvertToRadians(90.0f);
+		mFov = DirectX::XMConvertToRadians(45.0f);
 		mMinPlane = 0.1f;
 		mMaxPlane = 1000.0f;
 	}
@@ -61,4 +61,22 @@ namespace Renderer
 	{
 		mPosition = pPosition;
 	}
+
+	void CCamera::RotateX(float pAngle)
+	{
+		DirectX::XMMATRIX lRotation = DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&mRight.mXmElement),pAngle);
+
+		DirectX::XMStoreFloat3(&mUp.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mUp.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mFront.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mFront.mXmElement), lRotation));
+	}
+
+	void CCamera::RotateY(float pAngle)
+	{
+		DirectX::XMMATRIX lRotation = DirectX::XMMatrixRotationY(pAngle);
+
+		DirectX::XMStoreFloat3(&mRight.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mRight.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mUp.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mUp.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mFront.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mFront.mXmElement), lRotation));
+	}
+
 }

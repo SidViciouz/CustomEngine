@@ -18,6 +18,8 @@ namespace Game
 
 		virtual void							Update(double pDeltaTime) override;
 
+		virtual void							Input() override;
+
 		Math::SVector3&							GetVelocity();
 		Math::SVector3&							GetAcceleration();
 

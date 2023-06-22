@@ -42,6 +42,12 @@ namespace Input
 		mKeyPressed[pHandle] = false;
 	}
 
+	void CInputManager::SetMousePosition(int pX, int pY)
+	{
+		mMouseX = pX;
+		mMouseY = pY;
+	}
+
 	bool CInputManager::GetKeyDown(int pHandle)
 	{
 		return mKeyDown[pHandle];
@@ -55,5 +61,15 @@ namespace Input
 	bool CInputManager::GetKeyPressed(int pHandle)
 	{
 		return mKeyPressed[pHandle];
+	}
+
+	int CInputManager::GetMouseX()
+	{
+		return mMouseX;
+	}
+
+	int CInputManager::GetMouseY()
+	{
+		return mMouseY;
 	}
 }

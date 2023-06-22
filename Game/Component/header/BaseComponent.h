@@ -18,7 +18,9 @@ namespace Game
 												IBaseComponent(shared_ptr<CActor> pActor);
 												~IBaseComponent();
 
-		virtual void							Update(double pDeltaTime) = 0;
+		virtual void							Update(double pDeltaTime);
+
+		virtual void							Input() = 0;
 
 	protected:
 

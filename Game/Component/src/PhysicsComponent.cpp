@@ -23,6 +23,11 @@ namespace Game
 		lTranslation += (mVelocity * pDeltaTime);
 	}
 
+	void CPhysicsComponent::Input()
+	{
+
+	}
+
 	Math::SVector3& CPhysicsComponent::GetVelocity()
 	{
 		return mVelocity;

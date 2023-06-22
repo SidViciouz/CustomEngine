@@ -20,6 +20,9 @@ namespace Renderer
 
 		void									SetPosition(Math::SVector3 pPosition);
 
+		void									RotateX(float pAngle);
+		void									RotateY(float pAngle);
+
 	protected:
 
 		Math::SVector3							mRight;

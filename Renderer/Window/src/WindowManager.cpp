@@ -29,6 +29,18 @@ namespace Renderer
 			lInputManager->SetKeyUp(pWParam);
 			break;
 
+		case WM_LBUTTONDOWN :
+			lInputManager->SetKeyDown(VK_LBUTTON);
+			break;
+
+		case WM_LBUTTONUP:
+			lInputManager->SetKeyUp(VK_LBUTTON);
+			break;
+
+		case WM_MOUSEMOVE :
+			lInputManager->SetMousePosition(LOWORD(pLParam), HIWORD(pLParam));
+			break;
+
 		default : 
 			return DefWindowProc(pHwnd, pMsg, pWParam, pLParam);
 		}

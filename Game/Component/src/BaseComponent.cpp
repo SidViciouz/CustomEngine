@@ -12,4 +12,9 @@ namespace Game
 	{
 
 	}
+
+	void IBaseComponent::Update(double pDeltaTime)
+	{
+		Input();
+	}
 }

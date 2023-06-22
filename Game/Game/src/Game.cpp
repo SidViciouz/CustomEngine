@@ -47,16 +47,21 @@ namespace Game
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/AnimMan2.fbx");
 		mRenderer->SetMesh(lMesh);
 
+		shared_ptr<Renderer::CMesh>	lKnightMesh = make_shared<Renderer::CMesh>("../Model/Knight.fbx");
+		mRenderer->SetMesh(lKnightMesh);
+
 		shared_ptr<Renderer::CMesh>	lFloorMesh = make_shared<Renderer::CMesh>("../Model/Simple_Floor_20x20.FBX");
 		mRenderer->SetMesh(lFloorMesh);
 
-		shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CActor>(lMesh);
+		shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CActor>(lKnightMesh);
 		RegisterActor(lActor);
 		
 		shared_ptr<Game::CPlayer> lPlayer = CActorPool::Singleton()->NewActor<CPlayer>(lMesh);
 		RegisterActor(lPlayer);
 		shared_ptr<CameraComponent> lCameraComponent = make_shared<CameraComponent>(lPlayer, mWorld->GetCamera());
-		lCameraComponent->SetLocalTranslation(Math::SVector3(0, 2, -2));
+		lCameraComponent->SetDistance(5);
+		lCameraComponent->SetPitch(0.5f);
+		lCameraComponent->SetYaw(-0.25f);
 		lPlayer->AddComponent(lCameraComponent);
 
 		shared_ptr<CActor> lFloorActor = CActorPool::Singleton()->NewActor<CActor>(lFloorMesh);
@@ -96,6 +101,16 @@ namespace Game
 
 	void CGame::Loop()
 	{
+		mRenderer->LoadBegin();
+		int lBaseColor = mRenderer->LoadTexture(L"../Material/rustediron2_basecolor.dds");
+		int lMetallic = mRenderer->LoadTexture(L"../Material/rustediron2_metallic.dds");
+		int lNormal = mRenderer->LoadTexture(L"../Material/rustediron2_normal.dds");
+		int lRoughness = mRenderer->LoadTexture(L"../Material/rustediron2_roughness.dds");
+		int lTileAO = mRenderer->LoadTexture(L"../Material/T_Tiles_M.dds");
+		int lTileNormal = mRenderer->LoadTexture(L"../Material/T_Tiles_N.dds");
+		int lParticleSprite = mRenderer->LoadTexture(L"../Material/T_Smoke_A.dds");
+		mRenderer->LoadEnd();
+
 		shared_ptr<Input::CInputManager> lInputManager = Input::CInputManager::Singleton();
 		
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/Sphere.FBX");
@@ -141,9 +156,9 @@ namespace Game
 			//draw
 			mRenderer->DrawBegin();
 
-			mWorld->ToAllActors([this](shared_ptr<CActor> pActor)
+			mWorld->ToAllActors([&,this](shared_ptr<CActor> pActor)
 			{
-				mRenderer->DrawMeshPBR(pActor->GetMesh(), pActor->GetObject(), -1, -1, -1, -1,-1);
+				mRenderer->DrawMeshPBR(pActor->GetMesh(), pActor->GetObject(), lBaseColor, lMetallic, lNormal, lRoughness,-1);
 			});
 
 			mRenderer->DrawEnd();
