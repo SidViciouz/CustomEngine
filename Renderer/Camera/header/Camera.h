@@ -16,7 +16,6 @@ namespace Renderer
 		Math::SMatrix4							GetProjectionMatrix();
 
 		const Math::SVector3&					GetPosition() const;
-		Math::SVector3&							GetPosition();
 
 		void									SetPosition(Math::SVector3 pPosition);
 

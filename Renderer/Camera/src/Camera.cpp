@@ -28,10 +28,14 @@ namespace Renderer
 	{
 		Math::SMatrix4 lView;
 
+		float x = -Math::SVector3::Dot(mPosition, mRight);
+		float y = -Math::SVector3::Dot(mPosition, mUp);
+		float z = -Math::SVector3::Dot(mPosition, mFront);
+
 		lView.SetColumn(0, mRight);
 		lView.SetColumn(1, mUp);
 		lView.SetColumn(2, mFront);
-		lView.SetRow(3, -mPosition);
+		lView.SetRow(3, Math::SVector3(x, y, z));
 
 		return lView;
 	}
@@ -52,11 +56,6 @@ namespace Renderer
 		return mPosition;
 	}
 
-	Math::SVector3& CCamera::GetPosition()
-	{
-		return mPosition;
-	}
-
 	void CCamera::SetPosition(Math::SVector3 pPosition)
 	{
 		mPosition = pPosition;
@@ -66,17 +65,17 @@ namespace Renderer
 	{
 		DirectX::XMMATRIX lRotation = DirectX::XMMatrixRotationAxis(DirectX::XMLoadFloat3(&mRight.mXmElement),pAngle);
 
-		DirectX::XMStoreFloat3(&mUp.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mUp.mXmElement), lRotation));
-		DirectX::XMStoreFloat3(&mFront.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mFront.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mUp.mXmElement, DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&mUp.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mFront.mXmElement, DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&mFront.mXmElement), lRotation));
 	}
 
 	void CCamera::RotateY(float pAngle)
 	{
 		DirectX::XMMATRIX lRotation = DirectX::XMMatrixRotationY(pAngle);
 
-		DirectX::XMStoreFloat3(&mRight.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mRight.mXmElement), lRotation));
-		DirectX::XMStoreFloat3(&mUp.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mUp.mXmElement), lRotation));
-		DirectX::XMStoreFloat3(&mFront.mXmElement, DirectX::XMVector3TransformNormal(DirectX::XMLoadFloat3(&mFront.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mRight.mXmElement, DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&mRight.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mUp.mXmElement, DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&mUp.mXmElement), lRotation));
+		DirectX::XMStoreFloat3(&mFront.mXmElement, DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&mFront.mXmElement), lRotation));
 	}
 
 }

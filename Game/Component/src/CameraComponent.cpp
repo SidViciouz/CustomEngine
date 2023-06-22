@@ -20,7 +20,7 @@ namespace Game
 	{
 		IBaseComponent::Update(pDeltaTime);
 		
-		/*
+		
 		Math::SVector3 lTranslation(0, 0, -mDistance);
 		Math::SVector3 lRight(1, 0, 0);
 
@@ -35,8 +35,8 @@ namespace Game
 		lXMTranslation = DirectX::XMVector3TransformNormal(lXMTranslation, lRotationPitch);
 
 		DirectX::XMStoreFloat3(&lTranslation.mXmElement, lXMTranslation);
-		mCamera->GetPosition() = mActor->GetTranslation() +lTranslation;
-		*/
+		mCamera->SetPosition(mActor->GetTranslation() +lTranslation);
+		
 
 		/*
 		const Math::SVector3 lTranslation = mActor->GetTranslation();
