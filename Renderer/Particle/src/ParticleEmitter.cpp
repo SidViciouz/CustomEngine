@@ -126,9 +126,9 @@ namespace Renderer
 			lUp = Math::SVector3::Cross(lFront, lRight).Normalize();
 
 			Math::SMatrix3 lRotationMatrix;
-			lRotationMatrix.SetColumn(0, lRight);
-			lRotationMatrix.SetColumn(1, lUp);
-			lRotationMatrix.SetColumn(2, lFront);
+			lRotationMatrix.SetRow(0, lRight);
+			lRotationMatrix.SetRow(1, lUp);
+			lRotationMatrix.SetRow(2, lFront);
 
 			for (int lParticleIndex = 0; lParticleIndex < mParticles.size(); ++lParticleIndex)
 			{
@@ -189,7 +189,7 @@ namespace Renderer
 				//facing camera and translation
 				for (int i = 0; i < 4; ++i)
 				{
-					lParticleVertices[i].mPosition = lParticleVertices[i].mPosition.Transform(lRotationMatrix) +mParticles[lParticleIndex]->mPosition;
+					lParticleVertices[i].mPosition = lParticleVertices[i].mPosition.Transform(lRotationMatrix) + mParticles[lParticleIndex]->mPosition;
 				}
 				pVertexBuffer->AddParticleVertex(mMemoryPoolIndex, lParticleVertices);
 			}

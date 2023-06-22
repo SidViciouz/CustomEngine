@@ -150,6 +150,7 @@ namespace Game
 			{
 				mRenderer->UploadObject(pActor->GetObject());
 			});
+			
 
 			mRenderer->UploadEnd();
 
@@ -161,6 +162,7 @@ namespace Game
 				mRenderer->DrawMeshPBR(pActor->GetMesh(), pActor->GetObject(), lBaseColor, lMetallic, lNormal, lRoughness,-1);
 			});
 
+			mRenderer->DrawParticles(lParticleSprite);
 			mRenderer->DrawEnd();
 		}
 	}
