@@ -63,6 +63,8 @@ namespace Renderer
 
 		void									AddTransition(const string& pFrom,const string& pTo,const std::function<bool(void)>& pCondition,const double& pDuration);
 
+		void									PlayAnimation(const string& pName);
+
 		bool									Reset(const string& pName);
 
 		void									Update(float pDeltaTime);
@@ -81,6 +83,11 @@ namespace Renderer
 		SAnimState								mCurrentState;
 
 		Transitions								mTransitions;
+
+		bool									PlayAnimation(double pDeltaTime);
+		string									mPlayingAnimation;
+		bool									mAnimPlaying = false;
+		double									mPlayingAnimPhase;
 	};
 }
 

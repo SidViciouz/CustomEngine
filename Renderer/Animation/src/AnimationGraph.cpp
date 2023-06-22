@@ -29,6 +29,13 @@ namespace Renderer
 		mTransitions[pFrom].push_back(lTransition);
 	}
 
+	void CAnimationGraph::PlayAnimation(const string& pName)
+	{
+		mPlayingAnimation = pName;
+		mAnimPlaying = true;
+		mPlayingAnimPhase = 0.0f;
+	}
+
 	bool CAnimationGraph::Reset(const string& pName)
 	{
 		if (mAnimations[pName] == nullptr)
@@ -40,10 +47,50 @@ namespace Renderer
 		return true;
 	}
 
+	bool CAnimationGraph::PlayAnimation(double pDeltaTime)
+	{
+		double lBeginTime = mAnimations[mPlayingAnimation]->GetBeginTime();
+		double lEndTime = mAnimations[mPlayingAnimation]->GetEndTime();
+
+		double lTimeSpan = lEndTime - lBeginTime;
+
+		double lCurrentTime = mPlayingAnimPhase * lTimeSpan + pDeltaTime;
+
+		if (lCurrentTime > lTimeSpan)
+		{
+			mAnimPlaying = false;
+			return false;
+		}
+
+		mPlayingAnimPhase = lCurrentTime / lTimeSpan;
+
+		// link to output
+		Bones::iterator lBegin, lEnd;
+		mOutputSkeleton->GetBonesIterator(lBegin, lEnd);
+
+		for (auto it = lBegin; it != lEnd; it++)
+		{
+			string lBoneName = it->first;
+			shared_ptr<CBone> lOutputBone = it->second;
+
+			if (lOutputBone == nullptr || !mAnimations[mPlayingAnimation]->IsBone(lBoneName))
+				continue;
+
+			lOutputBone->SetGlobalTransform(mAnimations[mPlayingAnimation]->EvaluateGlobalTransform(lBoneName, lCurrentTime));
+		}
+	}
+
+
 	void CAnimationGraph::Update(float pDeltaTime)
 	{
 		if (mAnimations.empty())
 			return;
+
+		if (mAnimPlaying == true)
+		{
+			if(PlayAnimation(pDeltaTime))
+				return;
+		}
 
 		double lTimeSpan = 0;
 		double lCurrentTime = 0;
@@ -160,14 +207,20 @@ namespace Renderer
 				if (lOutputBone == nullptr || !mAnimations[mCurrentState.Transition.mFrom]->IsBone(lBoneName) || !mAnimations[mCurrentState.Transition.mTo]->IsBone(lBoneName))
 					continue;
 
+				/*
 				const Math::CTransform lTransformA = mAnimations[mCurrentState.Transition.mFrom]->EvaluateLocalTransform(lBoneName,lFromCurrentTime);
 				const Math::CTransform lTransformB = mAnimations[mCurrentState.Transition.mTo]->EvaluateLocalTransform(lBoneName,lToCurrentTime);
 				
 				lOutputBone->SetLocalTransform(Math::CTransform::Blend(lTransformA, lTransformB,lAlpha));
+				*/
+				const Math::CTransform lTransformA = mAnimations[mCurrentState.Transition.mFrom]->EvaluateGlobalTransform(lBoneName, lFromCurrentTime);
+				const Math::CTransform lTransformB = mAnimations[mCurrentState.Transition.mTo]->EvaluateGlobalTransform(lBoneName, lToCurrentTime);
+
+				lOutputBone->SetGlobalTransform(Math::CTransform::Blend(lTransformA, lTransformB, lAlpha));
 			}
 
 			// stack local transforms up to make global transform
-			mOutputSkeleton->UpdateGlobalFromLocal();
+			//mOutputSkeleton->UpdateGlobalFromLocal();
 		}
 
 	}

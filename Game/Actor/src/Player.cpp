@@ -23,13 +23,16 @@ namespace Game
 		LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
 		LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
 		
-		shared_ptr<Renderer::CAnimation> lWalkF = make_shared<Renderer::CAnimation>("walkB", "../Model/ALS_N_Walk_F.FBX");
+		shared_ptr<Renderer::CAnimation> lWalkF = make_shared<Renderer::CAnimation>("walkF", "../Model/ALS_N_Walk_F.FBX");
 		shared_ptr<Renderer::CAnimation> lRunF = make_shared<Renderer::CAnimation>("runB", "../Model/ALS_N_Run_F.FBX");
 		shared_ptr<Renderer::CAnimation> lWalkB = make_shared<Renderer::CAnimation>("walkB", "../Model/ALS_N_Walk_B.FBX");
 		shared_ptr<Renderer::CAnimation> lRunB = make_shared<Renderer::CAnimation>("runB", "../Model/ALS_N_Run_B.FBX");
 		shared_ptr<Renderer::CAnimation> lWalkPoseF = make_shared<Renderer::CAnimation>("walkposeF", "../Model/ALS_N_WalkPose_F.FBX");
 		shared_ptr<Renderer::CAnimation> lRunPoseF = make_shared<Renderer::CAnimation>("runposeF", "../Model/ALS_N_RunPose_F.FBX");
+		shared_ptr<Renderer::CAnimation> lShooting = make_shared<Renderer::CAnimation>("shooting", "../Model/shooting.FBX");
 		lRunPoseF->SetScale(0.0416f);
+
+		LoadAnimation("shooting", lShooting);
 
 		shared_ptr<Renderer::CAnimationBlend2D> lBlendF = make_shared<Renderer::CAnimationBlend2D>("blendF", mPhysicsComponent->GetVelocity().mX, mPhysicsComponent->GetVelocity().mZ);
 		lBlendF->SetAxis(-1,1,-1,1);
@@ -42,27 +45,23 @@ namespace Game
 		lBlendB->SetAnimation(lWalkPoseF, lWalkB, lRunPoseF, lRunB);
 		LoadAnimation("blendB", lBlendB);
 
-		ResetAnimation("blendB");
+		ResetAnimation("n_walk_f");
 
 		/*
 		AddAnimTransition("blendF", "blendB", [this]()->bool {
-			if (mPhysicsComponent->GetVelocity().Length() > 0.0f)
-				return true;
-			}, 0.0f);
+			return true;
+		}, 2.0f);
 		AddAnimTransition("blendB", "blendF", [this]()->bool {
-			if (mPhysicsComponent->GetVelocity().Length() == 0.0f)
 				return true;
-		}, 0.0f);
+		}, 2.0f);
+		*/
 		
 		AddAnimTransition("n_walk_f", "n_run_f", [this]()->bool {
-			if (mPhysicsComponent->GetVelocity().Length() > 2.0f)
 				return true;
-		}, 0.25f);
+		}, 1.0f);
 		AddAnimTransition("n_run_f", "n_walk_f", [this]()->bool {
-			if (mPhysicsComponent->GetVelocity().Length() == 0.0f)
 				return true;
-		}, 0.1f);
-		*/
+		}, 1.0f);
 	}
 
 	CPlayer::~CPlayer()
@@ -81,47 +80,48 @@ namespace Game
 
 		shared_ptr<Input::CInputManager> lInputManager = Input::CInputManager::Singleton();
 
-		Math::SVector3 lAcceleration;
+
+		if (lInputManager->GetKeyDown(0x51))
+		{
+			mAnimationGraph->PlayAnimation("shooting");
+		}
+
+		Math::SVector3 lVelocity;
 
 		if (lInputManager->GetKeyPressed(0x41))
 		{
-			lAcceleration += Math::SVector3(-1, 0, 0);
+			lVelocity += Math::SVector3(-1, 0, 0);
 			lMoving = true;
 		}
 		if (lInputManager->GetKeyPressed(0x44))
 		{
-			lAcceleration += Math::SVector3(1, 0, 0);
+			lVelocity += Math::SVector3(1, 0, 0);
 			lMoving = true;
 		}
 		if (lInputManager->GetKeyPressed(0x57))
 		{
-			lAcceleration += Math::SVector3(0, 0, 1);
+			lVelocity += Math::SVector3(0, 0, 1);
 			lMoving = true;
 		}
 		if (lInputManager->GetKeyPressed(0x53))
 		{
-			lAcceleration += Math::SVector3(0, 0, -1);
+			lVelocity += Math::SVector3(0, 0, -1);
 			lMoving = true;
 		}
 
+		if (lVelocity.Length() == 0.0f)
+			lMoving = false;
+
 		if (lMoving)
 		{
-			lAcceleration.Normalized();
+			lVelocity.Normalized();
 
-			if (mPhysicsComponent->GetVelocity().Length() < 2.0f)
-			{
-				mPhysicsComponent->GetAcceleration() = lAcceleration * 3.0f;
-			}
-			else
-			{
-				mPhysicsComponent->GetAcceleration() = Math::SVector3();
-			}
-
+			mPhysicsComponent->SetVelocity(lVelocity * 3.0f);
 		}
 		else
 		{
-			mPhysicsComponent->GetAcceleration() = Math::SVector3();
-			mPhysicsComponent->GetVelocity() = Math::SVector3();
+			mPhysicsComponent->SetAcceleration(Math::SVector3());
+			mPhysicsComponent->SetVelocity(Math::SVector3());
 		}
 	}
 

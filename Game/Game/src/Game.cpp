@@ -68,11 +68,9 @@ namespace Game
 		RegisterActor(lFloorActor);
 
 		lActor->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
-		lActor->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lActor->SetTranslation(Math::SVector3(3, 0, 3));
 		
 		lPlayer->SetScale(Math::SVector3(0.01f, 0.01f, 0.01f));
-		lPlayer->SetOrientation(Math::SQuaternion(1 * cosf(DirectX::XMConvertToRadians(-45)), 0, 0, sinf(DirectX::XMConvertToRadians(-45))));
 		lPlayer->SetTranslation(Math::SVector3(0, -1.5, 3));
 
 		lFloorActor->SetTranslation(Math::SVector3(0, -3.0f, 0.0f));
