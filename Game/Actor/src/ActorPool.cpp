@@ -1,5 +1,6 @@
 #include "Actor/header/ActorPool.h"
 #include "Actor/header/Actor.h"
+#include "Actor/header/Bullet.h"
 
 namespace Game
 {

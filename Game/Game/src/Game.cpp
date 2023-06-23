@@ -10,9 +10,17 @@
 #include "../Particle/header/ParticleManager.h"
 #include "Component/header/PhysicsComponent.h"
 #include "Component/header/CameraComponent.h"
+#include "Actor/header/Bullet.h"
 
 namespace Game
 {	
+	shared_ptr<CGame> CGame::Singleton()
+	{
+		static shared_ptr<CGame> lGameSingleton = shared_ptr<CGame>(new CGame());
+
+		return lGameSingleton;
+	}
+
 	CGame::CGame()
 	{
 
@@ -26,7 +34,7 @@ namespace Game
 	void CGame::Initialize(HINSTANCE pHInstance)
 	{
 		// create world
-		mWorld = CWorld::Create();
+		mWorld = CWorld::Singleton();
 
 		// create renderer and initialze it
 		mRenderer = Renderer::CRenderer::Singleton(pHInstance);
@@ -115,9 +123,6 @@ namespace Game
 		
 		shared_ptr<Renderer::CMesh>	lMesh = make_shared<Renderer::CMesh>("../Model/Sphere.FBX");
 		mRenderer->SetMesh(lMesh);
-		float lX = 0;
-
-		shared_ptr<CActor> lRecentCreatedActor;
 
 		mTimer->Reset();
 
@@ -125,22 +130,11 @@ namespace Game
 		{
 			if (lInputManager->GetKeyDown(VK_UP))
 			{
-				shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CActor>(lMesh);
+				shared_ptr<CActor> lActor = CActorPool::Singleton()->NewActor<CBullet>(lMesh);
 				RegisterActor(lActor);
-				lActor->SetTranslation(Math::SVector3(lX, 0, 5));
-				lX += 0.2f;
-				lRecentCreatedActor = lActor;
+				lActor->SetTranslation(Math::SVector3(0, 0, 5));
 			}
 
-			if (lInputManager->GetKeyDown(VK_DOWN))
-			{
-				if (lRecentCreatedActor != nullptr)
-				{
-					UnregisterActor(lRecentCreatedActor);
-					CActorPool::Singleton()->ReleaseActor(lRecentCreatedActor);
-					lRecentCreatedActor = nullptr;
-				}
-			}
 
 			mTimer->Tick();
 

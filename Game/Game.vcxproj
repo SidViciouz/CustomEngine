@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="Actor\src\Actor.cpp" />
     <ClCompile Include="Actor\src\ActorPool.cpp" />
+    <ClCompile Include="Actor\src\Bullet.cpp" />
     <ClCompile Include="Actor\src\Character.cpp" />
     <ClCompile Include="Actor\src\Player.cpp" />
     <ClCompile Include="Component\src\BaseComponent.cpp" />
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="Actor\header\Actor.h" />
     <ClInclude Include="Actor\header\ActorPool.h" />
+    <ClInclude Include="Actor\header\Bullet.h" />
     <ClInclude Include="Actor\header\Character.h" />
     <ClInclude Include="Actor\header\Player.h" />
     <ClInclude Include="Common\header\Common.h" />

@@ -3,12 +3,15 @@
 #include "../Camera/header/Camera.h"
 #include "../Particle/header/ParticleManager.h"
 #include "Game/header/EventManager.h"
+#include "Actor/header/ActorPool.h"
+#include "Game/header/Game.h"
 
 namespace Game
 {
-	shared_ptr<CWorld> CWorld::Create()
+	shared_ptr<CWorld> CWorld::Singleton()
 	{
-		return shared_ptr<CWorld>(new CWorld{});
+		static shared_ptr<CWorld> lWorldSingleton = shared_ptr<CWorld>(new CWorld{});
+		return lWorldSingleton;
 	}
 
 	CWorld::CWorld()
@@ -25,12 +28,25 @@ namespace Game
 
 	void CWorld::Update(double pDeltaTime)
 	{
+		//update object
 		for (auto& lActor : mActors)
 		{
 			lActor->Update(pDeltaTime);
 		}
 
+		//update particles
 		mParticleManager->Update(pDeltaTime,mCamera->GetPosition());
+
+
+		//destroy object
+		while(!mDestroyQueue.empty())
+		{
+			shared_ptr<CActor> lActor = mDestroyQueue.front();
+			mDestroyQueue.pop();
+
+			CGame::Singleton()->UnregisterActor(lActor);
+			CActorPool::Singleton()->ReleaseActor(lActor);
+		}
 	}
 
 	void CWorld::Add(shared_ptr<CActor> pActor)
@@ -52,6 +68,11 @@ namespace Game
 			}
 		}
 
+	}
+
+	void CWorld::AddDestroyQueue(shared_ptr<CActor> pActor)
+	{
+		mDestroyQueue.push(pActor);
 	}
 
 	shared_ptr<Renderer::CCamera> CWorld::GetCamera() const

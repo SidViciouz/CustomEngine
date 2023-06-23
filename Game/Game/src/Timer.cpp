@@ -4,7 +4,7 @@
 namespace Game
 {
 	CTimer::CTimer()
-		: mBaseCount{ 0 }, mPreviousCount{ 0 }, mCurrentCount{ 0 }, mDeltaTime{ 0 }
+		: mBaseCount{ 0 }, mPreviousCount{ 0 }, mCurrentCount{ 0 }, mDeltaTime{ 0 }, mTotalTime{0}
 	{
 		__int64 lFrequency;
 

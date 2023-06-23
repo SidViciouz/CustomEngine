@@ -27,10 +27,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
 	try
 	{
-		Game::CGame lGame;
-		lGame.Initialize(hInstance);
-		lGame.Begin();
-		lGame.Loop();
+		shared_ptr<Game::CGame> lGame = Game::CGame::Singleton();
+		lGame->Initialize(hInstance);
+		lGame->Begin();
+		lGame->Loop();
 	}
 	catch (std::string errorMessage)
 	{

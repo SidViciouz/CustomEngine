@@ -5,7 +5,11 @@ namespace Game
 {
 	shared_ptr<CActor> CActor::Create(shared_ptr<Renderer::CMesh> pMesh)
 	{
-		return shared_ptr<CActor>(new CActor(pMesh));
+		shared_ptr<CActor> lNew = shared_ptr<CActor>(new CActor(pMesh));
+
+		lNew->mThis = lNew;
+
+		return lNew;
 	}
 
 	CActor::CActor(shared_ptr<Renderer::CMesh> pMesh)

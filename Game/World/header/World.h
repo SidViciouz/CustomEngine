@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -23,13 +24,15 @@ namespace Game
 	class CWorld
 	{
 	public:
-		static shared_ptr<CWorld>				Create();
+		static shared_ptr<CWorld>				Singleton();
 												~CWorld();
 		
 		void									Update(double pDeltaTime);
 
 		void									Add(shared_ptr<CActor> pActor);
 		void									Remove(shared_ptr<CActor> pActor);
+
+		void									AddDestroyQueue(shared_ptr<CActor> pActor);
 
 		shared_ptr<Renderer::CCamera>			GetCamera() const;
 
@@ -55,5 +58,7 @@ namespace Game
 		shared_ptr<Renderer::CParticleManager>	mParticleManager;
 
 		shared_ptr<CEventManager>				mEventManager;
+
+		queue<shared_ptr<CActor>>				mDestroyQueue;
 	};
 }

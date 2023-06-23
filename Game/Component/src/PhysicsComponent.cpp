@@ -28,6 +28,12 @@ namespace Game
 
 	}
 
+	void CPhysicsComponent::Reset()
+	{
+		mVelocity = Math::SVector3();
+		mAcceleration = Math::SVector3();
+	}
+
 	Math::SVector3& CPhysicsComponent::GetVelocity()
 	{
 		return mVelocity;

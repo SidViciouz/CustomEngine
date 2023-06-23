@@ -22,8 +22,8 @@ namespace Game
 		//when ~Actor is protected, shared_ptr<CActor>(new CActor(pPath)) doesn't work.
 												~CActor();
 
-		void									Reset();
-		void									Reset(shared_ptr<Renderer::CMesh> pMesh);
+		virtual void							Reset();
+		virtual void							Reset(shared_ptr<Renderer::CMesh> pMesh);
 
 		virtual void							Update(double pDeltaTime);
 
@@ -66,5 +66,7 @@ namespace Game
 		shared_ptr<Renderer::CObject>			mObject;
 
 		vector<shared_ptr<IBaseComponent>>		mComponents;
+
+		shared_ptr<CActor>						mThis;
 	};
 }

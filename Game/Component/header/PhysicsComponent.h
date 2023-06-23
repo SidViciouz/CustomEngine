@@ -20,6 +20,8 @@ namespace Game
 
 		virtual void							Input() override;
 
+		void									Reset();
+
 		Math::SVector3&							GetVelocity();
 		Math::SVector3&							GetAcceleration();
 

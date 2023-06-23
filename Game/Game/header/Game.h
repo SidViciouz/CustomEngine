@@ -18,18 +18,20 @@ namespace Game
 	class CGame
 	{
 	public:
-												CGame();
+		static shared_ptr<CGame>				Singleton();
 												~CGame();
 		void									Initialize(HINSTANCE pHInstance);
 
 		virtual void							Begin();
 		void									Loop();
 
-	protected:
-
 		//set actor to world and register it to renderer
 		void									RegisterActor(shared_ptr<CActor> pActor);
 		void									UnregisterActor(shared_ptr<CActor> pActor);
+
+	protected:
+												CGame();
+
 
 		shared_ptr<CWorld>						mWorld;
 		shared_ptr<Renderer::CRenderer>			mRenderer;

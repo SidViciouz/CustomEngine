@@ -4,12 +4,19 @@
 #include "../Animation/header/AnimationBlend2D.h"
 #include "../Animation/header/Animation.h"
 #include "Game/header/EventManager.h"
+#include "Actor/header/ActorPool.h"
+#include "Actor/header/Bullet.h"
+#include "Game/header/Game.h"
 
 namespace Game
 {
 	shared_ptr<CPlayer> CPlayer::Create(shared_ptr<Renderer::CMesh> pMesh)
 	{
-		return shared_ptr<CPlayer>(new CPlayer(pMesh));
+		shared_ptr<CPlayer> lNew = shared_ptr<CPlayer>(new CPlayer(pMesh));
+
+		lNew->mThis = lNew;
+
+		return lNew;
 	}
 
 	CPlayer::CPlayer(shared_ptr<Renderer::CMesh> pMesh)
