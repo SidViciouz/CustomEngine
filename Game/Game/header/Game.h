@@ -13,6 +13,8 @@ namespace Game
 	class CActor;
 	class CActorPool;
 
+	class CTimer;
+
 	class CGame
 	{
 	public:
@@ -31,8 +33,6 @@ namespace Game
 
 		shared_ptr<CWorld>						mWorld;
 		shared_ptr<Renderer::CRenderer>			mRenderer;
-
-		//ActorPool
+		shared_ptr<CTimer>						mTimer;
 	};
-	
 }

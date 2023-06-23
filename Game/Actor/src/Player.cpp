@@ -85,7 +85,7 @@ namespace Game
 		if (lInputManager->GetKeyDown(0x51))
 		{
 			mAnimationGraph->PlayAnimation("shooting");
-			CEventManager::Singleton()->Notify(this, SEvent{});
+			CEventManager::Singleton()->Notify(this, SEvent{(const Math::SVector3)GetTranslation()});
 		}
 
 		Math::SVector3 lVelocity;

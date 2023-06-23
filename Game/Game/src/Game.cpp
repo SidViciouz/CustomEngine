@@ -1,4 +1,5 @@
 #include "Game/header/Game.h"
+#include "Game/header/Timer.h"
 #include "../Renderer/Render/header/Renderer.h"
 #include "Actor/header/Actor.h"
 #include "Actor/header/Player.h"
@@ -36,6 +37,8 @@ namespace Game
 
 		// set particle manager into renderer
 		mRenderer->SetParticleManager(mWorld->GetParticleManager());
+
+		mTimer = make_shared<CTimer>();
 	}
 
 
@@ -116,6 +119,8 @@ namespace Game
 
 		shared_ptr<CActor> lRecentCreatedActor;
 
+		mTimer->Reset();
+
 		while (mRenderer->Loop())
 		{
 			if (lInputManager->GetKeyDown(VK_UP))
@@ -137,8 +142,10 @@ namespace Game
 				}
 			}
 
+			mTimer->Tick();
+
 			//update world objects
-			mWorld->Update(1 / 60.0f);
+			mWorld->Update(mTimer->GetDeltaTime());
 
 			//upload data to renderer
 			mRenderer->UploadBegin();

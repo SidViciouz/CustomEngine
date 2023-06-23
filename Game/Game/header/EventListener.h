@@ -5,12 +5,13 @@
 #pragma once
 
 #include "Common/header/Common.h"
+#include "../Maths/header/Vector3.h"
 
 namespace Game
 {
 	struct SEvent
 	{
-		int										mType;
+		Math::SVector3							mPosition;
 	};
 
 	class IEventListener
@@ -19,7 +20,7 @@ namespace Game
 												IEventListener() {}
 												~IEventListener() {}
 
-		virtual void							Listen(SEvent pEvent) = 0;
+		virtual void							Listen(const SEvent pEvent) = 0;
 
 	protected:
 

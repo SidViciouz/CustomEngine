@@ -122,9 +122,13 @@ namespace Game
 		mComponents.push_back(pComponent);
 	}
 
-	void CActor::Listen(SEvent pEvent)
+	void CActor::Listen(const SEvent pEvent)
 	{
+		const Math::SVector3 lTranslation = mObject->GetTranslation();
+
 		printf("My object handle is %d\n", GetObjectHandle());
+		printf("sender position is %f %f %f\n", pEvent.mPosition.mX, pEvent.mPosition.mY, pEvent.mPosition.mZ);
+		printf("my position is %f %f %f\n\n", lTranslation.mX, lTranslation.mY, lTranslation.mZ);
 	}
 
 }

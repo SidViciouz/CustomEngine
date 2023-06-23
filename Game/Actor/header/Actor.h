@@ -54,7 +54,7 @@ namespace Game
 		void									AddComponent(shared_ptr<IBaseComponent> pComponent);
 		
 		//listen method handle event from event manager
-		virtual void							Listen(SEvent pEvent) override;
+		virtual void							Listen(const SEvent pEvent) override;
 
 
 	protected:

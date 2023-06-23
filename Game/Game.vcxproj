@@ -156,6 +156,7 @@
     <ClCompile Include="Component\src\CameraComponent.cpp" />
     <ClCompile Include="Game\src\EventManager.cpp" />
     <ClCompile Include="Game\src\Game.cpp" />
+    <ClCompile Include="Game\src\Timer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Component\src\PhysicsComponent.cpp" />
     <ClCompile Include="World\src\World.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Game\header\EventManager.h" />
     <ClInclude Include="Game\header\Game.h" />
     <ClInclude Include="Component\header\PhysicsComponent.h" />
+    <ClInclude Include="Game\header\Timer.h" />
     <ClInclude Include="World\header\World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
