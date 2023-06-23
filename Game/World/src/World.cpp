@@ -41,7 +41,8 @@ namespace Game
 
 	void CWorld::Remove(shared_ptr<CActor> pActor)
 	{
-		// There must be better way to find pActor from mActors
+		mEventManager->RemoveListener(pActor);
+
 		for (int i = 0; i < mActors.size(); ++i)
 		{
 			if (mActors[i].get() == pActor.get())
@@ -51,7 +52,6 @@ namespace Game
 			}
 		}
 
-		mEventManager->RemoveListener(pActor);
 	}
 
 	shared_ptr<Renderer::CCamera> CWorld::GetCamera() const

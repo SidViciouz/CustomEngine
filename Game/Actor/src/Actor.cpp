@@ -124,6 +124,7 @@ namespace Game
 
 	void CActor::Listen(SEvent pEvent)
 	{
-
+		printf("My object handle is %d\n", GetObjectHandle());
 	}
+
 }
