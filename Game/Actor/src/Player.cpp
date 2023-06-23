@@ -3,6 +3,7 @@
 #include "Component/header/PhysicsComponent.h"
 #include "../Animation/header/AnimationBlend2D.h"
 #include "../Animation/header/Animation.h"
+#include "Game/header/EventManager.h"
 
 namespace Game
 {
@@ -84,6 +85,7 @@ namespace Game
 		if (lInputManager->GetKeyDown(0x51))
 		{
 			mAnimationGraph->PlayAnimation("shooting");
+			CEventManager::Singleton()->Notify(this, SEvent{});
 		}
 
 		Math::SVector3 lVelocity;

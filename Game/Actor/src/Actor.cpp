@@ -121,4 +121,9 @@ namespace Game
 	{
 		mComponents.push_back(pComponent);
 	}
+
+	void CActor::Listen(SEvent pEvent)
+	{
+
+	}
 }

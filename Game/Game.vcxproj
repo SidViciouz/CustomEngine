@@ -154,6 +154,7 @@
     <ClCompile Include="Actor\src\Player.cpp" />
     <ClCompile Include="Component\src\BaseComponent.cpp" />
     <ClCompile Include="Component\src\CameraComponent.cpp" />
+    <ClCompile Include="Game\src\EventManager.cpp" />
     <ClCompile Include="Game\src\Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Component\src\PhysicsComponent.cpp" />
@@ -167,6 +168,8 @@
     <ClInclude Include="Common\header\Common.h" />
     <ClInclude Include="Component\header\BaseComponent.h" />
     <ClInclude Include="Component\header\CameraComponent.h" />
+    <ClInclude Include="Game\header\EventListener.h" />
+    <ClInclude Include="Game\header\EventManager.h" />
     <ClInclude Include="Game\header\Game.h" />
     <ClInclude Include="Component\header\PhysicsComponent.h" />
     <ClInclude Include="World\header\World.h" />

@@ -11,8 +11,7 @@
 #include "Component/header/CameraComponent.h"
 
 namespace Game
-{
-	
+{	
 	CGame::CGame()
 	{
 
@@ -172,7 +171,6 @@ namespace Game
 
 		//register actor to renderer
 		mRenderer->SetObject(pActor->GetObjectW());
-
 	}
 
 	void CGame::UnregisterActor(shared_ptr<CActor> pActor)

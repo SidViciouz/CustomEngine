@@ -2,6 +2,7 @@
 #include "Actor/header/Actor.h"
 #include "../Camera/header/Camera.h"
 #include "../Particle/header/ParticleManager.h"
+#include "Game/header/EventManager.h"
 
 namespace Game
 {
@@ -14,6 +15,7 @@ namespace Game
 	{
 		mCamera = make_shared<Renderer::CCamera>(800, 600);
 		mParticleManager = Renderer::CParticleManager::Singleton();
+		mEventManager = CEventManager::Singleton();
 	}
 	
 	CWorld::~CWorld()
@@ -34,6 +36,7 @@ namespace Game
 	void CWorld::Add(shared_ptr<CActor> pActor)
 	{
 		mActors.push_back(pActor);
+		mEventManager->AddListener(pActor);
 	}
 
 	void CWorld::Remove(shared_ptr<CActor> pActor)
@@ -47,6 +50,8 @@ namespace Game
 				return;
 			}
 		}
+
+		mEventManager->RemoveListener(pActor);
 	}
 
 	shared_ptr<Renderer::CCamera> CWorld::GetCamera() const

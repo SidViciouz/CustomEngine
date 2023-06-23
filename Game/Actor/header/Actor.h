@@ -7,6 +7,7 @@
 
 #include "../Mesh/header/Mesh.h"
 #include "../Mesh/header/Object.h"
+#include "Game/header/EventListener.h"
 #include <memory>
 
 
@@ -14,7 +15,7 @@ namespace Game
 {
 	class IBaseComponent;
 
-	class CActor
+	class CActor : public IEventListener
 	{
 	public:
 		static shared_ptr<CActor>				Create(shared_ptr<Renderer::CMesh> pMesh);
@@ -51,6 +52,10 @@ namespace Game
 		Math::SVector3&							GetScale();
 
 		void									AddComponent(shared_ptr<IBaseComponent> pComponent);
+		
+		//listen method handle event from event manager
+		virtual void							Listen(SEvent pEvent) override;
+
 
 	protected:
 												CActor() = delete;

@@ -16,6 +16,8 @@ namespace Renderer
 
 namespace Game
 {
+	class CEventManager;
+
 	class CActor;
 
 	class CWorld
@@ -51,5 +53,7 @@ namespace Game
 		shared_ptr<Renderer::CCamera>			mCamera;
 
 		shared_ptr<Renderer::CParticleManager>	mParticleManager;
+
+		shared_ptr<CEventManager>				mEventManager;
 	};
 }
