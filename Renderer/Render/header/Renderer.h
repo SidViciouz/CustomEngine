@@ -55,7 +55,12 @@ namespace Renderer
 		void									DrawSquare();
 		void									DrawCube();
 		void									DrawMesh(shared_ptr<CMesh> pMesh, shared_ptr<CObject> pObject);
-		void									DrawMeshPBR(shared_ptr<CMesh> pMesh, shared_ptr<CObject> pObject,int pBaseColorTextureHandle, int pMetallicTextureHandle, int pNormalTextureHandle, int pRoughnessTextureHandle, int pAmbientOcculstionTextureHandle);
+		void									DrawMeshPBR(shared_ptr<CMesh> pMesh, shared_ptr<CObject> pObject,
+															int pBaseColorTextureHandle,
+															int pMetallicTextureHandle,
+															int pNormalTextureHandle,
+															int pRoughnessTextureHandle,
+															int pAmbientOcculstionTextureHandle);
 		void									DrawParticles(int pTextureHandle);
 
 	private:
