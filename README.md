@@ -1,4 +1,4 @@
-# Untitled
+# CustomEngine
 
 ![particle and input](https://github.com/SidViciouz/Untitled/assets/70373435/41e8ba92-059d-44ac-a696-7a94418b235f)
 
@@ -7,6 +7,10 @@
 <br>
 <br>
 <br>
+
+## 진입점
+
+Game/main.cpp의 wWinMain이 진입점입니다.
 
 
 ## PBR
