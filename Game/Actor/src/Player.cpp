@@ -26,11 +26,6 @@ namespace Game
 		AddComponent(mPhysicsComponent);
 
 		//set animation
-		LoadAnimation("n_walkpose_f", "../Model/ALS_N_WalkPose_F.FBX");
-		LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
-		LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
-		LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
-		
 		shared_ptr<Renderer::CAnimation> lWalkF = make_shared<Renderer::CAnimation>("walkF", "../Model/ALS_N_Walk_F.FBX");
 		shared_ptr<Renderer::CAnimation> lRunF = make_shared<Renderer::CAnimation>("runB", "../Model/ALS_N_Run_F.FBX");
 		shared_ptr<Renderer::CAnimation> lWalkB = make_shared<Renderer::CAnimation>("walkB", "../Model/ALS_N_Walk_B.FBX");
@@ -40,20 +35,35 @@ namespace Game
 		shared_ptr<Renderer::CAnimation> lShooting = make_shared<Renderer::CAnimation>("shooting", "../Model/shooting.FBX");
 		lRunPoseF->SetScale(0.0416f);
 
-		LoadAnimation("shooting", lShooting);
-
 		shared_ptr<Renderer::CAnimationBlend2D> lBlendF = make_shared<Renderer::CAnimationBlend2D>("blendF", mPhysicsComponent->GetVelocity().mX, mPhysicsComponent->GetVelocity().mZ);
 		lBlendF->SetAxis(-1,1,-1,1);
 		lBlendF->SetAnimation(lWalkPoseF,lWalkF, lRunPoseF,lRunF);
-		LoadAnimation("blendF", lBlendF);
 
 
 		shared_ptr<Renderer::CAnimationBlend2D> lBlendB = make_shared<Renderer::CAnimationBlend2D>("blendB", mPhysicsComponent->GetVelocity().mX, mPhysicsComponent->GetVelocity().mZ);
 		lBlendB->SetAxis(-1, 1, -1, 1);
 		lBlendB->SetAnimation(lWalkPoseF, lWalkB, lRunPoseF, lRunB);
+
+		LoadAnimation("shooting", lShooting);
+		LoadAnimation("blendF", lBlendF);
 		LoadAnimation("blendB", lBlendB);
+		LoadAnimation("n_walkpose_f", "../Model/ALS_N_WalkPose_F.FBX");
+		LoadAnimation("n_walk_f", "../Model/ALS_N_Walk_F.FBX");
+		LoadAnimation("n_run_f", "../Model/ALS_N_Run_F.FBX");
+		LoadAnimation("cls_walk_f", "../Model/ALS_CLF_Walk_F.FBX");
 
 		ResetAnimation("n_walk_f");
+
+		AddAnimTransition("n_walk_f", "n_run_f", [this]()->bool {
+				return true;
+		}, 2.0f);
+		AddAnimTransition("n_run_f", "shooting", [this]()->bool {
+				return true;
+		}, 2.0f);
+		AddAnimTransition("shooting", "n_walk_f", [this]()->bool {
+			return true;
+		}, 2.0f);
+
 
 		/*
 		AddAnimTransition("blendF", "blendB", [this]()->bool {
@@ -63,13 +73,6 @@ namespace Game
 				return true;
 		}, 2.0f);
 		*/
-		
-		AddAnimTransition("n_walk_f", "n_run_f", [this]()->bool {
-				return true;
-		}, 1.0f);
-		AddAnimTransition("n_run_f", "n_walk_f", [this]()->bool {
-				return true;
-		}, 1.0f);
 	}
 
 	CPlayer::~CPlayer()

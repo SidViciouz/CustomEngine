@@ -95,7 +95,6 @@ namespace Renderer
 	{
 		//update all particle system by multithread
 		shared_ptr<CParticleUpdateTask> lParticleUpdateTasks[MAX_PARTICLE_MEMORY_POOL];
-		shared_ptr<CParticleUpdateTask> lFirstTask;
 
 		shared_ptr<Multithreading::CTaskBatch> lTaskBatch = make_shared<Multithreading::CTaskBatch>();
 		for (int lPoolIndex = 0; lPoolIndex < MAX_PARTICLE_MEMORY_POOL; ++lPoolIndex)
@@ -104,22 +103,12 @@ namespace Renderer
 
 			lParticleUpdateTasks[lPoolIndex] = make_shared<CParticleUpdateTask>(mParticleSystems[lPoolIndex], pDeltaTime, pCameraPosition, mVertexBuffer);
 
-			
-			if (lFirstTask == nullptr)
-				lFirstTask = lParticleUpdateTasks[lPoolIndex];
-			
-			else
-				lTaskBatch->AddTask(lParticleUpdateTasks[lPoolIndex]);
-				
+			lTaskBatch->AddTask(lParticleUpdateTasks[lPoolIndex]);
 		}
 
 		Multithreading::CThreadPool::Singleton()->AddTaskBatch(lTaskBatch);
-
-		if(lFirstTask != nullptr)
-			lFirstTask->Execute();
 		
 		lTaskBatch->Wait();	
-		
 	}
 
 

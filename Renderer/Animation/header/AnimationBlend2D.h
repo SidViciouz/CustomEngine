@@ -19,7 +19,8 @@ namespace Renderer
 
 		void									SetAxis(float pXMin, float pXMax, float pYMin, float pYMax);
 
-		void									SetAnimation(shared_ptr<CAnimation> pBottomLeft, shared_ptr<CAnimation> pBottomRight, shared_ptr<CAnimation> pTopLeft, shared_ptr<CAnimation> pTopRight);
+		void									SetAnimation(shared_ptr<CAnimation> pBottomLeft, shared_ptr<CAnimation> pBottomRight,
+														shared_ptr<CAnimation> pTopLeft, shared_ptr<CAnimation> pTopRight);
 
 		virtual Math::CTransform				EvaluateGlobalTransform(const string& pBoneName, double pTime) override;
 		virtual Math::CTransform				EvaluateLocalTransform(const string& pBoneName, double pTime) override;

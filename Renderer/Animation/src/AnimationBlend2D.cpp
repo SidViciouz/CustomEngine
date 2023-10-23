@@ -105,8 +105,10 @@ namespace Renderer
 				double lBottomLeftTime = pTime / lTimeSpan * (mBottomLeft->GetEndTime() - mBottomLeft->GetBeginTime());
 				double lBottomRightTime = pTime / lTimeSpan * (mBottomRight->GetEndTime() - mBottomRight->GetBeginTime());
 
-				Math::CTransform lBottom = Math::CTransform::Blend(mBottomLeft->EvaluateGlobalTransform(pBoneName, lBottomLeftTime), mBottomRight->EvaluateGlobalTransform(pBoneName, lBottomRightTime), lAlphaX);
-				Math::CTransform lTop = Math::CTransform::Blend(mTopLeft->EvaluateGlobalTransform(pBoneName, lTopLeftTime), mTopRight->EvaluateGlobalTransform(pBoneName, lTopRightTime), lAlphaX);
+				Math::CTransform lBottom = Math::CTransform::Blend(mBottomLeft->EvaluateGlobalTransform(pBoneName, lBottomLeftTime),
+													mBottomRight->EvaluateGlobalTransform(pBoneName, lBottomRightTime), lAlphaX);
+				Math::CTransform lTop = Math::CTransform::Blend(mTopLeft->EvaluateGlobalTransform(pBoneName, lTopLeftTime),
+													mTopRight->EvaluateGlobalTransform(pBoneName, lTopRightTime), lAlphaX);
 
 				return Math::CTransform::Blend(lBottom, lTop, lAlphaY);
 			}

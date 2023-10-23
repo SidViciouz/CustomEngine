@@ -61,7 +61,8 @@ namespace Renderer
 
 		void									LoadAnimation(const string& pName, shared_ptr<IAnimationBase> pAnimation);
 
-		void									AddTransition(const string& pFrom,const string& pTo,const std::function<bool(void)>& pCondition,const double& pDuration);
+		void									AddTransition(const string& pFrom,const string& pTo,
+													const std::function<bool(void)>& pCondition,const double& pDuration);
 
 		void									PlayAnimation(const string& pName);
 
